@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame } from 'lucide-react';
+import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame, Download } from 'lucide-react';
 import { TabKey, ProgressSummary, ThemeMode } from '../types/adhkar.ts';
 
 interface HeaderProps {
@@ -18,6 +18,7 @@ interface HeaderProps {
   onOpenStreak: () => void;
   onOpenSettings: () => void;
   onResetActiveTab: () => void;
+  onOpenExportSingleFile: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,6 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenStreak,
   onOpenSettings,
   onResetActiveTab,
+  onOpenExportSingleFile,
 }) => {
   const isTasbih = activeTab === 'tasbih';
 
@@ -122,6 +124,15 @@ export const Header: React.FC<HeaderProps> = ({
                 <RotateCcw className="w-4 h-4" />
               </button>
             )}
+
+            <button
+              onClick={onOpenExportSingleFile}
+              aria-label="Download or copy standalone single-file HTML version for offline use"
+              title="Get Single-File Offline Version"
+              className="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+            </button>
 
             <button
               onClick={onOpenSettings}

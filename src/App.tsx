@@ -35,6 +35,7 @@ import { TasbihCounter } from './components/TasbihCounter.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
 import { CompletionBanner } from './components/CompletionBanner.tsx';
 import { StreakModal } from './components/StreakModal.tsx';
+import { ExportSingleFileModal } from './components/ExportSingleFileModal.tsx';
 import { Search, RotateCcw, CheckCheck, Star, Sun, Moon, Languages } from 'lucide-react';
 import {
   isReminderDue,
@@ -95,6 +96,7 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Daily Streak Data: { currentStreak, bestStreak, lastCompletedDate }
   const [streakData, setStreakData] = useState<StreakData>(() => {
@@ -435,6 +437,7 @@ export default function App() {
         onOpenStreak={() => setIsStreakModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onResetActiveTab={handleResetCurrentTab}
+        onOpenExportSingleFile={() => setIsExportModalOpen(true)}
       />
 
       {/* Navigation Tab Bar */}
@@ -703,6 +706,7 @@ export default function App() {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onUpdateSettings={setSettings}
+        onOpenExportSingleFile={() => setIsExportModalOpen(true)}
       />
 
       {/* Daily Streak Modal */}
@@ -713,6 +717,12 @@ export default function App() {
         bestStreak={streakData.bestStreak}
         completedToday={streakStatus.completedToday}
         categoryProgress={categoryProgressMap}
+      />
+
+      {/* Standalone Single File Exporter Modal */}
+      <ExportSingleFileModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
       />
     </div>
   );

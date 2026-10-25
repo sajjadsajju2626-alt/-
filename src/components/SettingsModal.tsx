@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages } from 'lucide-react';
+import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink } from 'lucide-react';
 import { AppSettings, FontSize, ThemeMode, TranslationLanguage } from '../types/adhkar.ts';
 import {
   getNotificationPermissionStatus,
@@ -13,6 +13,7 @@ interface SettingsModalProps {
   onClose: () => void;
   settings: AppSettings;
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
+  onOpenExportSingleFile: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -20,6 +21,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   settings,
   onUpdateSettings,
+  onOpenExportSingleFile,
 }) => {
   const [permStatus, setPermStatus] = useState<NotificationPermission | 'unsupported'>(() =>
     getNotificationPermissionStatus()
@@ -543,6 +545,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Standalone Single File Offline Download */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+              <Download className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <span>Offline Single-File Version</span>
+            </label>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Get the complete all-in-one standalone HTML version. It contains all 23 morning, 23 evening, prayer, and sleep adhkar, full Malayalam & English translations, interactive counter, streak tracking, and built-in audio synth. Works anywhere offline with zero installation or servers!
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenExportSingleFile();
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/40 text-teal-800 dark:text-teal-200 border border-teal-300 dark:border-teal-700 font-semibold text-xs transition-colors cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>Open Offline Single-File Exporter (.html)</span>
+              </button>
             </div>
           </div>
         </div>
