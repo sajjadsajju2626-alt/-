@@ -36,6 +36,9 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { CompletionBanner } from './components/CompletionBanner.tsx';
 import { StreakModal } from './components/StreakModal.tsx';
 import { ExportSingleFileModal } from './components/ExportSingleFileModal.tsx';
+import { PWAInstallModal } from './components/PWAInstallModal.tsx';
+import { PWAInstallBanner } from './components/PWAInstallBanner.tsx';
+import { usePWAInstall } from './utils/usePWAInstall.ts';
 import { Search, RotateCcw, CheckCheck, Star, Sun, Moon, Languages } from 'lucide-react';
 import {
   isReminderDue,
@@ -97,6 +100,10 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+
+  // In-app PWA install hook
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
 
   // Daily Streak Data: { currentStreak, bestStreak, lastCompletedDate }
   const [streakData, setStreakData] = useState<StreakData>(() => {
@@ -413,6 +420,12 @@ export default function App() {
           : 'bg-slate-100 text-slate-800'
       }`}
     >
+      {/* PWA In-App Install Prompt Banner */}
+      <PWAInstallBanner
+        isInstalled={isInstalled}
+        onOpenInstallModal={() => setIsInstallModalOpen(true)}
+      />
+
       {/* Top Header */}
       <Header
         activeTab={currentTab}
@@ -434,10 +447,12 @@ export default function App() {
         remindersEnabled={settings.remindersEnabled}
         currentStreak={streakStatus.effectiveStreak}
         completedToday={streakStatus.completedToday}
+        isInstalled={isInstalled}
         onOpenStreak={() => setIsStreakModalOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onResetActiveTab={handleResetCurrentTab}
         onOpenExportSingleFile={() => setIsExportModalOpen(true)}
+        onOpenInstallModal={() => setIsInstallModalOpen(true)}
       />
 
       {/* Navigation Tab Bar */}
@@ -707,6 +722,7 @@ export default function App() {
         settings={settings}
         onUpdateSettings={setSettings}
         onOpenExportSingleFile={() => setIsExportModalOpen(true)}
+        onOpenInstallModal={() => setIsInstallModalOpen(true)}
       />
 
       {/* Daily Streak Modal */}
@@ -723,6 +739,15 @@ export default function App() {
       <ExportSingleFileModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
+      />
+
+      {/* PWA In-App Add to Home Screen Modal */}
+      <PWAInstallModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+        isInstallable={isInstallable}
+        isIOS={isIOS}
+        onNativeInstall={install}
       />
     </div>
   );

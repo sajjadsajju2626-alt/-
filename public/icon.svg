@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#115e59" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <!-- Crescent Moon -->
+  <path d="M 280 140 A 120 120 0 1 0 380 340 A 100 100 0 1 1 280 140 Z" fill="url(#goldGrad)" opacity="0.95" />
+  <!-- Prayer Beads Circle -->
+  <g transform="translate(240, 260) scale(0.85)">
+    <circle cx="0" cy="-90" r="14" fill="#fef3c7" />
+    <circle cx="45" cy="-78" r="14" fill="#fef3c7" />
+    <circle cx="78" cy="-45" r="14" fill="#fef3c7" />
+    <circle cx="90" cy="0" r="14" fill="#fef3c7" />
+    <circle cx="78" cy="45" r="14" fill="#fef3c7" />
+    <circle cx="45" cy="78" r="14" fill="#fef3c7" />
+    <circle cx="0" cy="90" r="14" fill="#fef3c7" />
+    <circle cx="-45" cy="78" r="14" fill="#fef3c7" />
+    <circle cx="-78" cy="45" r="14" fill="#fef3c7" />
+    <circle cx="-90" cy="0" r="14" fill="#fef3c7" />
+    <circle cx="-78" cy="-45" r="14" fill="#fef3c7" />
+    <circle cx="-45" cy="-78" r="14" fill="#fef3c7" />
+    <!-- Tassel -->
+    <path d="M 0 90 L 0 140 M -12 140 L 12 140 M 0 140 L -8 175 M 0 140 L 0 178 M 0 140 L 8 175" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" />
+  </g>
+</svg>

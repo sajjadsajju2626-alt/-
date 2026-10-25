@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Daily Adhkar - Morning & Evening Remembrances",
+  "short_name": "Daily Adhkar",
+  "description": "Authentic daily morning and evening adhkar, after-prayer remembrances, and digital tasbih with Malayalam & English translations.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f766e",
+  "theme_color": "#115e59",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512 192x192 180x180",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

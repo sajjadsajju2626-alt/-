@@ -14,6 +14,7 @@ interface SettingsModalProps {
   settings: AppSettings;
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
   onOpenExportSingleFile: () => void;
+  onOpenInstallModal: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -22,6 +23,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   settings,
   onUpdateSettings,
   onOpenExportSingleFile,
+  onOpenInstallModal,
 }) => {
   const [permStatus, setPermStatus] = useState<NotificationPermission | 'unsupported'>(() =>
     getNotificationPermissionStatus()
@@ -545,6 +547,30 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Add to Home Screen Option */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+              <Smartphone className="w-4 h-4 text-amber-500" />
+              <span>Add to Home Screen (App Shortcut)</span>
+            </label>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Install Daily Adhkar directly on your iPhone, iPad, or Android home screen for quick daily remembrance without browser navigation bars.
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenInstallModal();
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 font-semibold text-xs transition-colors cursor-pointer"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Open Add to Home Screen Helper</span>
+              </button>
             </div>
           </div>
 

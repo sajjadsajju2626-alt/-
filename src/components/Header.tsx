@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame, Download } from 'lucide-react';
+import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame, Download, Smartphone } from 'lucide-react';
 import { TabKey, ProgressSummary, ThemeMode } from '../types/adhkar.ts';
 
 interface HeaderProps {
@@ -15,10 +15,12 @@ interface HeaderProps {
   remindersEnabled: boolean;
   currentStreak: number;
   completedToday: boolean;
+  isInstalled: boolean;
   onOpenStreak: () => void;
   onOpenSettings: () => void;
   onResetActiveTab: () => void;
   onOpenExportSingleFile: () => void;
+  onOpenInstallModal: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,10 +36,12 @@ export const Header: React.FC<HeaderProps> = ({
   remindersEnabled,
   currentStreak,
   completedToday,
+  isInstalled,
   onOpenStreak,
   onOpenSettings,
   onResetActiveTab,
   onOpenExportSingleFile,
+  onOpenInstallModal,
 }) => {
   const isTasbih = activeTab === 'tasbih';
 
@@ -133,6 +137,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Download className="w-4 h-4" />
             </button>
+
+            {!isInstalled && (
+              <button
+                onClick={onOpenInstallModal}
+                aria-label="Add Daily Adhkar to Home Screen"
+                title="Add to Home Screen"
+                className="p-2 rounded-lg text-amber-300 hover:text-white hover:bg-teal-700/60 transition-colors cursor-pointer"
+              >
+                <Smartphone className="w-4 h-4" />
+              </button>
+            )}
 
             <button
               onClick={onOpenSettings}

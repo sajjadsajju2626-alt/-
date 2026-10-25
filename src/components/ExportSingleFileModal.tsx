@@ -29,6 +29,7 @@ export const ExportSingleFileModal: React.FC<ExportSingleFileModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [guideDevice, setGuideDevice] = useState<'ios' | 'android'>('ios');
 
   if (!isOpen) return null;
 
@@ -173,23 +174,84 @@ export const ExportSingleFileModal: React.FC<ExportSingleFileModalProps> = ({
           </div>
         )}
 
-        {/* iOS & Safari Guidance Note */}
-        <div className="p-3 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 space-y-1.5 text-xs text-amber-950 dark:text-amber-200">
-          <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-300">
-            <Smartphone className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>Why Safari shows "Blocking a required security cookie":</span>
+        {/* Home Screen Shortcut Guide */}
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="font-bold flex items-center gap-1.5 text-slate-900 dark:text-white">
+              <Smartphone className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <span>How to make a Home Screen Shortcut:</span>
+            </div>
+            <div className="flex items-center p-0.5 rounded-lg bg-slate-200 dark:bg-slate-700">
+              <button
+                type="button"
+                onClick={() => setGuideDevice('ios')}
+                className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  guideDevice === 'ios'
+                    ? 'bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-300 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                iPhone / iPad
+              </button>
+              <button
+                type="button"
+                onClick={() => setGuideDevice('android')}
+                className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  guideDevice === 'android'
+                    ? 'bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-300 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Android
+              </button>
+            </div>
           </div>
-          <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-            Safari blocks third-party iframe cookies by default. When clicking external tabs, Cloud Run requires an auth cookie. 
-          </p>
-          <div className="text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
-            <p>
-              • <strong>Best Solution:</strong> Tap <strong>Download File</strong> above (it saves locally via client memory with no cookies) or <strong>Copy Full HTML Code</strong> to paste into your phone's Notes or file app.
-            </p>
-            <p>
-              • <strong>In Safari:</strong> Go to iPhone <em>Settings &gt; Safari &gt; Advanced / Privacy</em> and temporarily toggle off <em>"Prevent Cross-Site Tracking"</em>.
-            </p>
-          </div>
+
+          {guideDevice === 'ios' ? (
+            <div className="space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <div>
+                <span className="font-semibold text-teal-700 dark:text-teal-300">Method 1: From Downloaded File</span>
+                <ol className="list-decimal list-inside space-y-1 pl-1 mt-1">
+                  <li>Open the <strong>Files</strong> app on your iPhone and go to <strong>Downloads</strong>.</li>
+                  <li>Tap <code className="bg-slate-200 dark:bg-slate-700 px-1 py-0.5 rounded text-[11px]">daily-adhkar-single-file.html</code>.</li>
+                  <li>Tap the <strong>Share</strong> button (square with arrow pointing up at the bottom).</li>
+                  <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                  <li>Tap <strong>Add</strong> at top right. Now it sits on your home screen!</li>
+                </ol>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span className="font-semibold text-teal-700 dark:text-teal-300">Method 2: Directly in Safari (No file required)</span>
+                <ol className="list-decimal list-inside space-y-1 pl-1 mt-1">
+                  <li>Open the shared app link in <strong>Safari</strong> on your iPhone.</li>
+                  <li>Tap the <strong>Share</strong> button at bottom center.</li>
+                  <li>Scroll down and tap <strong>"Add to Home Screen"</strong> &gt; <strong>Add</strong>.</li>
+                </ol>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <div>
+                <span className="font-semibold text-teal-700 dark:text-teal-300">Method 1: From Downloaded File</span>
+                <ol className="list-decimal list-inside space-y-1 pl-1 mt-1">
+                  <li>Open <strong>Chrome</strong> or your phone's <strong>Downloads</strong> folder.</li>
+                  <li>Tap <code className="bg-slate-200 dark:bg-slate-700 px-1 py-0.5 rounded text-[11px]">daily-adhkar-single-file.html</code> to open it.</li>
+                  <li>Tap the <strong>3 dots menu (⋮)</strong> at top right.</li>
+                  <li>Tap <strong>"Add to Home screen"</strong> (or "Install app").</li>
+                  <li>Tap <strong>Add</strong>.</li>
+                </ol>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span className="font-semibold text-teal-700 dark:text-teal-300">Method 2: Directly in Chrome Browser</span>
+                <ol className="list-decimal list-inside space-y-1 pl-1 mt-1">
+                  <li>Open the shared app link in <strong>Chrome</strong> on Android.</li>
+                  <li>Tap the <strong>3 dots (⋮)</strong> at top right.</li>
+                  <li>Tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</li>
+                </ol>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
