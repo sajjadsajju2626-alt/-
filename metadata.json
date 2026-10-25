@@ -1,0 +1,8 @@
+{
+  "name": "مداومة",
+  "description": "Authentic daily morning and evening adhkar, after-prayer remembrances, and digital tasbih counter with Arabic text, transliteration, English \u0026 Malayalam translations, and progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@layer base {
+  body, button, input, select, textarea {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans Malayalam', 'Scheherazade New', system-ui, -apple-system, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+.font-arabic {
+  font-family: 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
+}
+
+.font-amiri {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+}
+
+.font-malayalam {
+  font-family: 'Noto Sans Malayalam', 'Manjari', 'Gayathri', system-ui, -apple-system, sans-serif;
+}
+
+/* Custom scrollbar for adhkar container */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 118, 110, 0.2);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 118, 110, 0.4);
+}
