@@ -145,3 +145,31 @@ test('Shaykh Ibn Uthaymeen 23 Adhkar items are complete with English, Malayalam,
   }
 });
 
+test('Surah Al-Falaq in morning (m-6) and evening (e-6) adhkar contains exact authentic Quranic text', async () => {
+  const { MORNING_ADHKAR, EVENING_ADHKAR } = await import('../data/adhkarData.ts');
+
+  const m6 = MORNING_ADHKAR.find((it) => it.id === 'm-6')!;
+  const e6 = EVENING_ADHKAR.find((it) => it.id === 'e-6')!;
+
+  assert.ok(m6, 'm-6 must exist');
+  assert.ok(e6, 'e-6 must exist');
+
+  const expectedFalaqVerses = [
+    'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',
+    'مِن شَرِّ مَا خَلَقَ',
+    'وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ',
+    'وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ',
+    'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+  ];
+
+  for (const verse of expectedFalaqVerses) {
+    assert.ok(m6.arabic.includes(verse), `m-6 must contain authentic verse: "${verse}"`);
+    assert.ok(e6.arabic.includes(verse), `e-6 must contain authentic verse: "${verse}"`);
+  }
+
+  // Ensure absolutely no Malayalam or non-Arabic characters in m-6 and e-6 Arabic fields
+  const malayalamRegex = /[\u0D00-\u0D7F]/;
+  assert.equal(malayalamRegex.test(m6.arabic), false, 'm-6 arabic must not contain any Malayalam characters');
+  assert.equal(malayalamRegex.test(e6.arabic), false, 'e-6 arabic must not contain any Malayalam characters');
+});
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink } from 'lucide-react';
+import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2 } from 'lucide-react';
 import { AppSettings, FontSize, ThemeMode, TranslationLanguage } from '../types/adhkar.ts';
 import {
   getNotificationPermissionStatus,
@@ -15,6 +15,7 @@ interface SettingsModalProps {
   onUpdateSettings: (updater: (prev: AppSettings) => AppSettings) => void;
   onOpenExportSingleFile: () => void;
   onOpenInstallModal: () => void;
+  onOpenShareModal: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -24,6 +25,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateSettings,
   onOpenExportSingleFile,
   onOpenInstallModal,
+  onOpenShareModal,
 }) => {
   const [permStatus, setPermStatus] = useState<NotificationPermission | 'unsupported'>(() =>
     getNotificationPermissionStatus()
@@ -95,12 +97,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   }
                   className={`py-2 px-3 rounded-xl border text-center transition-all ${
                     settings.arabicFontSize === opt.id
-                      ? 'border-teal-600 bg-teal-50 dark:bg-teal-950/40 text-teal-900 dark:text-teal-200 font-semibold ring-2 ring-teal-600/20'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      ? 'border-teal-700 bg-teal-50 dark:bg-teal-950/40 text-teal-950 dark:text-teal-200 font-bold ring-2 ring-teal-700/30'
+                      : 'border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'
                   }`}
                 >
-                  <div className="text-xs mb-1">{opt.label}</div>
-                  <div className="font-arabic text-base">{opt.sample}</div>
+                  <div className="text-xs mb-1 font-semibold">{opt.label}</div>
+                  <div className="font-arabic text-base font-bold text-slate-950 dark:text-white">{opt.sample}</div>
                 </button>
               ))}
             </div>
@@ -198,14 +200,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             }
                             className={`py-2 px-2 rounded-xl text-center border transition-all cursor-pointer ${
                               isSelected
-                                ? 'bg-teal-700 text-white border-teal-700 shadow-sm font-semibold'
-                                : 'bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ? 'bg-teal-800 text-white border-teal-800 shadow-sm font-bold'
+                                : 'bg-slate-100 dark:bg-slate-800/60 text-slate-900 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 font-semibold'
                             }`}
                           >
-                            <div className={`text-xs font-medium ${langOpt.id !== 'en' ? 'font-malayalam' : ''}`}>
+                            <div className={`text-xs font-bold ${langOpt.id !== 'en' ? 'font-malayalam' : ''}`}>
                               {langOpt.label}
                             </div>
-                            <div className="text-[10px] opacity-75 mt-0.5">{langOpt.sub}</div>
+                            <div className="text-[10px] text-slate-700 dark:text-slate-400 mt-0.5 font-medium">{langOpt.sub}</div>
                           </button>
                         );
                       })}
@@ -570,6 +572,33 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               >
                 <Smartphone className="w-4 h-4" />
                 <span>Open Add to Home Screen Helper</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Share App with Family & Friends */}
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
+              <Share2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Share App</span>
+              <span className="font-arabic font-normal text-xs text-slate-500 dark:text-slate-400">
+                (مشاركة التطبيق)
+              </span>
+            </label>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Earn ongoing good deeds (Sadaqah Jariyah) by sharing Daily Adhkar with loved ones, friends, and community groups via WhatsApp, Telegram, QR code, or direct link.
+            </p>
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenShareModal();
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 font-semibold text-xs transition-colors cursor-pointer"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Open Sharing Options (WhatsApp, Link, QR)</span>
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Flame, Trophy, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { X, Flame, Trophy, CheckCircle2, Clock, Sparkles, ShieldCheck } from 'lucide-react';
 import { AdhkarCategory, ProgressSummary } from '../types/adhkar.ts';
 
 interface StreakModalProps {
@@ -9,6 +9,9 @@ interface StreakModalProps {
   bestStreak: number;
   completedToday: boolean;
   categoryProgress: Record<AdhkarCategory, ProgressSummary>;
+  freezeTokens?: number;
+  canUseFreeze?: boolean;
+  onUseFreeze?: () => void;
 }
 
 export const StreakModal: React.FC<StreakModalProps> = ({
@@ -18,6 +21,9 @@ export const StreakModal: React.FC<StreakModalProps> = ({
   bestStreak,
   completedToday,
   categoryProgress,
+  freezeTokens = 1,
+  canUseFreeze = false,
+  onUseFreeze,
 }) => {
   if (!isOpen) return null;
 
@@ -101,6 +107,30 @@ export const StreakModal: React.FC<StreakModalProps> = ({
               {bestStreak} {bestStreak === 1 ? 'day' : 'days'}
             </div>
           </div>
+        </div>
+
+        {/* Streak Freeze Grace Period Card */}
+        <div className="mb-4 p-3 rounded-2xl bg-gradient-to-r from-blue-50/80 to-teal-50/80 dark:from-slate-800/80 dark:to-teal-950/40 border border-blue-200/60 dark:border-blue-900/40">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
+              <ShieldCheck className="w-4 h-4 text-blue-500" />
+              <span>Streak Freeze Grace</span>
+            </div>
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-300">
+              {freezeTokens > 0 ? '🛡️ 1 Token Active' : '0 Available'}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">
+            1 free weekly freeze token protects your streak if a busy day is missed. Automatically replenishes every 7 days.
+          </p>
+          {canUseFreeze && onUseFreeze && (
+            <button
+              onClick={onUseFreeze}
+              className="mt-2 w-full py-1.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+            >
+              Use Freeze Token to Protect Yesterday
+            </button>
+          )}
         </div>
 
         {/* Today's Categories Completion Checklist */}

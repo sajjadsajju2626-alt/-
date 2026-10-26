@@ -9,14 +9,23 @@
 
 .font-arabic {
   font-family: 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-amiri {
   font-family: 'Amiri', 'Scheherazade New', serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .font-malayalam {
   font-family: 'Noto Sans Malayalam', 'Manjari', 'Gayathri', system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar for adhkar container */

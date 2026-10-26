@@ -27,6 +27,16 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സൂറത്തുൽ ബഖറയുടെ ആദ്യ അഞ്ച് ആയത്തുകൾ പാരായണം ചെയ്യുന്നത് ദിവ്യമായ സന്മാർഗ്ഗദർശനവും, അദൃശ്യകാര്യങ്ങളിൽ ദൃഢവിശ്വാസവും, ആ ദിവസത്തെ സംരക്ഷണവും നേടിത്തരുന്നു.',
     repeatNote: '1 time (Surah Al-Baqarah 1-5)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/8.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/9.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/10.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/11.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/12.mp3',
+    ],
   },
   {
     id: 'm-2',
@@ -47,6 +57,10 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ വൈകുന്നേരം വരെ ജിന്നുകളിൽ നിന്നും എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നും അല്ലാഹുവിന്റെ കാവലിലായിരിക്കും (ഹാകിം, ത്വബ്റാനി).',
     repeatNote: '1 time (Ayat al-Kursi)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrl: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3',
   },
   {
     id: 'm-3',
@@ -68,6 +82,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ പാരായണം ചെയ്താൽ, എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകുന്നതാണ്" (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '1 time (Last two verses of Al-Baqarah)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/292.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/293.mp3',
+    ],
   },
   {
     id: 'm-4',
@@ -88,6 +109,14 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ കൂടി ഓതുന്നവൻ വൈകുന്നേരം വരെ സകല തിന്മകളിൽ നിന്നും സംരക്ഷിക്കപ്പെടുമെന്ന് നബി (ﷺ) അരുളിയിരിക്കുന്നു (തിർമിദി).',
     repeatNote: '1 time (Surah Ghafir 1-3)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4134.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4135.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4136.mp3',
+    ],
   },
   {
     id: 'm-5',
@@ -108,6 +137,14 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സൂറത്തുൽ ഹശ്റിലെ അവസാനത്തെ ഈ ആയത്തുകൾ പ്രഭാതത്തിൽ പാരായണം ചെയ്യുന്നയാൾക്കായി വൈകുന്നേരം വരെ എഴുപതിനായിരം മലക്കുകൾ കാരുണ്യത്തിനും പാപമോചനത്തിനുമായി പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Al-Hashr 22-24)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5148.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5149.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5150.mp3',
+    ],
   },
   {
     id: 'm-6',
@@ -128,6 +165,26 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "സൂറത്തുൽ ഇഖ്ലാസും മുഅവ്വിദതൈനിയും (ഫലഖ്, നാസ്) രാവിലെയും വൈകുന്നേരവും 3 തവണ വീതം ഓതുക; എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അത് നിനക്ക് മതിയാകും" (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times each (Al-Ikhlas, Al-Falaq, An-Nas)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6221.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6222.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6223.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6224.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6225.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6226.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6227.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6228.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6229.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6230.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6231.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6232.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6233.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6234.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6235.mp3',
+    ],
   },
   {
     id: 'm-7',
@@ -519,6 +576,16 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാത്രിയിലെ സന്മാർഗ്ഗദർശനത്തിനും വഴികേടുകളിൽ നിന്നുള്ള സംരക്ഷണത്തിനും ഉറച്ച വിശ്വാസത്തിനുമായി പാരായണം ചെയ്യുന്നു.',
     repeatNote: '1 time (Surah Al-Baqarah 1-5)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/8.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/9.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/10.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/11.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/12.mp3',
+    ],
   },
   {
     id: 'e-2',
@@ -539,6 +606,10 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സായാഹ്നത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ പ്രഭാതം വരെ ജിന്നുകളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും സകല തിന്മകളിൽ നിന്നും കാത്തുരക്ഷിക്കപ്പെടും (ഹാകിം, ത്വബ്റാനി).',
     repeatNote: '1 time (Ayat al-Kursi)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrl: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3',
   },
   {
     id: 'e-3',
@@ -560,6 +631,13 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും രാത്രിയിൽ സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ ഓതിയാൽ, എല്ലാ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകും" (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '1 time (Last two verses of Al-Baqarah)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/292.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/293.mp3',
+    ],
   },
   {
     id: 'e-4',
@@ -580,6 +658,14 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'വൈകുന്നേരം ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ ഓതുന്നവനെ പ്രഭാതം വരെ അല്ലാഹു സംരക്ഷിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Ghafir 1-3)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4134.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4135.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/4136.mp3',
+    ],
   },
   {
     id: 'e-5',
@@ -600,25 +686,53 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സൂറത്തുൽ ഹശ്റിലെ അവസാന ആയത്തുകൾ സായാഹ്നത്തിൽ ഓതുന്നയാൾക്കായി പ്രഭാതം വരെ എഴുപതിനായിരം മലക്കുകൾ പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Al-Hashr 22-24)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5148.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5149.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/5150.mp3',
+    ],
   },
   {
     id: 'e-6',
     category: 'evening',
     uthaymeenNumber: 6,
     arabic:
-      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَമിൻ ഷർരി ഹാസിദിൻ ഇദാ ഹസദ് (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)',
+      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)',
     transliteration:
-      "Qul Huwallahu Ahad... / Qul a'oodhu bi-Rabbil-falaq... / Qul a'oodhu bi-Rabbin-nas...",
+      "Qul Huwallahu Ahad. Allahus-Samad. Lam yalid wa lam yoolad. Wa lam yakun lahu kufuwan ahad. / Qul a'oodhu bi-Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-'uqad. Wa min sharri hasidin idha hasad. / Qul a'oodhu bi-Rabbin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fee sudoorin-nas. Minal-jinnati wan-nas.",
     translation:
-      'Surah Al-Ikhlas, Surah Al-Falaq, and Surah An-Nas recited 3 times each for total spiritual and physical sanctuary.',
+      'Say, "He is Allah, [who is] One, Allah, the Eternal Refuge. He neither begets nor is born, nor is there to Him any equivalent." / Say, "I seek refuge in the Lord of daybreak from the evil of that which He created and from the evil of darkness when it settles and from the evil of the blowers in knots and from the evil of an envier when he envies." / Say, "I seek refuge in the Lord of mankind, the Sovereign of mankind, the God of mankind, from the evil of the retreating whisperer who whispers into the breasts of mankind - from among the jinn and mankind."',
     malayalamTranslation:
-      'സൂറത്തുൽ ഇഖ്ലാസ്, സൂറത്തുൽ ഫലഖ്, സൂറത്തുന്നാസ് - 3 തവണ വീതം സായാഹ്നത്തിൽ ഓതുക. സർവ്വ തിന്മകളിൽ നിന്നും ഇത് മതിയായ കാവലാണ്.',
+      'പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ച ജീവികളുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയപ്പെടുന്നവൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, മനുഷ്യരിലും ജിന്നുകളിലും പെട്ടവനായ പിശാചിൽ നിന്നും.',
     target: 3,
     source: 'Abu Dawud 5082 & Tirmidhi 3575 • Shaykh Ibn Uthaymeen #6',
     virtue: 'Reciting them 3 times in the evening provides complete protection against all harm.',
     malayalamVirtue:
       'വൈകുന്നേരം ഈ മൂന്ന് സൂറത്തുകൾ 3 തവണ വീതം ഓതുന്നത് രാത്രിയിലെ സകല ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ കാവലാകുന്നു (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times each (Al-Ikhlas, Al-Falaq, An-Nas)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrls: [
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6221.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6222.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6223.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6224.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6225.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6226.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6227.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6228.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6229.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6230.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6231.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6232.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6233.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6234.mp3',
+      'https://cdn.islamic.network/quran/audio/128/ar.alafasy/6235.mp3',
+    ],
   },
   {
     id: 'e-7',
@@ -1069,6 +1183,10 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും ഓരോ ഫർദ് നമസ്കാര ശേഷവും ആയത്തുൽ കുർസിയ്യ് ഓതിയാൽ അവനും സ്വർഗ്ഗപ്രവേശനത്തിനും ഇടയിൽ മരണം മാത്രമേ തടസ്സമായിട്ടുള്ളൂ" (നസാഈ, ഇബ്നു ഹിബ്ബാൻ).',
     repeatNote: '1 time (Ayat al-Kursi)',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    audioUrl: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3',
   },
 ];
 
@@ -1181,6 +1299,15 @@ export const CATEGORIES_CONFIG = [
     icon: 'CircleDot',
     color: 'teal',
     timeHint: 'Custom target or free remembrance',
+  },
+  {
+    key: 'tasks' as const,
+    label: 'Daily Tasks',
+    arabicLabel: 'مهام اليوم',
+    malayalamLabel: 'പ്രതിദിന കർമ്മങ്ങൾ',
+    icon: 'CheckSquare',
+    color: 'emerald',
+    timeHint: 'Daily Sunnah, prayers & virtuous deeds checklist',
   },
 ];
 

@@ -1,6 +1,6 @@
 export type AdhkarCategory = 'morning' | 'evening' | 'prayer' | 'sleep';
 
-export type TabKey = AdhkarCategory | 'tasbih' | 'favorites';
+export type TabKey = AdhkarCategory | 'tasbih' | 'favorites' | 'tasks';
 
 export type TranslationLanguage = 'en' | 'ml' | 'both';
 
@@ -17,6 +17,11 @@ export interface DhikrItem {
   malayalamVirtue?: string;
   repeatNote?: string;
   uthaymeenNumber?: number;
+  audioUrl?: string;
+  audioUrls?: string[];
+  isQuranic?: boolean;
+  reciter?: string;
+  audioClipType?: 'tajweed' | 'classical_male';
 }
 
 export type ThemeMode = 'emerald' | 'dark' | 'midnight';

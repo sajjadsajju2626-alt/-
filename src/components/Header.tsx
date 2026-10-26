@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame, Download, Smartphone } from 'lucide-react';
+import { Settings, RotateCcw, Volume2, VolumeX, Moon, Sun, CheckCircle2, Bell, Flame, Download, Smartphone, Share2 } from 'lucide-react';
 import { TabKey, ProgressSummary, ThemeMode } from '../types/adhkar.ts';
 
 interface HeaderProps {
@@ -21,6 +21,7 @@ interface HeaderProps {
   onResetActiveTab: () => void;
   onOpenExportSingleFile: () => void;
   onOpenInstallModal: () => void;
+  onOpenShare: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   onResetActiveTab,
   onOpenExportSingleFile,
   onOpenInstallModal,
+  onOpenShare,
 }) => {
   const isTasbih = activeTab === 'tasbih';
 
@@ -148,6 +150,15 @@ export const Header: React.FC<HeaderProps> = ({
                 <Smartphone className="w-4 h-4" />
               </button>
             )}
+
+            <button
+              onClick={onOpenShare}
+              aria-label="Share Daily Adhkar with family and friends"
+              title="Share App (مشاركة التطبيق)"
+              className="p-2 rounded-lg text-emerald-300 hover:text-white hover:bg-teal-700/60 transition-colors cursor-pointer"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
 
             <button
               onClick={onOpenSettings}

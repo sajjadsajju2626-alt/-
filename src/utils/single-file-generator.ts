@@ -887,6 +887,15 @@ export function generateSingleFileHtml(): string {
                 </div>
               </div>
 
+              <!-- Audio Pronunciation Bar -->
+              <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-teal-50/70 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/80 my-2">
+                <button type="button" class="pronounce-btn px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95" data-id="\${item.id}">
+                  <span>🔊 Listen</span>
+                  <span class="font-arabic text-[11px] opacity-80">استمع</span>
+                </button>
+                <span class="text-[11px] text-teal-800 dark:text-teal-300 font-medium">Arabic Pronunciation</span>
+              </div>
+
               <div class="text-right py-1">
                 <p class="font-arabic font-bold text-slate-900 dark:text-white \${fontClass} tracking-wide select-text" dir="rtl">
                   \${item.arabic}
@@ -1040,6 +1049,31 @@ export function generateSingleFileHtml(): string {
             navigator.clipboard.writeText(textToCopy);
             copyBtn.innerHTML = '<span class="text-xs text-emerald-600 font-bold">Copied!</span>';
             setTimeout(() => { renderCards(); }, 1500);
+          }
+          return;
+        }
+
+        const pronounceBtn = e.target.closest('.pronounce-btn');
+        if (pronounceBtn) {
+          e.stopPropagation();
+          const id = pronounceBtn.dataset.id;
+          const all = [
+            ...window.ADHKAR_DATA.morning,
+            ...window.ADHKAR_DATA.evening,
+            ...window.ADHKAR_DATA.prayer,
+            ...window.ADHKAR_DATA.sleep
+          ];
+          const item = all.find(i => i.id === id);
+          if (item && 'speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const cleanText = item.arabic.replace(/\s*\([٠-٩\d]+\)\s*/g, ' ').replace(/\n+/g, ' ');
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'ar-SA';
+            utterance.rate = 0.95;
+            pronounceBtn.innerHTML = '<span>⏹️ Playing...</span>';
+            utterance.onend = () => { renderCards(); };
+            utterance.onerror = () => { renderCards(); };
+            window.speechSynthesis.speak(utterance);
           }
           return;
         }

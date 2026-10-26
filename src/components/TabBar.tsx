@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon, Sparkles, BedDouble, CircleDot, Star } from 'lucide-react';
+import { Sun, Moon, Sparkles, BedDouble, CircleDot, Star, CheckSquare } from 'lucide-react';
 import { TabKey, AdhkarCategory } from '../types/adhkar.ts';
 
 interface TabBarProps {
@@ -7,6 +7,7 @@ interface TabBarProps {
   onTabChange: (tab: TabKey) => void;
   categoryProgress: Record<AdhkarCategory, { completed: number; total: number }>;
   favoritesCount: number;
+  tasksProgress?: { completed: number; total: number };
 }
 
 export const TabBar: React.FC<TabBarProps> = ({
@@ -14,6 +15,7 @@ export const TabBar: React.FC<TabBarProps> = ({
   onTabChange,
   categoryProgress,
   favoritesCount,
+  tasksProgress,
 }) => {
   const tabs = [
     {
@@ -43,6 +45,13 @@ export const TabBar: React.FC<TabBarProps> = ({
       label: 'Sleep',
       icon: BedDouble,
       arabic: 'النوم',
+    },
+    {
+      id: 'tab-tasks',
+      key: 'tasks' as TabKey,
+      label: 'Tasks',
+      icon: CheckSquare,
+      arabic: 'المهام',
     },
     {
       id: 'tab-favorites',
@@ -108,6 +117,16 @@ export const TabBar: React.FC<TabBarProps> = ({
                   >
                     <Star className="w-2 h-2 fill-amber-300 text-amber-300" />
                     <span>{favoritesCount}</span>
+                  </span>
+                ) : tab.key === 'tasks' && tasksProgress ? (
+                  <span
+                    className={`px-1 py-0.5 rounded text-[9px] font-mono ${
+                      tasksProgress.total > 0 && tasksProgress.completed === tasksProgress.total
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold'
+                        : 'bg-black/20 text-teal-200'
+                    }`}
+                  >
+                    {tasksProgress.completed}/{tasksProgress.total}
                   </span>
                 ) : progress ? (
                   <span
