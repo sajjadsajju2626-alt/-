@@ -265,16 +265,16 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
         className={`rounded-2xl p-3.5 mb-3.5 text-center border shadow-xs ${
           isDark
             ? 'bg-gradient-to-r from-slate-900 via-teal-950/50 to-slate-900 border-teal-800/40 text-slate-100'
-            : 'bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border-teal-300 text-teal-950 shadow-xs'
+            : 'bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border-teal-400 text-black shadow-xs'
         }`}
       >
         <div className="flex items-center justify-center gap-2">
           <span className="text-xl">📿</span>
-          <h2 className="text-base sm:text-lg font-black font-arabic tracking-wide text-teal-950 dark:text-teal-200">
+          <h2 className={`text-base sm:text-lg font-black font-arabic tracking-wide ${isDark ? 'text-teal-200' : 'text-black'}`}>
             السَّبْحَةُ الإِلِكْتُرُونِيَّة
           </h2>
         </div>
-        <p className="font-arabic text-xs sm:text-sm text-teal-950 dark:text-teal-300 mt-0.5 leading-relaxed font-bold">
+        <p className={`font-arabic text-xs sm:text-sm mt-0.5 leading-relaxed font-black ${isDark ? 'text-teal-300' : 'text-black'}`}>
           «فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ»
         </p>
       </div>
@@ -287,15 +287,15 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
             <button
               key={preset.id}
               onClick={() => handleSelectPreset(preset.id)}
-              className={`px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap transition-all font-medium flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+              className={`px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
                 isSelected
-                  ? 'bg-teal-800 text-white shadow-md shadow-teal-950/30 ring-2 ring-teal-500 font-bold'
+                  ? 'bg-teal-900 text-white shadow-md shadow-teal-950/30 ring-2 ring-teal-500 font-black'
                   : isDark
-                  ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
-                  : 'bg-white text-teal-950 hover:bg-teal-50 border border-teal-300 shadow-xs font-bold'
+                  ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 font-medium'
+                  : 'bg-white text-black hover:bg-teal-50 border-2 border-teal-400 shadow-xs font-black'
               }`}
             >
-              <span className="font-arabic text-sm font-bold">{preset.arabic}</span>
+              <span className="font-arabic text-sm font-black">{preset.arabic}</span>
             </button>
           );
         })}
@@ -310,16 +310,16 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
               // ignore
             }
           }}
-          className={`px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap transition-all font-medium flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
+          className={`px-3.5 py-2 rounded-2xl text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0 ${
             isCustom
-              ? 'bg-teal-800 text-white shadow-md ring-2 ring-teal-500 font-bold'
+              ? 'bg-teal-900 text-white shadow-md ring-2 ring-teal-500 font-black'
               : isDark
-              ? 'bg-slate-800 text-slate-300 border border-slate-700'
-              : 'bg-white text-teal-950 border border-teal-300 shadow-xs font-bold'
+              ? 'bg-slate-800 text-slate-300 border border-slate-700 font-medium'
+              : 'bg-white text-black border-2 border-teal-400 shadow-xs font-black'
           }`}
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span className="font-arabic text-sm font-bold">ذِكْرٌ مُخَصَّصٌ</span>
+          <span className="font-arabic text-sm font-black">ذِكْرٌ مُخَصَّصٌ</span>
         </button>
       </div>
 
@@ -328,14 +328,14 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
         className={`rounded-2xl p-4 sm:p-5 mb-4 text-center border shadow-sm ${
           isDark
             ? 'bg-slate-900 border-slate-800'
-            : 'bg-white border-slate-300 shadow-slate-100'
+            : 'bg-white border-slate-400 shadow-slate-200'
         }`}
       >
         {isCustom ? (
           <div>
             <label
               htmlFor="custom-dhikr-input"
-              className="block text-sm font-black font-arabic text-teal-950 dark:text-teal-300 mb-1.5 text-center"
+              className={`block text-sm font-black font-arabic mb-1.5 text-center ${isDark ? 'text-teal-300' : 'text-black'}`}
             >
               اُكْتُبِ الذِّكْرَ أَوِ الدُّعَاءَ الْمُخَصَّصَ هُنَا:
             </label>
@@ -346,10 +346,10 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
               placeholder="مِثَال: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ"
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
-              className={`w-full px-3 py-2.5 rounded-xl text-center text-sm sm:text-base font-arabic font-bold border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+              className={`w-full px-3 py-2.5 rounded-xl text-center text-sm sm:text-base font-arabic font-black border focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                 isDark
                   ? 'bg-slate-800 border-slate-700 text-white placeholder-slate-500'
-                  : 'bg-slate-50 border-slate-300 text-slate-950 placeholder-slate-500 shadow-xs'
+                  : 'bg-slate-50 border-slate-400 text-black placeholder-slate-700 shadow-xs'
               }`}
             />
           </div>
@@ -364,15 +364,15 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
               >
                 {activePreset.arabic}
               </div>
-              <div className="text-sm font-bold text-slate-950 dark:text-slate-100 mt-0.5">
+              <div className={`text-sm font-extrabold mt-0.5 ${isDark ? 'text-slate-100' : 'text-black'}`}>
                 {activePreset.transliteration}
               </div>
               {activePreset.malayalamTranslation && (
-                <div className="font-malayalam text-xs sm:text-sm text-emerald-950 dark:text-emerald-300 mt-1 font-bold leading-relaxed">
+                <div className={`font-malayalam text-xs sm:text-sm mt-1 font-extrabold leading-relaxed ${isDark ? 'text-emerald-300' : 'text-black'}`}>
                   {activePreset.malayalamTranslation}
                 </div>
               )}
-              <div className="text-xs sm:text-sm text-slate-900 dark:text-slate-300 mt-0.5 font-medium">
+              <div className={`text-xs sm:text-sm mt-0.5 ${isDark ? 'text-slate-300 font-medium' : 'text-black font-bold'}`}>
                 {activePreset.translation}
               </div>
             </div>
@@ -384,7 +384,7 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
       <div className="flex flex-wrap items-center justify-between text-xs px-2 mb-3 gap-2">
         {/* Target Buttons */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-arabic font-black text-slate-950 dark:text-slate-200 text-xs">
+          <span className={`font-arabic font-black text-xs ${isDark ? 'text-slate-200' : 'text-black'}`}>
             الْهَدَفُ:
           </span>
           {[33, 99, 100, 0].map((t) => (
@@ -402,22 +402,26 @@ export const TasbihCounter: React.FC<TasbihCounterProps> = ({
               }}
               className={`px-3 py-1 rounded-lg font-black transition-all cursor-pointer font-mono text-xs ${
                 target === t
-                  ? 'bg-amber-500 text-slate-950 shadow-xs ring-2 ring-amber-400'
+                  ? 'bg-amber-500 text-black shadow-xs ring-2 ring-amber-400'
                   : isDark
                   ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  : 'bg-slate-200 text-slate-950 hover:bg-slate-300 border border-slate-300'
+                  : 'bg-white text-black hover:bg-slate-200 border border-slate-400'
               }`}
             >
-              {t === 0 ? <span className="font-arabic font-bold">حُرّ (∞)</span> : t}
+              {t === 0 ? <span className="font-arabic font-black">حُرّ (∞)</span> : t}
             </button>
           ))}
         </div>
 
         {/* Laps / Cycles Counter */}
-        <div className="flex items-center gap-1.5 text-amber-950 dark:text-slate-300 font-black bg-amber-100 border border-amber-300 dark:bg-amber-950/40 dark:border-amber-700/60 px-2.5 py-1 rounded-xl shadow-xs">
-          <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+        <div className={`flex items-center gap-1.5 font-black px-2.5 py-1 rounded-xl shadow-xs border ${
+          isDark
+            ? 'text-slate-300 bg-amber-950/40 border-amber-700/60'
+            : 'text-black bg-amber-100 border-amber-500'
+        }`}>
+          <Award className={`w-3.5 h-3.5 ${isDark ? 'text-amber-400' : 'text-amber-800 stroke-[2.5]'}`} />
           <span className="font-arabic text-xs font-black">الدَّوْرَاتُ:</span>
-          <span className="font-mono font-black text-amber-950 dark:text-amber-400 text-sm">
+          <span className={`font-mono font-black text-sm ${isDark ? 'text-amber-400' : 'text-black'}`}>
             {laps}
           </span>
         </div>

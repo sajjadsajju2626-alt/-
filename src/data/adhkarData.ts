@@ -202,6 +202,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നവനെ വിഷജന്തുക്കളുടെ കുത്തോ കടയോ മറ്റു ദോഷങ്ങളോ ബാധിക്കുകയില്ല (മുസ്ലിം).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'വിഷജന്തുക്കളിൽ നിന്നും ഉപദ്രവങ്ങളിൽ നിന്നുമുള്ള കാവൽ',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/97.mp3',
   },
   {
     id: 'm-8',
@@ -222,6 +225,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'പ്രഭാതത്തിൽ ഇത് 3 തവണ ചൊല്ലുന്നവന് വൈകുന്നേരം വരെയും, വൈകുന്നേരം ചൊല്ലുന്നവന് പ്രഭാതം വരെയും പെട്ടെന്നുണ്ടാകുന്ന യാതൊരു വിപത്തും ഭവിഷ്യത്തും ഏൽക്കുകയില്ല (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'ആകസ്മിക വിപത്തുകളിൽ നിന്നുള്ള സംരക്ഷണം',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/86.mp3',
   },
   {
     id: 'm-9',
@@ -242,6 +248,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നയാളെ അന്ത്യദിനത്തിൽ തൃപ്തിപ്പെടുത്തൽ അല്ലാഹുവിന്റെ ബാധ്യതയായിരിക്കുന്നുവെന്ന് നബി (ﷺ) അരുളി (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിന്റെ പ്രീതി ലഭിക്കാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/87.mp3',
   },
   {
     id: 'm-10',
@@ -262,6 +271,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'അല്ലാഹുവിന്റെ സർവ്വാധിപത്യം ഏറ്റുപറയുകയും, പുതിയ ദിനത്തിന്റെ എല്ലാ നന്മകളും ചോദിക്കുകയും, മടി, വാർദ്ധക്യത്തിന്റെ ദുരിതങ്ങൾ, നരകശിക്ഷ, ഖബർശിക്ഷ എന്നിവയിൽ നിന്ന് സമ്പൂർണ്ണ കാവൽ നേടുകയും ചെയ്യുന്നു (മുസ്ലിം).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'പ്രഭാതത്തിൽ നന്മ തേടിയുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/77.mp3',
   },
   {
     id: 'm-11',
@@ -282,6 +294,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'പ്രഭാതവേളയിൽ ജീവനും മരണവും പുനരുത്ഥാനവും പൂർണ്ണമായും അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന സുന്ദരമായ പ്രാർത്ഥന (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'പ്രഭാതത്തിൽ അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/78.mp3',
   },
   {
     id: 'm-12',
@@ -302,6 +317,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും പ്രഭാതത്തിൽ ഇത് ചൊല്ലിയാൽ ആ ദിവസത്തെ ശുക്റ് (നന്ദി) അവൻ നിറവേറ്റി; ആരെങ്കിലും വൈകുന്നേരം ഇത് ചൊല്ലിയാൽ ആ രാത്രിയിലെ ശുക്റ് അവൻ നിറവേറ്റി" (അബൂദാവൂദ്, നസാഈ).',
     repeatNote: '1 time (Fulfilling Daily Gratitude)',
+    type: 'adhkar',
+    title: 'പ്രതിദിന ശുക്റ് (നന്ദി) നിർവ്വഹിക്കുന്ന പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/81.mp3',
   },
   {
     id: 'm-13',
@@ -322,6 +340,8 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നയാൾക്ക് ഇഹത്തിലും പരത്തിലും അല്ലാഹു തന്റെ അനുഗ്രഹവും ആരോഗ്യവും പാപങ്ങൾ മറച്ചുവെക്കലും പൂർത്തിയാക്കി നൽകുന്നതാണ് (ഇബ്നുസ്സുന്നി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'അനുഗ്രഹവും സൗഖ്യവും പൂർത്തിയാക്കാനുള്ള പ്രാർത്ഥന',
   },
   {
     id: 'm-14',
@@ -342,6 +362,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അബൂ ഉമാമ (റ) ക്ക് പഠിപ്പിച്ചുകൊടുത്ത പ്രാർത്ഥനയാണിത്; രാവിലെയും വൈകുന്നേരവും ഇത് ചൊല്ലിയാൽ മനോവിഷമങ്ങളും സങ്കടങ്ങളും നീങ്ങുകയും കടങ്ങൾ വീടുകയും ചെയ്യുന്നതാണ് (ബുഖാരി, അബൂദാവൂദ്).',
     repeatNote: '1 time (Relief from Anxiety & Debt)',
+    type: 'adhkar',
+    title: 'മനോവിഷമവും കടബാധ്യതയും നീങ്ങാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/121.mp3',
   },
   {
     id: 'm-15',
@@ -362,6 +385,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) പ്രഭാതത്തിലും സന്ധ്യയിലും ഒരിക്കലും ഒഴിവാക്കാതിരുന്ന പ്രാർത്ഥനയാണിത്. ആറ് ദിശകളിൽ നിന്നും അല്ലാഹുവിന്റെ ശക്തമായ സംരക്ഷണക്കോട്ട ഇത് ചൊല്ലുന്നയാൾക്ക് ലഭിക്കുന്നു (അബൂദാവൂദ്).',
     repeatNote: '1 time (All-Direction Protection)',
+    type: 'adhkar',
+    title: 'ഇഹപര സൗഖ്യത്തിനും സർവ്വദിശാ സംരക്ഷണത്തിനുമുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/84.mp3',
   },
   {
     id: 'm-16',
@@ -382,6 +408,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ). ദൃഢവിശ്വാസത്തോടെ പ്രഭാതത്തിൽ ഇത് ചൊല്ലി അന്ന് വൈകുന്നേരത്തിന് മുമ്പ് മരണപ്പെട്ടാൽ അവൻ സ്വർഗ്ഗാവകാശിയാകും (ബുഖാരി).',
     repeatNote: '1 time (Chief of Prayers for Forgiveness)',
+    type: 'adhkar',
+    title: 'സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/79.mp3',
   },
   {
     id: 'm-17',
@@ -402,6 +431,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'മനസ്സിന്റെ തിന്മകളിൽ നിന്നും പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളിൽ നിന്നും കാവൽ ലഭിക്കുന്നതിനായി അബൂബക്കർ സിദ്ദീഖ് (റ) വിന് നബി (ﷺ) പഠിപ്പിച്ചുകൊടുത്ത പ്രാർത്ഥന (തിർമിദി, അബൂദാവൂദ്).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'മനസ്സിന്റെയും പിശാചിന്റെയും തിന്മകളിൽ നിന്നുള്ള കാവൽ',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/85.mp3',
   },
   {
     id: 'm-18',
@@ -422,6 +454,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "രാവിലെയോ വൈകുന്നേരമോ ആരെങ്കിലും ഇത് നാല് തവണ ചൊല്ലിയാൽ അല്ലാഹു അവനെ നരകാഗ്നിയിൽ നിന്നും പൂർണ്ണമായി മോചിപ്പിക്കുന്നതാണ്" (അബൂദാവൂദ്).',
     repeatNote: '4 times (Deliverance from Hellfire)',
+    type: 'adhkar',
+    title: 'നരകമോചനം ലഭിക്കാനുള്ള സാക്ഷ്യപ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/80.mp3',
   },
   {
     id: 'm-19',
@@ -442,6 +477,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'പ്രതിദിനം 100 തവണ ചൊല്ലിയാൽ: 10 അടിമകളെ മോചിപ്പിച്ച പ്രതിഫലം ലഭിക്കും, 100 നന്മകൾ രേഖപ്പെടുത്തും, 100 തിന്മകൾ മായ്ച്ചു കളയും, ആ ദിവസം മുഴുവൻ പിശാചിൽ നിന്നുള്ള സുരക്ഷിത കാവലുമായിരിക്കും (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '100 times (or 10 times minimum)',
+    type: 'adhkar',
+    title: 'തൗഹീദിന്റെ മഹത്തായ ദിക്റ്',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/92.mp3',
   },
   {
     id: 'm-20',
@@ -462,6 +500,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "രാവിലെയും വൈകുന്നേരവും ഇത് 7 തവണ ചൊല്ലുന്നവന് ഇഹലോകത്തെയും പരലോകത്തെയും സകല മനോവിഷമങ്ങൾക്കും അല്ലാഹു തന്നെ മതിയാകുന്നതാണ്" (അബൂദാവൂദ്).',
     repeatNote: '7 times',
+    type: 'adhkar',
+    title: 'ഇഹപര വിഷമങ്ങൾക്ക് അല്ലാഹു മതിയാകാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/83.mp3',
   },
   {
     id: 'm-21',
@@ -481,6 +522,8 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുകയും, അവൻ പ്രാർത്ഥനകൾക്ക് ഉത്തരം നൽകുന്നവനാണെന്നും അവനല്ലാതെ മറ്റൊരു അഭയകേന്ദ്രമില്ലെന്നും പ്രഖ്യാപിക്കുന്ന ഉന്നത ദിക്റ് (ബൈഹഖി).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുന്ന ദിക്റ്',
   },
   {
     id: 'm-22',
@@ -497,6 +540,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും ഇത് 100 തവണ ചൊല്ലുന്നവന്റെ പാപങ്ങൾ കടൽനുരയോളം ഉണ്ടെങ്കിലും പൊറുക്കപ്പെടുന്നതാണ്. അന്ത്യദിനത്തിൽ ഇതിനേക്കാൾ ശ്രേഷ്ഠമായ കർമ്മവുമായി മറ്റാരും വരികയില്ല, ഇത് കൂടുതൽ ചൊല്ലിയവനല്ലാതെ (മുസ്ലിം).',
     repeatNote: '100 times',
+    type: 'adhkar',
+    title: 'തസ്ബീഹും തഹ്മീദും (100 തവണ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/91.mp3',
   },
   {
     id: 'm-23',
@@ -514,6 +560,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "അല്ലാഹുവാണെ സത്യം, ഞാൻ ദിവസവും എഴുപതിലധികം (നൂറിലധികം) തവണ അല്ലാഹുവോട് പാപമോചനം തേടുകയും തൗബ ചെയ്ത് മടങ്ങുകയും ചെയ്യാറുണ്ട്" (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '100 times',
+    type: 'adhkar',
+    title: 'ഇസ്തിഗ്ഫാറും തൗബയും (പാപമോചന പ്രാർത്ഥന)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/96.mp3',
   },
   {
     id: 'm-24',
@@ -532,6 +581,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ജീവിതത്തിലെ ഓരോ നിമിഷവും സകല കാര്യങ്ങളും നേരെയാക്കിത്തരാനും, കണ്ണിറുക്കുന്ന നേരത്തേക്ക് പോലും അല്ലാഹു നമ്മെ കൈവിടരുതെന്നും കേണപേക്ഷിക്കുന്ന മഹത്തായ പ്രാർത്ഥന (ഹാകിം).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിന്റെ കാരുണ്യത്താൽ സഹായം തേടുന്ന പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/88.mp3',
   },
   {
     id: 'm-25',
@@ -548,6 +600,9 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും നബി (ﷺ) യുടെ മേൽ 10 തവണ സ്വലാത്ത് ചൊല്ലുന്നയാൾക്ക് അന്ത്യദിനത്തിൽ നബിയുടെ ശഫാഅത്ത് (ശുപാർശ) ലഭിക്കുന്നതാണ് (ത്വബ്റാനി).',
     repeatNote: '10 times',
+    type: 'adhkar',
+    title: 'തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/98.mp3',
   },
 ];
 
@@ -750,6 +805,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സായാഹ്നത്തിൽ ഇത് 3 തവണ ചൊല്ലുന്നവനെ ആ രാത്രിയിൽ യാതൊരു വിഷജന്തുക്കളുടെ കുത്തോ വിഷബാധയോ ഉപദ്രവിക്കുകയില്ല (മുസ്ലിം).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'വിഷജന്തുക്കളിൽ നിന്നും ഉപദ്രവങ്ങളിൽ നിന്നുമുള്ള കാവൽ',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/97.mp3',
   },
   {
     id: 'e-8',
@@ -769,6 +827,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'വൈകുന്നേരം ഇത് 3 തവണ ചൊല്ലുന്നവന് പ്രഭാതം വരെ പെട്ടെന്നുണ്ടാകുന്ന യാതൊരു അത്യാഹിതമോ വിപത്തോ ഏൽക്കുകയില്ല (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'ആകസ്മിക വിപത്തുകളിൽ നിന്നുള്ള സംരക്ഷണം',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/86.mp3',
   },
   {
     id: 'e-9',
@@ -789,6 +850,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ഇത് 3 തവണ സായാഹ്നത്തിൽ ചൊല്ലുന്നയാളെ അന്ത്യദിനത്തിൽ സന്തോഷിപ്പിക്കുകയും തൃപ്തിപ്പെടുത്തുകയും ചെയ്യൽ അല്ലാഹു ബാധ്യതയാക്കിയിരിക്കുന്നു (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിന്റെ പ്രീതി ലഭിക്കാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/87.mp3',
   },
   {
     id: 'e-10',
@@ -809,6 +873,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സന്ധ്യാവേളയിൽ അല്ലാഹുവിന്റെ സർവ്വാധിപത്യം ഏറ്റുപറയുകയും, രാത്രിയുടെ നന്മകൾ ചോദിക്കുകയും, മടി, വാർദ്ധക്യത്തിന്റെ അവശതകൾ, നരക-ഖബർ ശിക്ഷകൾ എന്നിവയിൽ നിന്ന് കാവൽ തേടുകയും ചെയ്യുന്നു (മുസ്ലിം).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'സായാഹ്നത്തിൽ നന്മ തേടിയുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/77.mp3',
   },
   {
     id: 'e-11',
@@ -828,6 +895,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാത്രിയിലേക്കുള്ള പ്രവേശനവും ജീവിതവും മരണവും പുനരുത്ഥാനവും അല്ലാഹുവിൽ സമർപ്പിക്കുന്ന പ്രാർത്ഥന (തിർമിദി, അബൂദാവൂദ്).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'സായാഹ്നത്തിൽ അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/78.mp3',
   },
   {
     id: 'e-12',
@@ -847,6 +917,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'വൈകുന്നേരം ഇത് ചൊല്ലുന്നവൻ ആ രാത്രിയിലെ അല്ലാഹുവിനോടുള്ള നന്ദി (ശുക്റ്) പൂർണ്ണമായി നിർവ്വഹിച്ചിരിക്കുന്നു (അബൂദാവൂദ്, നസാഈ).',
     repeatNote: '1 time (Fulfilling Nightly Gratitude)',
+    type: 'adhkar',
+    title: 'രാത്രിയിലെ ശുക്റ് (നന്ദി) നിർവ്വഹിക്കുന്ന പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/81.mp3',
   },
   {
     id: 'e-13',
@@ -867,6 +940,8 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       '3 തവണ ചൊല്ലുക; ഇഹത്തിലും പരത്തിലും അല്ലാഹു തന്റെ അനുഗ്രഹവും സൗഖ്യവും പാപങ്ങൾ മറച്ചുവെക്കലും പൂർത്തിയാക്കി നൽകുന്നു (ഇബ്നുസ്സുന്നി).',
     repeatNote: '3 times',
+    type: 'adhkar',
+    title: 'അനുഗ്രഹവും സൗഖ്യവും പൂർത്തിയാക്കാനുള്ള പ്രാർത്ഥന',
   },
   {
     id: 'e-14',
@@ -886,6 +961,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'മനോവേദനകൾ, ദുഃഖം, ഭീരുത്വം, അലസത, കടബാധ്യത എന്നിവയിൽ നിന്നുള്ള മോചനത്തിനായി നബി (ﷺ) പഠിപ്പിച്ച പ്രാർത്ഥന (ബുഖാരി, അബൂദാവൂദ്).',
     repeatNote: '1 time (Relief from Anxiety & Debt)',
+    type: 'adhkar',
+    title: 'മനോവിഷമവും കടബാധ്യതയും നീങ്ങാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/121.mp3',
   },
   {
     id: 'e-15',
@@ -905,6 +983,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാത്രി മുഴുവൻ എല്ലാ ദിശകളിൽ നിന്നുമുള്ള അല്ലാഹുവിന്റെ ദിവ്യസംരക്ഷണവും സൗഖ്യവും ഉറപ്പാക്കുന്ന പ്രാർത്ഥന (അബൂദാവൂദ്, ഇബ്നുമാജ).',
     repeatNote: '1 time (All-Direction Protection)',
+    type: 'adhkar',
+    title: 'ഇഹപര സൗഖ്യത്തിനും സർവ്വദിശാ സംരക്ഷണത്തിനുമുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/84.mp3',
   },
   {
     id: 'e-16',
@@ -925,6 +1006,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സയ്യിദുൽ ഇസ്തിഗ്ഫാർ: ദൃഢവിശ്വാസത്തോടെ സന്ധ്യയിൽ ഇത് ചൊല്ലി ആ രാത്രി മരണപ്പെട്ടാൽ അവൻ സ്വർഗ്ഗാവകാശിയാകുന്നതാണ് (ബുഖാരി).',
     repeatNote: '1 time (Chief of Prayers for Forgiveness)',
+    type: 'adhkar',
+    title: 'സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/79.mp3',
   },
   {
     id: 'e-17',
@@ -944,6 +1028,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാത്രിയിൽ പിശാചിന്റെ കുതന്ത്രങ്ങളിൽ നിന്നും തിന്മകളിൽ നിന്നും സ്വന്തം മനസ്സിന്റെ ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ സംരക്ഷണം നൽകുന്നു (തിർമിദി, അബൂദാവൂദ്).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'മനസ്സിന്റെയും പിശാചിന്റെയും തിന്മകളിൽ നിന്നുള്ള കാവൽ',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/85.mp3',
   },
   {
     id: 'e-18',
@@ -964,6 +1051,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'വൈകുന്നേരം 4 തവണ ചൊല്ലിയാൽ അല്ലാഹു ആ ദാസനെ നരകാഗ്നിയിൽ നിന്നും പൂർണ്ണമായി മോചിപ്പിക്കുന്നതാണ് (അബൂദാവൂദ്).',
     repeatNote: '4 times (Deliverance from Hellfire)',
+    type: 'adhkar',
+    title: 'നരകമോചനം ലഭിക്കാനുള്ള സാക്ഷ്യപ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/80.mp3',
   },
   {
     id: 'e-19',
@@ -983,6 +1073,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'മഹത്തായ പ്രതിഫലം, പാപമോചനം, രാത്രി മുഴുവൻ പിശാചിൽ നിന്നുള്ള ശക്തമായ സംരക്ഷണക്കോട്ട (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '100 times (or 10 times minimum)',
+    type: 'adhkar',
+    title: 'തൗഹീദിന്റെ മഹത്തായ ദിക്റ്',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/92.mp3',
   },
   {
     id: 'e-20',
@@ -1002,6 +1095,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സായാഹ്നത്തിൽ 7 തവണ ചൊല്ലിയാൽ ഇഹപരകാര്യങ്ങളിലെ സകല ഉത്കണ്ഠകൾക്കും അല്ലാഹു പരിഹാരമേകും (അബൂദാവൂദ്).',
     repeatNote: '7 times',
+    type: 'adhkar',
+    title: 'ഇഹപര വിഷമങ്ങൾക്ക് അല്ലാഹു മതിയാകാനുള്ള പ്രാർത്ഥന',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/83.mp3',
   },
   {
     id: 'e-21',
@@ -1020,6 +1116,8 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'മനസ്സിന് ശാന്തിയും അല്ലാഹുവിൽ പൂർണ്ണ ഭരമേല്പിക്കലും സമ്മാനിക്കുന്ന സായാഹ്ന ദിക്റ് (ബൈഹഖി).',
     repeatNote: '1 time',
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുന്ന ദിക്റ്',
   },
   {
     id: 'e-22',
@@ -1036,6 +1134,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'കടൽനുരയോളം പാപങ്ങളുണ്ടെങ്കിലും പൊറുക്കപ്പെടും, പരലോകത്ത് അത്യുന്നത പദവികൾ നേടിത്തരും (മുസ്ലിം).',
     repeatNote: '100 times',
+    type: 'adhkar',
+    title: 'തസ്ബീഹും തഹ്മീദും (100 തവണ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/91.mp3',
   },
   {
     id: 'e-23',
@@ -1052,6 +1153,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ഹൃദയശുദ്ധീകരണത്തിനും തിരുനബി (ﷺ) യുടെ ചര്യ പിൻപറ്റുന്നതിനുമുള്ള നിരന്തര തൗബയും ഇസ്തിഗ്ഫാറും (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '100 times',
+    type: 'adhkar',
+    title: 'ഇസ്തിഗ്ഫാറും തൗബയും (പാപമോചന പ്രാർത്ഥന)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/96.mp3',
   },
   {
     id: 'e-24',
@@ -1067,6 +1171,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'രാവിലെയും വൈകുന്നേരവും 10 തവണ സ്വലാത്ത് ചൊല്ലുന്നയാൾക്ക് അന്ത്യദിനത്തിൽ തിരുനബി (ﷺ) യുടെ ശഫാഅത്ത് ലഭിക്കും (ത്വബ്റാനി).',
     repeatNote: '10 times',
+    type: 'adhkar',
+    title: 'തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/98.mp3',
   },
 ];
 
@@ -1077,6 +1184,8 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
   {
     id: 'p-1',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'നമസ്കാര ശേഷമുള്ള ഇസ്തിഗ്ഫാർ (പാപമോചനം തേടൽ)',
     arabic: 'أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ',
     transliteration: 'Astaghfirullah, Astaghfirullah, Astaghfirullah',
     translation: 'I seek forgiveness from Allah (3 times).',
@@ -1087,10 +1196,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ഫർദ് നമസ്കാരത്തിൽ സംഭവിച്ചുപോയേക്കാവുന്ന ന്യൂനതകൾ പരിഹരിക്കാൻ സലാം വീട്ടിയ ഉടനെ തിരുനബി (ﷺ) 3 തവണ പാപമോചനം തേടിയിരുന്നു (മുസ്ലിം).',
     repeatNote: '3 times',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3',
   },
   {
     id: 'p-2',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'സലാം വീട്ടിയ ശേഷമുള്ള പ്രാർത്ഥന',
     arabic: 'اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالإِكْرَامِ',
     transliteration: "Allahumma Antas-Salamu wa minkas-salam, tabarakta ya Dhal-Jalali wal-Ikram",
     translation:
@@ -1103,10 +1215,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സലാം വീട്ടിയ ശേഷമുള്ള പ്രധാന പ്രാർത്ഥന; അല്ലാഹുവിന്റെ ശാന്തിയും അനുഗ്രഹങ്ങളും തേടുന്നു (മുസ്ലിം).',
     repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3',
   },
   {
     id: 'p-3',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'തസ്ബീഹ് (സുബ്ഹാനല്ലാഹ് - 33 തവണ)',
     arabic: 'سُبْحَانَ اللَّهِ',
     transliteration: 'Subhanallah',
     translation: 'Glory is to Allah.',
@@ -1117,10 +1232,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നമസ്കാര ശേഷം 33 തവണ ചൊല്ലുന്ന തസ്ബീഹ്; അല്ലാഹുവിന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു (മുസ്ലിം).',
     repeatNote: '33 times',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
   },
   {
     id: 'p-4',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'തഹ്മീദ് (അൽഹംദുലില്ലാഹ് - 33 തവണ)',
     arabic: 'الْحَمْدُ لِلَّهِ',
     transliteration: 'Alhamdulillah',
     translation: 'Praise be to Allah.',
@@ -1131,10 +1249,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നമസ്കാര ശേഷം 33 തവണ അല്ലാഹുവിന് സ്തുതി അർപ്പിക്കുന്ന തഹ്മീദ് (മുസ്ലിം).',
     repeatNote: '33 times',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
   },
   {
     id: 'p-5',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'തക്ബീർ (അല്ലാഹു അക്ബർ - 33 തവണ)',
     arabic: 'اللَّهُ أَكْبَرُ',
     transliteration: 'Allahu Akbar',
     translation: 'Allah is the Greatest.',
@@ -1145,10 +1266,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       '33 തവണ തക്ബീർ ചൊല്ലി 99 എണ്ണം പൂർത്തിയാക്കുന്നു (മുസ്ലിം).',
     repeatNote: '33 times',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
   },
   {
     id: 'p-6',
     category: 'prayer',
+    type: 'adhkar',
+    title: 'നൂറാമത്തെ തഹ്‌ലീൽ ദിക്റ്',
     arabic:
       'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
     transliteration:
@@ -1164,10 +1288,13 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നൂറാമത്തെതായി ഇത് ചൊല്ലി 100 പൂർത്തിയാക്കുന്നവന്റെ പാപങ്ങൾ കടൽനുരയോളം ഉണ്ടെങ്കിലും പൊറുക്കപ്പെടുന്നതാണ് (മുസ്ലിം).',
     repeatNote: '1 time (Seals the 100 counts)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/68.mp3',
   },
   {
     id: 'p-7',
     category: 'prayer',
+    type: 'quran',
+    title: 'ആയത്തുൽ കുർസിയ്യ് (നമസ്കാര ശേഷം)',
     arabic:
       'اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     transliteration:
@@ -1195,26 +1322,34 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
  */
 export const SLEEP_ADHKAR: DhikrItem[] = [
   {
-    id: 's-1',
+    id: 'sleep-1',
     category: 'sleep',
+    type: 'adhkar',
+    title: 'ഉറങ്ങാൻ നേരമുള്ള പ്രാർത്ഥന',
     arabic:
-      'بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ',
+      'بِاسْمِكَ رَبِّـي وَضَعْـتُ جَنْـبي ، وَبِكَ أَرْفَعُـهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ',
     transliteration:
       "Bismika Rabbi wada'tu janbi, wa bika arfa'uh, fa'in amsakta nafsi farhamha, wa'in arsaltaha fahfazha bima tahfazu bihi 'ibadakas-salihin",
     translation:
       'In Your name my Lord, I lay down my side and in Your name I raise it up. If You take my soul, have mercy upon it, and if You return it, protect it as You protect Your righteous servants.',
+    malayalam:
+      'എന്റെ രക്ഷിതാവേ, നിന്റെ നാമത്തിൽ ഞാൻ എന്റെ പാർശ്വം വെച്ചു, നിന്റെ സഹായത്താൽ ഞാൻ അതിനെ ഉയർത്തുകയും ചെയ്യുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.',
     malayalamTranslation:
-      'എന്റെ നാഥാ, നിന്റെ നാമത്തിൽ ഞാനെന്റെ പാർശ്വം വെച്ചു (ഉറങ്ങാൻ കിടന്നു), നിന്റെ സഹായത്താൽ ഞാനത് ഉയർത്തുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.',
+      'എന്റെ രക്ഷിതാവേ, നിന്റെ നാമത്തിൽ ഞാൻ എന്റെ പാർശ്വം വെച്ചു, നിന്റെ സഹായത്താൽ ഞാൻ അതിനെ ഉയർത്തുകയും ചെയ്യുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.',
     target: 1,
     source: 'Sahih al-Bukhari 6320 & Muslim 2714',
     virtue: 'Comprehensive surrender of body and soul to Allah before sleeping.',
     malayalamVirtue:
       'ഉറങ്ങുന്നതിന് മുമ്പ് ശരീരവും ആത്മാവും അല്ലാഹുവിന്റെ കാരുണ്യത്തിലും സംരക്ഷണത്തിലും സമ്പൂർണ്ണമായി സമർപ്പിക്കുന്നു (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '1 time',
+    // Direct HisnMuslim MP3 link:
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/28.mp3',
   },
   {
     id: 's-2',
     category: 'sleep',
+    type: 'adhkar',
+    title: 'ഉറങ്ങാൻ നേരമുള്ള തസ്ബീഹ് (തസ്ബീഹ് ഫാത്വിമി)',
     arabic: 'سُبْحَانَ اللَّهِ (٣٣)، وَالْحَمْدُ لِلَّهِ (٣٣)، وَاللَّهُ أَكْبَرُ (٣٤)',
     transliteration: 'Subhanallah (33x), Alhamdulillah (33x), Allahu Akbar (34x)',
     translation:
@@ -1227,10 +1362,13 @@ export const SLEEP_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ഒരു വേലക്കാരനെ വെച്ച് ജോലി ചെയ്യിക്കുന്നതിനേക്കാൾ ശരീരത്തിനും മനസ്സിനും കരുത്തും ഉന്മേഷവും നൽകുന്നതാണ് ഇതെന്ന് തിരുനബി (ﷺ) ഫാത്വിമ (റ) യോടും അലി (റ) യോടും പറഞ്ഞു (ബുഖാരി).',
     repeatNote: '1 sequence (100 total)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/106.mp3',
   },
   {
     id: 's-3',
     category: 'sleep',
+    type: 'adhkar',
+    title: 'പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്നുള്ള കാവൽ പ്രാർത്ഥന',
     arabic: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ',
     transliteration: "Allahumma qini 'adhabaka yawma tab'athu 'ibadak",
     translation: 'O Allah, protect me from Your punishment on the Day You resurrect Your servants.',
@@ -1242,6 +1380,7 @@ export const SLEEP_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'വലതു കൈ കവിളിനടിയിൽ വെച്ച് ഖിബ്‌ലക്ക് അഭിമുഖമായി കിടന്ന് പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്ന് കാവൽ തേടുന്നു (അബൂദാവൂദ്).',
     repeatNote: '3 times',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/104.mp3',
   },
 ];
 

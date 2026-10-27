@@ -4,6 +4,9 @@ import {
   prepareArabicSpeechText,
   getPronunciationSpeechRate,
   selectBestArabicVoice,
+  getVoiceStyleProfile,
+  getCurrentAudio,
+  VOICE_STYLE_PROFILES,
   PronunciationManager,
 } from './pronunciation.ts';
 
@@ -32,13 +35,32 @@ test('prepareArabicSpeechText handles empty or null strings safely', () => {
   assert.equal(prepareArabicSpeechText('   \n  '), '');
 });
 
-test('getPronunciationSpeechRate returns expected speed factors', () => {
-  assert.equal(getPronunciationSpeechRate('0.75x'), 0.75);
-  assert.equal(getPronunciationSpeechRate('1.0x'), 0.95);
-  assert.equal(getPronunciationSpeechRate('1.25x'), 1.25);
+test('getPronunciationSpeechRate returns expected speed factors by voice style', () => {
+  assert.equal(getPronunciationSpeechRate('0.75x', 'natural_dua'), 0.75);
+  assert.equal(getPronunciationSpeechRate('1.0x', 'natural_dua'), 0.95);
+  assert.equal(getPronunciationSpeechRate('1.25x', 'natural_dua'), 1.25);
+
+  assert.equal(getPronunciationSpeechRate('0.75x', 'quranic_tajweed'), 0.75);
+  assert.equal(getPronunciationSpeechRate('1.0x', 'quranic_tajweed'), 0.88);
+  assert.equal(getPronunciationSpeechRate('1.25x', 'quranic_tajweed'), 1.25);
 });
 
-test('selectBestArabicVoice selects Saudi Arabic ar-SA first', () => {
+test('getVoiceStyleProfile strictly segregates Quranic Tajweed vs Natural Humble Dua voice', () => {
+  const quranicProfile = getVoiceStyleProfile(true);
+  assert.equal(quranicProfile.style, 'quranic_tajweed');
+  assert.equal(quranicProfile.pitch, 0.98);
+  assert.equal(quranicProfile.baseRate, 0.88);
+  assert.ok(quranicProfile.description.includes('Tajweed/Murattal'));
+
+  const duaProfile = getVoiceStyleProfile(false);
+  assert.equal(duaProfile.style, 'natural_dua');
+  assert.equal(duaProfile.pitch, 1.0); // Natural conversational pitch, not theatrical broadcast
+  assert.equal(duaProfile.baseRate, 0.95);
+  assert.equal(duaProfile.volume, 0.92);
+  assert.ok(duaProfile.description.includes('Natural, humble, calm, and conversational'));
+});
+
+test('selectBestArabicVoice selects Saudi Arabic male voice first', () => {
   const mockVoices = [
     { lang: 'en-US', name: 'Samantha' },
     { lang: 'ar-EG', name: 'Salma' },
@@ -46,10 +68,21 @@ test('selectBestArabicVoice selects Saudi Arabic ar-SA first', () => {
     { lang: 'fr-FR', name: 'Thomas' },
   ];
 
-  const best = selectBestArabicVoice(mockVoices);
+  const best = selectBestArabicVoice(mockVoices, 'natural_dua');
   assert.ok(best);
   assert.equal(best.lang, 'ar-SA');
   assert.equal(best.name, 'Maged');
+});
+
+test('selectBestArabicVoice prioritizes Natural/Online Arabic male voice for natural_dua when available', () => {
+  const mockVoices = [
+    { lang: 'ar-SA', name: 'Classic Broadcast Male' },
+    { lang: 'ar-SA', name: 'Microsoft Hamed Online (Natural) - Arabic' },
+  ];
+
+  const best = selectBestArabicVoice(mockVoices, 'natural_dua');
+  assert.ok(best);
+  assert.equal(best.name, 'Microsoft Hamed Online (Natural) - Arabic');
 });
 
 test('selectBestArabicVoice falls back to any Arabic voice when ar-SA is not present', () => {
@@ -75,15 +108,24 @@ test('selectBestArabicVoice returns null when no Arabic voices are available', (
   assert.equal(selectBestArabicVoice([]), null);
 });
 
-test('PronunciationManager singleton handles subscription and stop correctly', () => {
-  let latestId: string | null = 'unset';
+test('PronunciationManager singleton handles subscription, exclusive switching, and stop correctly', () => {
+  const states: { playingId: string | null; status: string; voiceStyle: string }[] = [];
   const unsubscribe = PronunciationManager.subscribe((state) => {
-    latestId = state.playingId;
+    states.push({
+      playingId: state.playingId,
+      status: state.status,
+      voiceStyle: state.voiceStyle,
+    });
   });
 
   assert.equal(PronunciationManager.getState().playingId, null);
+  assert.equal(getCurrentAudio(), null);
+
+  // Stop resets state cleanly
   PronunciationManager.stop();
-  assert.equal(latestId, null);
+  assert.equal(PronunciationManager.getState().playingId, null);
+  assert.equal(PronunciationManager.getState().status, 'idle');
+  assert.equal(getCurrentAudio(), null);
 
   unsubscribe();
 });

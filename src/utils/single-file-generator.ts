@@ -40,6 +40,9 @@ export function generateSingleFileHtml(): string {
 
   <!-- Tailwind CSS v4 Browser Build -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+  </style>
 
   <style>
     body, button, input, select, textarea {
@@ -85,15 +88,15 @@ export function generateSingleFileHtml(): string {
       --text-muted: #94a3b8;
     }
     .theme-emerald {
-      --bg-main: #f0fdfa;
+      --bg-main: #f1f5f9;
       --bg-card: #ffffff;
-      --border-card: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
+      --border-card: #cbd5e1;
+      --text-main: #000000;
+      --text-muted: #0f172a;
     }
   </style>
 </head>
-<body class="bg-teal-50/50 text-slate-800 antialiased min-h-full flex flex-col theme-transition pb-20 select-none" id="appBody">
+<body class="bg-slate-100 dark:bg-slate-950 text-black dark:text-slate-100 antialiased min-h-full flex flex-col theme-transition pb-20 select-none" id="appBody">
 
   <!-- ================= HEADER ================= -->
   <header class="sticky top-0 z-30 bg-teal-800 text-white shadow-md border-b border-teal-700/60 backdrop-blur-md">
@@ -232,23 +235,23 @@ export function generateSingleFileHtml(): string {
           type="text" 
           id="searchInput" 
           placeholder="Search Arabic, English, or Malayalam..." 
-          class="w-full pl-9 pr-8 py-2.5 rounded-xl border border-teal-200/80 bg-white shadow-xs text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+          class="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 text-black dark:text-white placeholder-slate-700 dark:placeholder-slate-400 font-bold shadow-xs text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
         >
-        <div class="absolute left-3 top-3 text-slate-400">
+        <div class="absolute left-3 top-3 text-slate-800 dark:text-slate-400">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-2.5 p-1 rounded-full text-slate-400 hover:text-slate-600">
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-2.5 p-1 rounded-full text-slate-700 hover:text-black dark:text-slate-400 dark:hover:text-white">
           ✕
         </button>
       </div>
 
       <!-- Filter tabs -->
       <div class="flex items-center gap-1 text-xs">
-        <button data-filter="all" class="filter-btn px-2.5 py-1 rounded-md font-semibold bg-teal-800 text-white">All</button>
-        <button data-filter="incomplete" class="filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-200/70">Incomplete</button>
-        <button data-filter="completed" class="filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-200/70">Completed</button>
+        <button data-filter="all" class="filter-btn px-2.5 py-1 rounded-md font-extrabold bg-teal-900 text-white border border-teal-900">All</button>
+        <button data-filter="incomplete" class="filter-btn px-2.5 py-1 rounded-md font-extrabold text-black dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-400 dark:border-slate-700 hover:bg-slate-200">Incomplete</button>
+        <button data-filter="completed" class="filter-btn px-2.5 py-1 rounded-md font-extrabold text-black dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-400 dark:border-slate-700 hover:bg-slate-200">Completed</button>
       </div>
     </div>
 
@@ -535,6 +538,11 @@ export function generateSingleFileHtml(): string {
         vibrateEnabled: true,
         theme: 'emerald',
         cardTapToCount: false,
+        remindersEnabled: false,
+        morningReminderTime: '06:00',
+        eveningReminderTime: '17:30',
+        goalReminderEnabled: false,
+        dailyGoalReminderTime: '20:00',
       };
 
       function getTodayString() {
@@ -550,6 +558,8 @@ export function generateSingleFileHtml(): string {
         favorites: [],
         streak: { currentStreak: 0, bestStreak: 0, lastCompletedDate: null },
         settings: { ...DEFAULT_SETTINGS },
+        playingId: null,
+        playbackStatus: 'idle',
         tasbih: {
           currentDhikrId: 'subhanallah',
           count: 0,
@@ -692,12 +702,12 @@ export function generateSingleFileHtml(): string {
         const isAllDone = total > 0 && completed === total;
 
         els.progressStatusText.textContent = isAllDone
-          ? 'Completed All Today! 🎉'
+          ? 'Completed All Today! • പൂർത്തിയായി! 🔥'
           : 'Progress: ' + completed + ' of ' + total + ' Completed';
         els.progressPercentText.textContent = percent + '%';
         els.progressBarFill.style.width = percent + '%';
         els.progressBarFill.className = 'h-full rounded-full transition-all duration-300 ' + 
-          (isAllDone ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-amber-300');
+          (isAllDone ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50' : 'bg-amber-300');
 
         if (isAllDone && total > 0) {
           updateStreakOnCategoryDone();
@@ -766,19 +776,19 @@ export function generateSingleFileHtml(): string {
 
         const mItems = window.ADHKAR_DATA.morning;
         let mDone = mItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
-        document.querySelector('[data-tab="morning"] .tab-badge').textContent = mDone + '/' + mItems.length;
+        document.querySelector('[data-tab="morning"] .tab-badge').textContent = (mDone === mItems.length && mItems.length > 0 ? '🔥 ' : '') + mDone + '/' + mItems.length + (mDone === mItems.length && mItems.length > 0 ? ' പൂർത്തിയായി!' : '');
 
         const eItems = window.ADHKAR_DATA.evening;
         let eDone = eItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
-        document.querySelector('[data-tab="evening"] .tab-badge').textContent = eDone + '/' + eItems.length;
+        document.querySelector('[data-tab="evening"] .tab-badge').textContent = (eDone === eItems.length && eItems.length > 0 ? '🔥 ' : '') + eDone + '/' + eItems.length + (eDone === eItems.length && eItems.length > 0 ? ' പൂർത്തിയായി!' : '');
 
         const pItems = window.ADHKAR_DATA.prayer;
         let pDone = pItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
-        document.querySelector('[data-tab="prayer"] .tab-badge').textContent = pDone + '/' + pItems.length;
+        document.querySelector('[data-tab="prayer"] .tab-badge').textContent = (pDone === pItems.length && pItems.length > 0 ? '🔥 ' : '') + pDone + '/' + pItems.length + (pDone === pItems.length && pItems.length > 0 ? ' പൂർത്തിയായി!' : '');
 
         const sItems = window.ADHKAR_DATA.sleep;
         let sDone = sItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
-        document.querySelector('[data-tab="sleep"] .tab-badge').textContent = sDone + '/' + sItems.length;
+        document.querySelector('[data-tab="sleep"] .tab-badge').textContent = (sDone === sItems.length && sItems.length > 0 ? '🔥 ' : '') + sDone + '/' + sItems.length + (sDone === sItems.length && sItems.length > 0 ? ' പൂർത്തിയായി!' : '');
 
         document.querySelector('[data-tab="favorites"] .tab-badge').textContent = state.favorites.length;
 
@@ -820,9 +830,11 @@ export function generateSingleFileHtml(): string {
 
           if (!query) return true;
           return (
+            (item.title && item.title.toLowerCase().includes(query)) ||
             (item.arabic && item.arabic.toLowerCase().includes(query)) ||
             (item.transliteration && item.transliteration.toLowerCase().includes(query)) ||
             (item.translation && item.translation.toLowerCase().includes(query)) ||
+            (item.malayalam && item.malayalam.toLowerCase().includes(query)) ||
             (item.malayalamTranslation && item.malayalamTranslation.toLowerCase().includes(query)) ||
             (item.virtue && item.virtue.toLowerCase().includes(query)) ||
             (item.malayalamVirtue && item.malayalamVirtue.toLowerCase().includes(query)) ||
@@ -852,92 +864,109 @@ export function generateSingleFileHtml(): string {
           const currentCount = state.counts[item.id] || 0;
           const isDone = currentCount >= item.target;
           const isFav = state.favorites.includes(item.id);
+          const mlText = item.malayalamTranslation || item.malayalam;
 
           return \`
             <article class="adhkar-card bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all duration-200 shadow-xs space-y-4 card-surface \${
-              isDone ? 'border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/20' : 'border-slate-200/90 dark:border-slate-800'
+              isDone ? 'border-emerald-500 dark:border-emerald-800/80 bg-emerald-50/60' : 'border-slate-300 dark:border-slate-800'
             }" data-id="\${item.id}">
               
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 font-bold text-xs flex items-center justify-center">
+                  <span class="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-950/60 text-black dark:text-teal-300 font-black text-xs flex items-center justify-center border border-teal-400 dark:border-teal-800">
                     \${item.uthaymeenNumber ? item.uthaymeenNumber : index + 1}
                   </span>
-                  <span class="text-xs font-semibold text-teal-700 dark:text-teal-400">
+                  <span class="text-xs font-extrabold text-black dark:text-teal-400">
                     \${item.repeatNote || (item.target + ' time' + (item.target > 1 ? 's' : ''))}
                   </span>
                 </div>
 
                 <div class="flex items-center gap-1">
-                  <button class="fav-btn p-1.5 rounded-full text-slate-400 hover:text-amber-500 transition-colors" data-id="\${item.id}" title="Toggle Favorite">
-                    \${isFav ? '<span class="text-amber-500 text-base">★</span>' : '<span class="text-slate-400 text-base">☆</span>'}
+                  <button class="fav-btn p-1.5 rounded-full text-slate-800 dark:text-slate-400 hover:text-amber-600 transition-colors" data-id="\${item.id}" title="Toggle Favorite">
+                    \${isFav ? '<span class="text-amber-500 text-base">★</span>' : '<span class="text-slate-800 dark:text-slate-400 text-base font-bold">☆</span>'}
                   </button>
 
-                  <button class="copy-btn p-1.5 rounded-full text-slate-400 hover:text-teal-600 transition-colors" data-id="\${item.id}" title="Copy Dhikr">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                  <button class="copy-btn p-1.5 rounded-full text-slate-800 dark:text-slate-400 hover:text-teal-800 transition-colors" data-id="\${item.id}" title="Copy Dhikr">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                   </button>
 
-                  <button class="count-btn px-3 py-1.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-90 \${
+                  <button class="count-btn px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-90 \${
                     isDone 
-                      ? 'bg-emerald-600 text-white shadow-xs' 
-                      : 'bg-teal-700 hover:bg-teal-800 text-white shadow-xs'
+                      ? 'bg-emerald-700 text-white shadow-xs' 
+                      : 'bg-teal-800 hover:bg-teal-900 text-white shadow-xs'
                   }" data-id="\${item.id}">
                     <span>\${isDone ? '✓ Done' : currentCount + ' / ' + item.target}</span>
                   </button>
                 </div>
               </div>
 
-              <!-- Audio Pronunciation Bar -->
-              <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-teal-50/70 dark:bg-slate-800/60 border border-teal-100 dark:border-slate-700/80 my-2">
-                <button type="button" class="pronounce-btn px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95" data-id="\${item.id}">
-                  <span>🔊 Listen</span>
-                  <span class="font-arabic text-[11px] opacity-80">استمع</span>
+              \${item.title ? \`<h3 class="font-malayalam text-sm sm:text-base font-extrabold text-black dark:text-teal-200 tracking-tight">\${item.title}</h3>\` : ''}
+
+              <!-- Audio Pronunciation Bar (Segregated Voice Styles & Synced Play/Pause) -->
+              <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl \${
+                state.playingId === item.id && state.playbackStatus === 'playing'
+                  ? 'bg-emerald-100 dark:bg-emerald-950/70 border-emerald-600 ring-1 ring-emerald-600/50'
+                  : 'bg-teal-50 dark:bg-slate-800/70 border-teal-400 dark:border-slate-700/80'
+              } border my-2 transition-all">
+                <button type="button" class="pronounce-btn px-3 py-1.5 rounded-lg \${
+                  state.playingId === item.id && state.playbackStatus === 'playing'
+                    ? 'bg-emerald-700 hover:bg-emerald-800'
+                    : 'bg-teal-900 hover:bg-teal-800'
+                } text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95" data-id="\${item.id}">
+                  <span>\${state.playingId === item.id && state.playbackStatus === 'playing' ? '⏸ Pause' : '▶ Play'}</span>
+                  <span class="font-arabic text-[11px] opacity-95">\${state.playingId === item.id && state.playbackStatus === 'playing' ? 'إيقاف' : 'استمع'}</span>
                 </button>
-                <span class="text-[11px] text-teal-800 dark:text-teal-300 font-medium">Arabic Pronunciation</span>
+                <span class="text-[11px] text-black dark:text-teal-300 font-extrabold truncate" title="\${
+                  item.isQuranic
+                    ? 'Traditional melodic, contemplative, and rhythmic Quranic recitation (Tajweed/Murattal style) by a native male reciter (Qari)'
+                    : 'Natural, humble, calm, and conversational native Arabic male voice with a steady, reverent spiritual tone for private remembrance (Dua)'
+                }">
+                  \${item.isQuranic ? '🎵 Tajweed / Murattal • Qari (ആയത്തുകൾ)' : '🎙️ Calm Natural Dua Voice (ദിക്റുകൾ)'}
+                </span>
               </div>
 
               <div class="text-right py-1">
-                <p class="font-arabic font-bold text-slate-900 dark:text-white \${fontClass} tracking-wide select-text" dir="rtl">
+                <p class="font-arabic font-black text-black dark:text-white \${fontClass} tracking-wide select-text" dir="rtl">
                   \${item.arabic}
                 </p>
               </div>
 
               \${state.settings.showTransliteration && item.transliteration ? \`
-                <div class="p-3 rounded-2xl bg-teal-50/60 dark:bg-teal-950/30 border border-teal-100/60 dark:border-teal-900/40 text-xs sm:text-sm text-teal-950 dark:text-teal-200 italic leading-relaxed select-text">
+                <div class="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/30 border border-teal-400 dark:border-teal-900/40 text-xs sm:text-sm text-teal-950 dark:text-teal-200 font-extrabold italic leading-relaxed select-text">
                   \${item.transliteration}
                 </div>
               \` : ''}
 
               \${state.settings.showTranslation ? \`
                 <div class="space-y-2 text-xs sm:text-sm">
-                  \${showEN && item.translation ? \`
-                    <div class="text-slate-700 dark:text-slate-300 leading-relaxed select-text">
-                      <span class="font-semibold text-teal-700 dark:text-teal-400 mr-1.5 text-xs">EN:</span>
-                      \${item.translation}
+                  \${showML && mlText ? \`
+                    <div class="font-malayalam bg-emerald-50/90 dark:bg-teal-950/30 border border-emerald-500 dark:border-teal-800/40 text-black dark:text-teal-100 p-2.5 rounded-xl leading-relaxed select-text font-bold">
+                      <span class="inline-block font-black text-[10px] px-2 py-0.5 rounded bg-emerald-900 text-white mr-1.5 mb-1">മലയാളം</span>
+                      <div>\${mlText}</div>
                     </div>
                   \` : ''}
-                  \${showML && item.malayalamTranslation ? \`
-                    <div class="font-malayalam text-slate-700 dark:text-slate-300 leading-relaxed select-text pt-1 border-t border-slate-100 dark:border-slate-800">
-                      <span class="font-semibold text-emerald-700 dark:text-emerald-400 mr-1.5 text-xs">മലയാളം:</span>
-                      \${item.malayalamTranslation}
+                  \${showEN && item.translation ? \`
+                    <div class="text-black dark:text-slate-200 font-bold leading-relaxed select-text px-1">
+                      <span class="font-black text-teal-950 dark:text-teal-400 mr-1.5 text-xs">EN:</span>
+                      \${item.translation}
                     </div>
                   \` : ''}
                 </div>
               \` : ''}
 
               \${state.settings.showVirtues && (item.virtue || item.source) ? \`
-                <details class="group text-xs border-t border-slate-100 dark:border-slate-800 pt-2">
-                  <summary class="font-semibold text-teal-700 dark:text-teal-400 cursor-pointer flex items-center justify-between py-1 hover:text-teal-800">
+                <details class="group text-xs border-t border-slate-300 dark:border-slate-800 pt-2">
+                  <summary class="font-extrabold text-black dark:text-teal-400 cursor-pointer flex items-center justify-between py-1 hover:text-teal-900">
                     <span class="flex items-center gap-1">
                       <span>📖</span>
-                      <span>Source & Virtues</span>
+                      <span>Source & Virtues: \${item.source || ''}</span>
                     </span>
-                    <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                    <span class="text-black dark:text-slate-400 group-open:rotate-180 transition-transform">▼</span>
                   </summary>
-                  <div class="pt-2 pb-1 space-y-1.5 text-slate-600 dark:text-slate-400 select-text">
-                    \${item.source ? \`<div class="font-medium text-teal-800 dark:text-teal-300">\${item.source}</div>\` : ''}
+                  <div class="pt-2 pb-1 space-y-1.5 text-black dark:text-slate-300 font-bold select-text">
+                    \${item.source ? \`<div class="font-extrabold text-teal-950 dark:text-teal-300">\${item.source}</div>\` : ''}
                     \${item.virtue && showEN ? \`<div>\${item.virtue}</div>\` : ''}
-                    \${item.malayalamVirtue && showML ? \`<div class="font-malayalam text-emerald-800 dark:text-emerald-300">\${item.malayalamVirtue}</div>\` : ''}
+                    \${item.malayalamVirtue && showML ? \`<div class="font-malayalam font-bold text-black dark:text-emerald-300">\${item.malayalamVirtue}</div>\` : ''}
                   </div>
                 </details>
               \` : ''}
@@ -947,6 +976,185 @@ export function generateSingleFileHtml(): string {
         }).join('');
 
         updateCategoryProgress();
+      }
+
+      // Single global currentAudio player instance (prevents overlapping playback)
+      let currentAudio = null;
+      window.currentAudio = null;
+      let currentUtterance = null;
+      let audioPlaybackToken = 0;
+
+      function stopAndUnloadCurrentAudio() {
+        audioPlaybackToken++;
+        if (currentAudio) {
+          try {
+            currentAudio.onplay = null;
+            currentAudio.onpause = null;
+            currentAudio.onended = null;
+            currentAudio.onerror = null;
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio.removeAttribute('src');
+            currentAudio.load();
+          } catch (err) {}
+          currentAudio = null;
+          window.currentAudio = null;
+        }
+        if (currentUtterance) {
+          try {
+            currentUtterance.onstart = null;
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+          } catch (err) {}
+          currentUtterance = null;
+        }
+        if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+          } catch (err) {}
+        }
+        state.playingId = null;
+        state.playbackStatus = 'idle';
+        syncAudioButtonsUI();
+      }
+
+      function syncAudioButtonsUI() {
+        document.querySelectorAll('.pronounce-btn').forEach(btn => {
+          const btnId = btn.dataset.id;
+          const isPlayingThis = state.playingId === btnId && state.playbackStatus === 'playing';
+          if (isPlayingThis) {
+            btn.className = 'pronounce-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95';
+            btn.innerHTML = '<span>⏸ Pause</span><span class="font-arabic text-[11px] opacity-90">إيقاف</span>';
+          } else {
+            btn.className = 'pronounce-btn px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95';
+            btn.innerHTML = '<span>▶ Play</span><span class="font-arabic text-[11px] opacity-90">استمع</span>';
+          }
+        });
+      }
+
+      function playItemAudio(item) {
+        if (!item) return;
+
+        // If clicking Play/Pause on the currently playing item, stop/pause it immediately
+        if (state.playingId === item.id && state.playbackStatus === 'playing') {
+          stopAndUnloadCurrentAudio();
+          return;
+        }
+
+        // Force stop, reset to 0, and unload any previously playing track
+        stopAndUnloadCurrentAudio();
+
+        const token = ++audioPlaybackToken;
+        state.playingId = item.id;
+        state.playbackStatus = 'playing';
+        syncAudioButtonsUI();
+
+        const cleanText = item.arabic.replace(/\\s*\\([٠-٩\\d]+\\)\\s*/g, ' ').replace(/\\n+/g, ' ').trim();
+        const isQuranic = !!item.isQuranic;
+
+        // Segregate voice styles:
+        // 1. Quranic Verses (ആയത്തുകൾ): Melodic, contemplative, rhythmic Tajweed/Murattal recitation by native Qari
+        // 2. Regular Adhkar (ദിക്റുകൾ): Natural, humble, calm, conversational native Arabic male voice (Dua)
+        const playlist = [];
+        if (item.audioUrls && item.audioUrls.length > 0) {
+          playlist.push(...item.audioUrls);
+        } else if (item.audioUrl) {
+          playlist.push(item.audioUrl);
+        }
+
+        function speakWithSegregatedVoiceStyle() {
+          if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+          if (!('speechSynthesis' in window)) {
+            stopAndUnloadCurrentAudio();
+            return;
+          }
+          try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'ar-SA';
+            if (isQuranic) {
+              // Contemplative Murattal pacing
+              utterance.rate = 0.88;
+              utterance.pitch = 0.98;
+              utterance.volume = 1.0;
+            } else {
+              // Natural, humble, calm, conversational native Arabic male voice for private Dua
+              utterance.rate = 0.95;
+              utterance.pitch = 1.0;
+              utterance.volume = 0.92;
+            }
+            const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+            const arVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('ar'));
+            if (arVoices.length > 0) {
+              const maleKeywords = ['maged', 'tariq', 'naayf', 'hamed', 'fahed', 'fahad', 'salman', 'omar', 'male', 'ar-sa', 'natural'];
+              const preferred = arVoices.find(v => maleKeywords.some(k => (v.name || '').toLowerCase().includes(k))) || arVoices[0];
+              if (preferred) utterance.voice = preferred;
+            }
+            utterance.onend = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                stopAndUnloadCurrentAudio();
+              }
+            };
+            utterance.onerror = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                stopAndUnloadCurrentAudio();
+              }
+            };
+            currentUtterance = utterance;
+            window.speechSynthesis.speak(utterance);
+          } catch (err) {
+            stopAndUnloadCurrentAudio();
+          }
+        }
+
+        if (playlist.length > 0) {
+          let idx = 0;
+          function playNextSegment() {
+            if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+            if (idx >= playlist.length) {
+              stopAndUnloadCurrentAudio();
+              return;
+            }
+            if (currentAudio) {
+              try {
+                currentAudio.onplay = null;
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio.removeAttribute('src');
+                currentAudio.load();
+              } catch (e) {}
+            }
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.src = playlist[idx];
+            audio.currentTime = 0;
+            currentAudio = audio;
+            window.currentAudio = audio;
+
+            let fellBack = false;
+            function fallbackOnce() {
+              if (fellBack) return;
+              if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+              fellBack = true;
+              speakWithSegregatedVoiceStyle();
+            }
+
+            audio.onended = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                idx++;
+                playNextSegment();
+              }
+            };
+            audio.onerror = fallbackOnce;
+            const p = audio.play();
+            if (p && p.catch) p.catch(fallbackOnce);
+          }
+          playNextSegment();
+        } else {
+          speakWithSegregatedVoiceStyle();
+        }
       }
 
       function renderTasbihView() {
@@ -996,6 +1204,7 @@ export function generateSingleFileHtml(): string {
       document.addEventListener('click', function(e) {
         const tabBtn = e.target.closest('.tab-btn');
         if (tabBtn) {
+          stopAndUnloadCurrentAudio();
           state.activeTab = tabBtn.dataset.tab;
           updateTabsUI();
           renderCards();
@@ -1064,16 +1273,8 @@ export function generateSingleFileHtml(): string {
             ...window.ADHKAR_DATA.sleep
           ];
           const item = all.find(i => i.id === id);
-          if (item && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const cleanText = item.arabic.replace(/\s*\([٠-٩\d]+\)\s*/g, ' ').replace(/\n+/g, ' ');
-            const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.lang = 'ar-SA';
-            utterance.rate = 0.95;
-            pronounceBtn.innerHTML = '<span>⏹️ Playing...</span>';
-            utterance.onend = () => { renderCards(); };
-            utterance.onerror = () => { renderCards(); };
-            window.speechSynthesis.speak(utterance);
+          if (item) {
+            playItemAudio(item);
           }
           return;
         }

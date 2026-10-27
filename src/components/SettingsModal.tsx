@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2 } from 'lucide-react';
+import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2, Target } from 'lucide-react';
 import { AppSettings, FontSize, ThemeMode, TranslationLanguage } from '../types/adhkar.ts';
 import {
   getNotificationPermissionStatus,
@@ -491,6 +491,91 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       ))}
                     </div>
                   </div>
+                </div>
+
+                {/* Daily Goal Completion Reminder */}
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-slate-800 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Daily Goal Completion Reminder</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                        Sends a push notification if daily goal progress is &lt; 100%
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={settings.goalReminderEnabled}
+                      aria-label="Toggle Daily Goal Reminder"
+                      onClick={() =>
+                        onUpdateSettings((s) => ({
+                          ...s,
+                          goalReminderEnabled: !s.goalReminderEnabled,
+                        }))
+                      }
+                      className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                        settings.goalReminderEnabled ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
+                      }`}
+                    >
+                      <span
+                        className={`block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-150 ${
+                          settings.goalReminderEnabled ? 'translate-x-4' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {settings.goalReminderEnabled && (
+                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          Reminder Scheduled Time:
+                        </span>
+                        <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                          {formatTimeDisplay(settings.dailyGoalReminderTime || '20:00')}
+                        </span>
+                      </div>
+
+                      <input
+                        type="time"
+                        value={settings.dailyGoalReminderTime || '20:00'}
+                        onChange={(e) =>
+                          onUpdateSettings((s) => ({
+                            ...s,
+                            dailyGoalReminderTime: e.target.value,
+                          }))
+                        }
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      />
+
+                      {/* Quick Presets for Goal Reminder */}
+                      <div className="flex gap-1.5 mt-2">
+                        {['19:00', '20:00', '21:00', '22:00'].map((time) => (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() =>
+                              onUpdateSettings((s) => ({
+                                ...s,
+                                dailyGoalReminderTime: time,
+                              }))
+                            }
+                            className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors ${
+                              (settings.dailyGoalReminderTime || '20:00') === time
+                                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-700'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                            }`}
+                          >
+                            {time}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Test Notification Button */}

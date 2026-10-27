@@ -1,22 +1,103 @@
 /**
- * Audio recitation and pronunciation engine for Daily Adhkar.
- * - Traditional melodic Tajweed / Murattal recitation for Quranic verses (Mishary Rashid Alafasy).
- * - Clear, resonant classical Arabic native male voice for daily supplications.
- * - Interactive Play, Pause, Resume, Replay, and Speed control (0.75x, 1.0x, 1.25x).
- * - Real-time state subscription across cards so only one recitation plays at a time.
+ * Exclusive Audio Recitation & Pronunciation Engine for Daily Adhkar.
+ *
+ * 1. Exclusive Playback (Zero Audio Mixing):
+ *    - Uses a single global `currentAudio` player instance.
+ *    - Before any audio starts playing, forces any currently playing audio track
+ *      to pause/stop, detaches its event listeners, resets `currentTime = 0`,
+ *      unloads its source, and cancels any active Web Speech synthesis.
+ *    - Only one audio source can ever be active at any given time.
+ *
+ * 2. Strictly Segregated Voice Styles:
+ *    - Quranic Verses (ആയത്തുകൾ - `quranic_tajweed`):
+ *      Traditional melodic, contemplative, and rhythmic Quranic recitation
+ *      (Tajweed/Murattal style) by a native male reciter (Qari).
+ *    - Regular Adhkar & Supplications (ദിക്റുകൾ - `natural_dua`):
+ *      Natural, humble, calm, and conversational native Arabic male voice,
+ *      using a steady and reverent spiritual tone suitable for private remembrance (Dua).
+ *
+ * 3. Synchronized Visual Indicators:
+ *    - Broadcasts real-time playback state across all subscribed components so
+ *      Play and Pause icons toggle immediately when playback starts, pauses,
+ *      completes, is cancelled, or switches to another card.
  */
 
 export type PronunciationSpeed = '0.75x' | '1.0x' | '1.25x';
 export type PlaybackStatus = 'idle' | 'playing' | 'paused' | 'buffering';
+export type VoiceStyle = 'quranic_tajweed' | 'natural_dua';
+
+export interface VoiceStyleProfile {
+  style: VoiceStyle;
+  label: string;
+  activeLabel: string;
+  malayalamLabel: string;
+  description: string;
+  pitch: number;
+  baseRate: number;
+  volume: number;
+}
+
+export const VOICE_STYLE_PROFILES: Record<VoiceStyle, VoiceStyleProfile> = {
+  quranic_tajweed: {
+    style: 'quranic_tajweed',
+    label: 'Tajweed / Murattal (Qari)',
+    activeLabel: 'Melodic Tajweed (الترتيل)',
+    malayalamLabel: 'ആയത്തുകൾ • തജ്‌വീദ് പാരായണം',
+    description:
+      'Traditional melodic, contemplative, and rhythmic Quranic recitation (Tajweed/Murattal style) by a native male reciter (Qari).',
+    pitch: 0.98,
+    baseRate: 0.88,
+    volume: 1.0,
+  },
+  natural_dua: {
+    style: 'natural_dua',
+    label: 'Calm Natural Dua Voice',
+    activeLabel: 'Calm & Reverent Dua (دعاء خاشع)',
+    malayalamLabel: 'ദിക്റുകൾ • ശാന്തമായ ദുആ ശൈലി',
+    description:
+      'Natural, humble, calm, and conversational native Arabic male voice with a steady and reverent spiritual tone suitable for private remembrance (Dua).',
+    pitch: 1.0, // Natural, unforced conversational pitch (avoids theatrical/broadcast distortion)
+    baseRate: 0.95, // Steady, calm, reverent conversational cadence
+    volume: 0.92, // Gentle, humble, intimate delivery for personal remembrance
+  },
+};
 
 export interface AudioPlaybackState {
   playingId: string | null;
   status: PlaybackStatus;
   speed: PronunciationSpeed;
   isQuranic: boolean;
+  voiceStyle: VoiceStyle;
   reciterTitle?: string;
   currentTime?: number;
   duration?: number;
+}
+
+declare global {
+  interface Window {
+    currentAudio?: HTMLAudioElement | null;
+  }
+}
+
+/**
+ * Single global HTMLAudioElement instance shared across the entire application.
+ * Guarantees that at most one audio track can exist or play at any time.
+ */
+let currentAudio: HTMLAudioElement | null = null;
+
+/**
+ * Returns the active global HTMLAudioElement instance, if any.
+ */
+export function getCurrentAudio(): HTMLAudioElement | null {
+  return currentAudio;
+}
+
+/**
+ * Returns the segregated voice style profile based on whether the item is a Quranic verse
+ * (ആയത്തുകൾ) or a regular Dhikr/Supplication (ദിക്റുകൾ).
+ */
+export function getVoiceStyleProfile(isQuranic: boolean): VoiceStyleProfile {
+  return isQuranic ? VOICE_STYLE_PROFILES.quranic_tajweed : VOICE_STYLE_PROFILES.natural_dua;
 }
 
 /**
@@ -36,7 +117,11 @@ export function prepareArabicSpeechText(text: string): string {
 /**
  * Converts pronunciation speed label into playback rate number.
  */
-export function getPronunciationSpeechRate(speed: PronunciationSpeed): number {
+export function getPronunciationSpeechRate(
+  speed: PronunciationSpeed,
+  voiceStyle: VoiceStyle = 'natural_dua'
+): number {
+  const profile = VOICE_STYLE_PROFILES[voiceStyle] || VOICE_STYLE_PROFILES.natural_dua;
   switch (speed) {
     case '0.75x':
       return 0.75;
@@ -44,43 +129,73 @@ export function getPronunciationSpeechRate(speed: PronunciationSpeed): number {
       return 1.25;
     case '1.0x':
     default:
-      return 0.95; // Slightly measured pace for reverent, clear articulation
+      return profile.baseRate;
   }
 }
 
 /**
- * Selects the highest quality classical Arabic male voice available in the browser.
- * Prioritizes deep, resonant classical Arabic male voices.
+ * Selects the best native Arabic male voice available in the browser,
+ * tailored to the segregated voice style:
+ * - For `natural_dua`: prioritizes natural, calm, conversational native Arabic male voices
+ *   (e.g., Maged, Tariq, Naayf, Hamed, Natural/Online Arabic male voices).
+ * - For `quranic_tajweed`: prioritizes clear native Arabic Qari/male voices when TTS fallback is needed.
  */
 export function selectBestArabicVoice(
-  voices: { lang: string; name?: string; default?: boolean }[]
+  voices: { lang: string; name?: string; default?: boolean }[],
+  voiceStyle: VoiceStyle = 'natural_dua'
 ): { lang: string; name?: string; default?: boolean } | null {
   if (!voices || voices.length === 0) return null;
 
-  // Known high-quality classical Arabic male voice names
-  const maleKeywords = ['maged', 'tariq', 'naayf', 'male', 'fahad', 'salman', 'ar-sa', 'standard-b'];
-
-  // 1. Look for known Arabic male voices
   const arabicVoices = voices.filter((v) => {
     const lang = (v.lang || '').toLowerCase();
     return lang.startsWith('ar');
   });
 
-  if (arabicVoices.length > 0) {
-    const maleVoice = arabicVoices.find((v) => {
+  if (arabicVoices.length === 0) return null;
+
+  // Natural conversational native Arabic male voice identifiers
+  const naturalMaleKeywords = [
+    'maged',
+    'tariq',
+    'naayf',
+    'hamed',
+    'fahed',
+    'fahad',
+    'salman',
+    'omar',
+    'khalid',
+    'male',
+    'ar-sa',
+    'standard-b',
+    'wavenet-b',
+    'neural',
+    'natural',
+  ];
+
+  if (voiceStyle === 'natural_dua') {
+    // Prefer natural/neural native male voices first for humble, calm conversational Dua
+    const naturalMale = arabicVoices.find((v) => {
       const name = (v.name || '').toLowerCase();
-      return maleKeywords.some((kw) => name.includes(kw));
+      return (
+        (name.includes('natural') || name.includes('online')) &&
+        naturalMaleKeywords.some((kw) => name.includes(kw))
+      );
     });
-    if (maleVoice) return maleVoice;
-
-    // 2. Look for Saudi Arabia standard voice
-    const saudiVoice = arabicVoices.find((v) => (v.lang || '').toLowerCase() === 'ar-sa');
-    if (saudiVoice) return saudiVoice;
-
-    return arabicVoices[0];
+    if (naturalMale) return naturalMale;
   }
 
-  return null;
+  // Match known native Arabic male voices
+  const maleVoice = arabicVoices.find((v) => {
+    const name = (v.name || '').toLowerCase();
+    return naturalMaleKeywords.some((kw) => name.includes(kw));
+  });
+  if (maleVoice) return maleVoice;
+
+  // Look for Saudi Arabia (ar-SA) native voice
+  const saudiVoice = arabicVoices.find((v) => (v.lang || '').toLowerCase() === 'ar-sa');
+  if (saudiVoice) return saudiVoice;
+
+  return arabicVoices[0];
 }
 
 /**
@@ -101,16 +216,18 @@ class PronunciationManagerClass {
   private status: PlaybackStatus = 'idle';
   private currentSpeed: PronunciationSpeed = '1.0x';
   private isCurrentQuranic = false;
+  private currentVoiceStyle: VoiceStyle = 'natural_dua';
   private currentReciterTitle = '';
 
-  // HTML5 Audio playback (for Melodic Tajweed Quranic clips & supplication audio)
-  private audioElement: HTMLAudioElement | null = null;
+  // Monotonically increasing token to invalidate stale async callbacks
+  private playbackToken = 0;
+
+  // Playlist tracking for multi-verse Quranic recitations
   private audioPlaylist: string[] = [];
   private currentPlaylistIndex = 0;
 
-  // Speech Synthesis fallback (for classical resonant male voice)
-  private currentUtterance: any = null;
-  private utteranceText = '';
+  // Speech Synthesis instance for natural, calm conversational Dua voice
+  private currentUtterance: SpeechSynthesisUtterance | null = null;
 
   private listeners: Set<AudioStateListener> = new Set();
   private endListeners: Set<(id: string) => void> = new Set();
@@ -121,9 +238,10 @@ class PronunciationManagerClass {
       status: this.status,
       speed: this.currentSpeed,
       isQuranic: this.isCurrentQuranic,
+      voiceStyle: this.currentVoiceStyle,
       reciterTitle: this.currentReciterTitle,
-      currentTime: this.audioElement?.currentTime || 0,
-      duration: this.audioElement?.duration || 0,
+      currentTime: currentAudio?.currentTime || 0,
+      duration: currentAudio?.duration || 0,
     };
   }
 
@@ -164,12 +282,65 @@ class PronunciationManagerClass {
   }
 
   /**
+   * Forces the global `currentAudio` instance and any active Web Speech utterance
+   * to immediately stop, reset playback time to 0, detach all listeners, and unload.
+   * Prevents any overlapping or mixed audio tracks.
+   */
+  private destroyActiveAudioResources() {
+    // 1. Stop, reset to 0, and unload the single global HTMLAudioElement
+    if (currentAudio) {
+      try {
+        // Detach listeners FIRST so clearing src/loading never triggers onerror or onended
+        currentAudio.onplay = null;
+        currentAudio.onpause = null;
+        currentAudio.onended = null;
+        currentAudio.onerror = null;
+        currentAudio.ontimeupdate = null;
+        currentAudio.onloadedmetadata = null;
+
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio.removeAttribute('src');
+        currentAudio.load();
+      } catch {
+        // ignore DOM media cleanup errors
+      }
+      currentAudio = null;
+      if (typeof window !== 'undefined') {
+        window.currentAudio = null;
+      }
+    }
+
+    // 2. Cancel and detach any active Web Speech API utterance
+    if (this.currentUtterance) {
+      try {
+        this.currentUtterance.onstart = null;
+        this.currentUtterance.onend = null;
+        this.currentUtterance.onerror = null;
+        this.currentUtterance.onpause = null;
+        this.currentUtterance.onresume = null;
+      } catch {
+        // ignore
+      }
+      this.currentUtterance = null;
+    }
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  /**
    * Pauses the currently playing audio or speech.
    */
   public pause() {
-    if (this.audioElement && this.status === 'playing') {
+    if (currentAudio && (this.status === 'playing' || this.status === 'buffering')) {
       try {
-        this.audioElement.pause();
+        currentAudio.pause();
       } catch {
         // ignore
       }
@@ -178,14 +349,23 @@ class PronunciationManagerClass {
       return;
     }
 
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && this.status === 'playing') {
+    if (
+      typeof window !== 'undefined' &&
+      'speechSynthesis' in window &&
+      (this.status === 'playing' || this.status === 'buffering')
+    ) {
       try {
-        window.speechSynthesis.pause();
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          window.speechSynthesis.pause();
+          this.status = 'paused';
+          this.notify();
+          return;
+        }
       } catch {
         // ignore
       }
-      this.status = 'paused';
-      this.notify();
+      // If speechSynthesis pause is unsupported on the platform, stop cleanly
+      this.stop();
     }
   }
 
@@ -193,23 +373,21 @@ class PronunciationManagerClass {
    * Resumes paused audio or speech.
    */
   public resume() {
-    if (this.audioElement && this.status === 'paused') {
+    if (currentAudio && this.status === 'paused') {
+      const token = this.playbackToken;
       try {
-        const promise = this.audioElement.play();
+        const promise = currentAudio.play();
+        this.status = 'playing';
+        this.notify();
         if (promise) {
-          promise
-            .then(() => {
-              this.status = 'playing';
-              this.notify();
-            })
-            .catch(() => {
-              this.status = 'idle';
-              this.notify();
-            });
+          promise.catch(() => {
+            if (this.playbackToken === token) {
+              this.stop();
+            }
+          });
         }
       } catch {
-        this.status = 'idle';
-        this.notify();
+        this.stop();
       }
       return;
     }
@@ -220,49 +398,32 @@ class PronunciationManagerClass {
         this.status = 'playing';
         this.notify();
       } catch {
-        this.status = 'idle';
-        this.notify();
+        this.stop();
       }
     }
   }
 
   /**
-   * Completely stops any currently playing or paused audio/speech.
+   * Completely stops and unloads any currently playing or paused audio/speech,
+   * resetting playback time to zero and syncing all visual indicators to idle.
    */
   public stop() {
-    if (this.audioElement) {
-      try {
-        this.audioElement.pause();
-        this.audioElement.currentTime = 0;
-        this.audioElement.src = '';
-      } catch {
-        // ignore
-      }
-      this.audioElement = null;
-    }
-
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel();
-      } catch {
-        // ignore
-      }
-    }
+    this.playbackToken++;
+    this.destroyActiveAudioResources();
 
     this.currentPlayingId = null;
     this.status = 'idle';
     this.audioPlaylist = [];
     this.currentPlaylistIndex = 0;
-    this.currentUtterance = null;
-    this.utteranceText = '';
     this.notify();
   }
 
   /**
    * Toggles play / pause for a specific Dhikr item.
-   * If already playing this item -> pauses it.
-   * If paused on this item -> resumes it.
-   * If another item or stopped -> starts playing this item.
+   * - If already playing or buffering this item -> pauses it.
+   * - If paused on this item -> resumes it.
+   * - If another item is playing or idle -> immediately cancels/unloads the previous
+   *   track and starts playing the newly selected item.
    */
   public togglePlayPause(options: {
     id: string;
@@ -273,10 +434,18 @@ class PronunciationManagerClass {
     audioUrls?: string[];
     reciterTitle?: string;
   }) {
-    const { id, arabicText, speed = this.currentSpeed, isQuranic = false, audioUrl, audioUrls, reciterTitle } = options;
+    const {
+      id,
+      arabicText,
+      speed = this.currentSpeed,
+      isQuranic = false,
+      audioUrl,
+      audioUrls,
+      reciterTitle,
+    } = options;
 
     if (this.currentPlayingId === id) {
-      if (this.status === 'playing') {
+      if (this.status === 'playing' || this.status === 'buffering') {
         this.pause();
         return;
       }
@@ -286,7 +455,7 @@ class PronunciationManagerClass {
       }
     }
 
-    // Play fresh
+    // Play fresh (automatically stops, resets, and unloads any previously active audio)
     this.play({
       id,
       arabicText,
@@ -299,7 +468,8 @@ class PronunciationManagerClass {
   }
 
   /**
-   * Plays the recitation from the beginning.
+   * Starts playing the requested item from the beginning after forcibly stopping,
+   * resetting, and unloading any previously active audio track.
    */
   public play(options: {
     id: string;
@@ -310,23 +480,47 @@ class PronunciationManagerClass {
     audioUrls?: string[];
     reciterTitle?: string;
   }) {
-    const { id, arabicText, speed = this.currentSpeed, isQuranic = false, audioUrl, audioUrls, reciterTitle } = options;
+    const {
+      id,
+      arabicText,
+      speed = this.currentSpeed,
+      isQuranic = false,
+      audioUrl,
+      audioUrls,
+      reciterTitle,
+    } = options;
 
-    // Stop whatever was playing previously
+    // 1. Force stop, reset to 0, and unload any currently playing audio or speech
     this.stop();
+
+    const token = ++this.playbackToken;
+    const styleProfile = getVoiceStyleProfile(isQuranic);
 
     this.currentPlayingId = id;
     this.currentSpeed = speed;
     this.isCurrentQuranic = isQuranic;
+    this.currentVoiceStyle = styleProfile.style;
     this.currentReciterTitle =
       reciterTitle ||
       (isQuranic
-        ? 'Sheikh Mishary Rashid Alafasy • Melodic Tajweed'
-        : 'Classical Resonant Arabic Male Voice');
+        ? 'Sheikh Mishary Rashid Alafasy • Melodic Tajweed (Qari)'
+        : 'Natural, Calm & Reverent Arabic Male Voice (Dua)');
 
-    // Build URL list: support single audioUrl or multiple audioUrls
+    // Mark status as playing immediately so visual Play/Pause buttons toggle without lag
+    this.status = 'playing';
+    this.notify();
+
+    // Segregate playback by Voice Style:
+    // - Quranic Verses (ആയത്തുകൾ): Melodic Tajweed/Murattal audio recitation by native Qari
+    // - Regular Adhkar (ദിക്റുകൾ): Natural, humble, calm, conversational native Arabic male voice
     const playlist: string[] = [];
-    if (audioUrls && audioUrls.length > 0) {
+    if (isQuranic) {
+      if (audioUrls && audioUrls.length > 0) {
+        playlist.push(...audioUrls);
+      } else if (audioUrl) {
+        playlist.push(audioUrl);
+      }
+    } else if (audioUrls && audioUrls.length > 0) {
       playlist.push(...audioUrls);
     } else if (audioUrl) {
       playlist.push(audioUrl);
@@ -335,27 +529,27 @@ class PronunciationManagerClass {
     const preparedText = prepareArabicSpeechText(arabicText);
 
     if (playlist.length > 0) {
-      this.playAudioPlaylist(id, playlist, speed, preparedText);
+      this.playAudioPlaylist(id, token, playlist, speed, preparedText, styleProfile);
     } else {
-      this.playSpeechSynthesis(id, preparedText, speed);
+      this.playSpeechSynthesis(id, token, preparedText, speed, styleProfile);
     }
   }
 
   /**
-   * Sets playback rate/speed on the fly.
+   * Updates playback speed on the fly.
    */
   public setSpeed(speed: PronunciationSpeed) {
     this.currentSpeed = speed;
-    const rate = getPronunciationSpeechRate(speed);
+    const rate = getPronunciationSpeechRate(speed, this.currentVoiceStyle);
 
-    if (this.audioElement) {
-      this.audioElement.playbackRate = rate;
+    if (currentAudio) {
+      currentAudio.playbackRate = rate;
     }
     this.notify();
   }
 
   /**
-   * Replays current item from the start.
+   * Replays the current item from the start (resets currentTime to 0).
    */
   public replay(options?: {
     id?: string;
@@ -365,12 +559,19 @@ class PronunciationManagerClass {
     audioUrl?: string;
     audioUrls?: string[];
   }) {
-    if (this.audioElement) {
-      this.audioElement.currentTime = 0;
-      this.audioElement.play().catch(() => {});
-      this.status = 'playing';
-      this.notify();
-      return;
+    if (currentAudio && (!options?.id || options.id === this.currentPlayingId)) {
+      try {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        this.status = 'playing';
+        this.notify();
+        currentAudio.play().catch(() => {
+          this.stop();
+        });
+        return;
+      } catch {
+        // fall through to full restart
+      }
     }
 
     if (options && options.id && options.arabicText) {
@@ -386,24 +587,27 @@ class PronunciationManagerClass {
   }
 
   /**
-   * Plays a playlist of authentic audio clips (e.g. multi-verse Quranic recitation).
+   * Plays a sequential playlist of audio tracks using the single global `currentAudio` instance.
    */
   private playAudioPlaylist(
     id: string,
+    token: number,
     playlist: string[],
     speed: PronunciationSpeed,
-    fallbackText: string
+    fallbackText: string,
+    styleProfile: VoiceStyleProfile
   ) {
     this.audioPlaylist = playlist;
     this.currentPlaylistIndex = 0;
-    this.status = 'buffering';
-    this.notify();
 
-    const playCurrentIndex = () => {
-      if (this.currentPlayingId !== id) return;
+    const playCurrentSegment = () => {
+      // Abort if another track was started or stop() was called
+      if (this.playbackToken !== token || this.currentPlayingId !== id) {
+        return;
+      }
 
       if (this.currentPlaylistIndex >= this.audioPlaylist.length) {
-        // Finished all tracks
+        // Completed all segments in the playlist
         const finishedId = this.currentPlayingId;
         this.stop();
         if (finishedId) {
@@ -412,102 +616,149 @@ class PronunciationManagerClass {
         return;
       }
 
+      // Clean up previous segment's Audio instance before creating/assigning the new one
+      this.destroyActiveAudioResources();
+
       const url = this.audioPlaylist[this.currentPlaylistIndex];
-      const audio = new Audio(url);
-      audio.playbackRate = getPronunciationSpeechRate(speed);
-      this.audioElement = audio;
+      const audio = new Audio();
+      audio.preload = 'auto';
+      audio.src = url;
+      audio.currentTime = 0;
+      audio.volume = styleProfile.volume;
+      audio.playbackRate = getPronunciationSpeechRate(speed, styleProfile.style);
+
+      // Assign to the single global `currentAudio` instance
+      currentAudio = audio;
+      if (typeof window !== 'undefined') {
+        window.currentAudio = audio;
+      }
+
+      let fallbackTriggered = false;
+      const triggerFallbackOnce = () => {
+        if (fallbackTriggered) return;
+        if (this.playbackToken !== token || this.currentPlayingId !== id) return;
+        fallbackTriggered = true;
+
+        this.destroyActiveAudioResources();
+        if (fallbackText) {
+          this.playSpeechSynthesis(id, token, fallbackText, speed, styleProfile);
+        } else {
+          this.stop();
+        }
+      };
 
       audio.onplay = () => {
-        if (this.currentPlayingId === id) {
+        if (this.playbackToken === token && this.currentPlayingId === id) {
           this.status = 'playing';
           this.notify();
         }
       };
 
+      audio.onpause = () => {
+        // Only mark paused if we didn't reach the end or get stopped
+        if (
+          this.playbackToken === token &&
+          this.currentPlayingId === id &&
+          !audio.ended &&
+          this.status === 'playing'
+        ) {
+          this.status = 'paused';
+          this.notify();
+        }
+      };
+
       audio.onended = () => {
-        if (this.currentPlayingId === id) {
+        if (this.playbackToken === token && this.currentPlayingId === id) {
           this.currentPlaylistIndex++;
-          playCurrentIndex();
+          playCurrentSegment();
         }
       };
 
       audio.onerror = () => {
-        // If external CDN audio fails, fall back to resonant male classical Arabic voice
-        if (fallbackText) {
-          this.playSpeechSynthesis(id, fallbackText, speed);
-        } else {
-          this.stop();
-        }
+        triggerFallbackOnce();
       };
 
-      audio.play().catch(() => {
-        if (fallbackText) {
-          this.playSpeechSynthesis(id, fallbackText, speed);
-        } else {
-          this.stop();
-        }
-      });
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          triggerFallbackOnce();
+        });
+      }
     };
 
-    playCurrentIndex();
+    playCurrentSegment();
   }
 
   /**
-   * Classical Resonant Arabic Male Voice via Web Speech API.
-   * Deep, measured cadence specifically for supplications.
+   * Speaks the Arabic text using Web Speech API with segregated vocal parameters:
+   * - Regular Adhkar (`natural_dua`): Natural, humble, calm, conversational native Arabic
+   *   male voice (`pitch = 1.0`, `rate = 0.95`, `volume = 0.92`) with a steady, reverent spiritual tone.
+   * - Quranic fallback (`quranic_tajweed`): Contemplative, rhythmic Murattal pacing (`pitch = 0.98`, `rate = 0.88`).
    */
-  private playSpeechSynthesis(id: string, text: string, speed: PronunciationSpeed) {
+  private playSpeechSynthesis(
+    id: string,
+    token: number,
+    text: string,
+    speed: PronunciationSpeed,
+    styleProfile: VoiceStyleProfile
+  ) {
+    if (this.playbackToken !== token || this.currentPlayingId !== id) {
+      return;
+    }
+
     if (!isSpeechSynthesisSupported() || !text) {
       this.stop();
       return;
     }
 
     try {
-      window.speechSynthesis.cancel();
+      // Ensure any prior speech or audio is completely stopped
+      this.destroyActiveAudioResources();
 
       const utterance = new window.SpeechSynthesisUtterance(text);
       utterance.lang = 'ar-SA';
-      utterance.rate = getPronunciationSpeechRate(speed);
-      // Pitch 0.92 gives a deeper, resonant masculine classical tone
-      utterance.pitch = 0.92;
+      utterance.rate = getPronunciationSpeechRate(speed, styleProfile.style);
+      utterance.pitch = styleProfile.pitch;
+      utterance.volume = styleProfile.volume;
 
-      // Select classical Arabic male voice
       const voices = window.speechSynthesis.getVoices();
       if (voices && voices.length > 0) {
-        const bestVoice = selectBestArabicVoice(voices);
+        const bestVoice = selectBestArabicVoice(voices, styleProfile.style);
         if (bestVoice) {
           utterance.voice = bestVoice as SpeechSynthesisVoice;
         }
       }
 
       utterance.onstart = () => {
-        if (this.currentPlayingId === id) {
+        if (this.playbackToken === token && this.currentPlayingId === id) {
           this.status = 'playing';
           this.notify();
         }
       };
 
       utterance.onend = () => {
-        if (this.currentPlayingId === id) {
+        if (this.playbackToken === token && this.currentPlayingId === id) {
           const finishedId = id;
           this.stop();
           this.triggerEnd(finishedId);
         }
       };
 
-      utterance.onerror = (e) => {
-        if (this.currentPlayingId === id) {
+      utterance.onerror = () => {
+        if (this.playbackToken === token && this.currentPlayingId === id) {
           this.stop();
         }
       };
 
       this.currentUtterance = utterance;
-      this.status = 'buffering';
+      this.status = 'playing';
       this.notify();
 
       window.speechSynthesis.speak(utterance);
     } catch {
-      this.stop();
+      if (this.playbackToken === token) {
+        this.stop();
+      }
     }
   }
 }

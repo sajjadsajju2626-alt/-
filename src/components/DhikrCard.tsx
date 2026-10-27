@@ -13,6 +13,10 @@ import {
   Pause,
   Music2,
   Mic,
+  Timer,
+  Plus,
+  Minus,
+  Sparkles,
 } from 'lucide-react';
 import { DhikrItem, AppSettings, ThemeMode } from '../types/adhkar.ts';
 import { getVisibleTranslations, getVisibleVirtues } from '../utils/translation-utils.ts';
@@ -21,6 +25,18 @@ import {
   PronunciationSpeed,
   AudioPlaybackState,
 } from '../utils/pronunciation.ts';
+import {
+  TIMER_PRESETS,
+  TimerState,
+  getRecommendedDurationSeconds,
+  createInitialTimerState,
+  formatCountdown,
+  calculateTimerProgress,
+  tickTimer,
+  setTimerDuration,
+  adjustTimerDuration,
+} from '../utils/timer-utils.ts';
+import { playCompletionSound, playTapSound, triggerHaptic } from '../utils/audio.ts';
 
 interface DhikrCardProps {
   item: DhikrItem;
@@ -52,8 +68,18 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
   const [playbackState, setPlaybackState] = useState<AudioPlaybackState>(PronunciationManager.getState());
   const [speechSpeed, setSpeechSpeed] = useState<PronunciationSpeed>('1.0x');
 
+  const recommendedSeconds = getRecommendedDurationSeconds(item);
+  const [timerState, setTimerState] = useState<TimerState>(() =>
+    createInitialTimerState(recommendedSeconds)
+  );
+  const [showTimerPresets, setShowTimerPresets] = useState(false);
+
   const isDone = count >= item.target;
   const progressPercent = Math.min(100, Math.round((count / item.target) * 100));
+  const timerProgressPercent = calculateTimerProgress(
+    timerState.remainingSeconds,
+    timerState.durationSeconds
+  );
 
   useEffect(() => {
     const unsubscribe = PronunciationManager.subscribe((state) => {
@@ -62,10 +88,74 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
     return () => unsubscribe();
   }, []);
 
+  // Countdown interval when timer is running
+  useEffect(() => {
+    if (timerState.status !== 'running') return;
+
+    const intervalId = window.setInterval(() => {
+      setTimerState((prev) => {
+        const next = tickTimer(prev);
+        if (prev.status === 'running' && next.status === 'completed') {
+          if (settings.soundEnabled) {
+            playCompletionSound();
+          }
+          if (settings.vibrateEnabled) {
+            triggerHaptic('complete');
+          }
+        }
+        return next;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [timerState.status, settings.soundEnabled, settings.vibrateEnabled]);
+
+  const handleTimerToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (settings.soundEnabled) playTapSound();
+    if (settings.vibrateEnabled) triggerHaptic('tap');
+
+    setTimerState((prev) => {
+      if (prev.status === 'running') {
+        return { ...prev, status: 'paused' };
+      }
+      if (prev.status === 'completed' || prev.remainingSeconds <= 0) {
+        return {
+          ...prev,
+          remainingSeconds: prev.durationSeconds,
+          status: 'running',
+        };
+      }
+      return { ...prev, status: 'running' };
+    });
+  };
+
+  const handleTimerReset = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (settings.vibrateEnabled) triggerHaptic('reset');
+    setTimerState((prev) => ({
+      ...prev,
+      remainingSeconds: prev.durationSeconds,
+      status: 'idle',
+    }));
+  };
+
+  const handleSelectPreset = (seconds: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (settings.soundEnabled) playTapSound();
+    setTimerState((prev) => setTimerDuration(prev, seconds));
+  };
+
+  const handleAdjustDuration = (deltaSeconds: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (settings.soundEnabled) playTapSound();
+    setTimerState((prev) => adjustTimerDuration(prev, deltaSeconds));
+  };
+
   const isThisItemActive = playbackState.playingId === item.id;
-  const isThisItemPlaying = isThisItemActive && playbackState.status === 'playing';
+  const isThisItemPlaying =
+    isThisItemActive && (playbackState.status === 'playing' || playbackState.status === 'buffering');
   const isThisItemPaused = isThisItemActive && playbackState.status === 'paused';
-  const isThisItemBuffering = isThisItemActive && playbackState.status === 'buffering';
 
   const handleTogglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -160,7 +250,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black ${
                 isDark
                   ? 'bg-amber-950/70 text-amber-300 border border-amber-800/80'
-                  : 'bg-amber-100 text-amber-950 border border-amber-400'
+                  : 'bg-amber-200 text-black border border-amber-600'
               }`}
               title={`Supplication #${item.uthaymeenNumber} from Shaykh Ibn Uthaymeen collection`}
             >
@@ -173,7 +263,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 ? 'bg-emerald-700 text-white font-extrabold shadow-xs'
                 : isDark
                 ? 'bg-teal-900/60 text-teal-300 border border-teal-800'
-                : 'bg-teal-100 text-teal-950 border border-teal-400 font-extrabold'
+                : 'bg-teal-100 text-black border border-teal-600 font-extrabold'
             }`}
           >
             {isDone ? (
@@ -188,8 +278,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
           {item.repeatNote && (
             <span
-              className={`text-[11px] font-bold ${
-                isDark ? 'text-slate-300' : 'text-slate-800'
+              className={`text-[11px] ${
+                isDark ? 'text-slate-300 font-bold' : 'text-black font-extrabold'
               }`}
             >
               • {item.repeatNote}
@@ -215,8 +305,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 : isThisItemPaused
                 ? 'Resume audio'
                 : item.isQuranic
-                ? 'Listen: Melodic Tajweed Recitation'
-                : 'Listen: Classical Arabic Voice'
+                ? 'Listen: Melodic Tajweed / Murattal Recitation (Qari)'
+                : 'Listen: Natural, Humble & Calm Arabic Male Voice (Dua)'
             }
             className={`p-1.5 rounded-lg text-xs flex items-center justify-center transition-all cursor-pointer ${
               isThisItemPlaying
@@ -225,7 +315,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
                 : isDark
                 ? 'text-emerald-400 hover:text-white hover:bg-slate-800'
-                : 'text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50'
+                : 'text-teal-950 hover:text-black bg-teal-50 hover:bg-teal-100 border border-teal-300'
             }`}
           >
             {isThisItemPlaying ? (
@@ -247,10 +337,10 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               className={`p-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
                 isDark
                   ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/80'
+                  : 'text-slate-900 hover:text-black hover:bg-slate-200 border border-slate-300'
               }`}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           )}
 
@@ -261,16 +351,16 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
             title="Copy Arabic"
             className={`p-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors cursor-pointer ${
               copied
-                ? 'text-emerald-700 font-bold bg-emerald-100 border border-emerald-300'
+                ? 'text-emerald-900 font-extrabold bg-emerald-100 border border-emerald-500'
                 : isDark
                 ? 'text-slate-400 hover:text-white hover:bg-slate-800'
-                : 'text-slate-600 hover:text-slate-950 hover:bg-slate-200/80'
+                : 'text-slate-900 hover:text-black hover:bg-slate-200 border border-slate-300'
             }`}
           >
             {copied ? (
-              <CheckCheck className="w-3.5 h-3.5 text-emerald-700" />
+              <CheckCheck className="w-3.5 h-3.5 text-emerald-800 stroke-[2.5]" />
             ) : (
-              <Copy className="w-3.5 h-3.5" />
+              <Copy className="w-3.5 h-3.5 stroke-[2.2]" />
             )}
           </button>
 
@@ -288,15 +378,15 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             className={`p-1.5 rounded-lg text-xs flex items-center transition-all cursor-pointer ${
               isFavorite
-                ? 'text-amber-900 bg-amber-100 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300'
+                ? 'text-amber-950 bg-amber-100 border border-amber-500 dark:bg-amber-950/60 dark:text-amber-300'
                 : isDark
                 ? 'text-slate-400 hover:text-amber-400 hover:bg-slate-800'
-                : 'text-slate-600 hover:text-amber-600 hover:bg-slate-200/80'
+                : 'text-slate-900 hover:text-amber-800 hover:bg-slate-200 border border-slate-300'
             }`}
           >
             <Star
               className={`w-3.5 h-3.5 ${
-                isFavorite ? 'fill-amber-500 text-amber-600' : ''
+                isFavorite ? 'fill-amber-500 text-amber-700' : 'stroke-[2.2]'
               }`}
             />
           </button>
@@ -305,7 +395,13 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
       {showCategoryBadge && (
         <div className="mb-2">
-          <span className="inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 border border-teal-300 dark:border-teal-800">
+          <span
+            className={`inline-block text-[10px] uppercase font-extrabold tracking-wider px-2 py-0.5 rounded-md border ${
+              isDark
+                ? 'bg-teal-950/60 text-teal-300 border-teal-800'
+                : 'bg-teal-100 text-black border-teal-500'
+            }`}
+          >
             {item.category === 'morning'
               ? '☀️ Morning'
               : item.category === 'evening'
@@ -315,6 +411,16 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               : '🌌 Sleep'}
           </span>
         </div>
+      )}
+
+      {item.title && (
+        <h3
+          className={`font-malayalam text-sm sm:text-base font-extrabold mb-2.5 tracking-tight ${
+            isDark ? 'text-teal-200' : 'text-black'
+          }`}
+        >
+          {item.title}
+        </h3>
       )}
 
       {/* Audio Pronunciation Player Bar */}
@@ -382,59 +488,63 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
             )}
           </button>
 
-          {/* Reciter Badge & Style Indicator */}
+          {/* Segregated Reciter Badge & Voice Style Indicator */}
           <div className="flex items-center gap-1.5 min-w-0">
             {item.isQuranic ? (
               <div
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-extrabold border ${
                   isThisItemPlaying
-                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400'
+                    ? isDark
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500'
+                      : 'bg-emerald-100 text-black border-emerald-600'
                     : isDark
-                    ? 'bg-teal-950/60 text-teal-300 border-teal-800'
-                    : 'bg-teal-50 text-teal-800 border-teal-200'
+                    ? 'bg-teal-950/60 text-teal-300 border-teal-800 font-bold'
+                    : 'bg-teal-50 text-black border-teal-500'
                 }`}
-                title="Traditional Melodic Tajweed recitation by Sheikh Mishary Rashid Alafasy"
+                title="Traditional melodic, contemplative, and rhythmic Quranic recitation (Tajweed/Murattal style) by a native male reciter (Qari)"
               >
-                <Music2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                <Music2 className={`w-3 h-3 shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-800 stroke-[2.5]'}`} />
                 <span className="truncate">
                   {isThisItemPlaying ? (
                     <span className="flex items-center gap-1">
                       <span className="flex items-center gap-0.5 h-3">
-                        <span className="w-0.5 h-2 bg-emerald-500 animate-pulse rounded-full" />
-                        <span className="w-0.5 h-3.5 bg-emerald-500 animate-pulse delay-75 rounded-full" />
-                        <span className="w-0.5 h-2 bg-emerald-500 animate-pulse delay-150 rounded-full" />
+                        <span className="w-0.5 h-2 bg-emerald-700 dark:bg-emerald-400 animate-pulse rounded-full" />
+                        <span className="w-0.5 h-3.5 bg-emerald-700 dark:bg-emerald-400 animate-pulse delay-75 rounded-full" />
+                        <span className="w-0.5 h-2 bg-emerald-700 dark:bg-emerald-400 animate-pulse delay-150 rounded-full" />
                       </span>
-                      <span>Melodic Tajweed (الترتيل)</span>
+                      <span>Tajweed / Murattal (الترتيل)</span>
                     </span>
                   ) : (
-                    <span>Melodic Tajweed • Alafasy</span>
+                    <span>Tajweed / Murattal • Qari (ആയത്തുകൾ)</span>
                   )}
                 </span>
               </div>
             ) : (
               <div
-                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${
+                className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-extrabold border ${
                   isThisItemPlaying
-                    ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400'
+                    ? isDark
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500'
+                      : 'bg-emerald-100 text-black border-emerald-600'
                     : isDark
-                    ? 'bg-slate-700/60 text-slate-300 border-slate-600'
-                    : 'bg-slate-100 text-slate-700 border-slate-200'
+                    ? 'bg-slate-700/60 text-slate-200 border-slate-600 font-bold'
+                    : 'bg-white text-black border-slate-400'
                 }`}
-                title="Pronounced in a resonant classical Arabic male voice"
+                title="Natural, humble, calm, and conversational native Arabic male voice with a steady and reverent spiritual tone suitable for private remembrance (Dua)"
               >
-                <Mic className="w-3 h-3 text-teal-600 dark:text-teal-400 shrink-0" />
+                <Mic className={`w-3 h-3 shrink-0 ${isDark ? 'text-teal-400' : 'text-teal-900 stroke-[2.5]'}`} />
                 <span className="truncate">
                   {isThisItemPlaying ? (
                     <span className="flex items-center gap-1">
                       <span className="flex items-center gap-0.5 h-3">
-                        <span className="w-0.5 h-2 bg-emerald-500 animate-pulse rounded-full" />
-                        <span className="w-0.5 h-3.5 bg-emerald-500 animate-pulse delay-75 rounded-full" />
-                        <span className="w-0.5 h-2 bg-emerald-500 animate-pulse delay-150 rounded-full" />
+                        <span className="w-0.5 h-2 bg-emerald-700 dark:bg-emerald-400 animate-pulse rounded-full" />
+                        <span className="w-0.5 h-3.5 bg-emerald-700 dark:bg-emerald-400 animate-pulse delay-75 rounded-full" />
+                        <span className="w-0.5 h-2 bg-emerald-700 dark:bg-emerald-400 animate-pulse delay-150 rounded-full" />
                       </span>
-                      <span>Classical Male Voice</span>
+                      <span>Calm &amp; Reverent Dua (دعاء خاشع)</span>
                     </span>
                   ) : (
-                    <span>Classical Male Voice</span>
+                    <span>Calm Natural Dua Voice (ദിക്റുകൾ)</span>
                   )}
                 </span>
               </div>
@@ -450,14 +560,22 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               onClick={handleReplay}
               aria-label="Replay audio from start"
               title="Replay from beginning"
-              className="p-1 rounded-md text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer mr-0.5"
+              className={`p-1 rounded-md transition-colors cursor-pointer mr-0.5 ${
+                isDark
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  : 'text-black hover:bg-slate-200 border border-slate-300'
+              }`}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           )}
 
           <div
-            className="inline-flex items-center rounded-lg p-0.5 bg-slate-200/80 dark:bg-slate-900 border border-slate-300/60 dark:border-slate-700"
+            className={`inline-flex items-center rounded-lg p-0.5 border ${
+              isDark
+                ? 'bg-slate-900 border-slate-700'
+                : 'bg-white border-slate-400'
+            }`}
             role="group"
             aria-label="Pronunciation playback speed"
           >
@@ -474,10 +592,12 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                     : '1.25x - Faster pace'
                 }
                 aria-pressed={speechSpeed === spd}
-                className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer select-none ${
+                className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold transition-all cursor-pointer select-none ${
                   speechSpeed === spd
-                    ? 'bg-teal-700 text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-teal-800 text-white shadow-xs'
+                    : isDark
+                    ? 'text-slate-400 hover:text-white font-bold'
+                    : 'text-black hover:bg-slate-200 font-extrabold'
                 }`}
               >
                 {spd}
@@ -490,14 +610,14 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       {/* Arabic Script: Maximum contrast black bold font for crisp daylight readability */}
       <div
         dir="rtl"
-        className={`arabic font-arabic text-right select-text tracking-wide mb-3 p-2 rounded-xl transition-all duration-200 font-bold ${arabicSizeClass} ${
+        className={`arabic font-arabic text-right select-text tracking-wide mb-3 p-2 rounded-xl transition-all duration-200 ${arabicSizeClass} ${
           isThisItemPlaying || isThisItemPaused
             ? isDark
-              ? 'text-white bg-teal-950/50 ring-1 ring-emerald-500/60'
-              : 'text-black bg-emerald-100/70 ring-2 ring-emerald-600'
+              ? 'text-white font-bold bg-teal-950/50 ring-1 ring-emerald-500/60'
+              : 'text-black font-black bg-emerald-100/80 ring-2 ring-emerald-700'
             : isDark
-            ? 'text-slate-100'
-            : 'text-black'
+            ? 'text-slate-100 font-bold'
+            : 'text-black font-black'
         }`}
       >
         {item.arabic}
@@ -507,7 +627,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       {settings.showTransliteration && item.transliteration && (
         <div
           className={`transliteration text-xs sm:text-[13px] italic mb-2.5 select-text font-serif leading-relaxed ${
-            isDark ? 'text-teal-300 font-medium' : 'text-teal-950 font-bold'
+            isDark ? 'text-teal-300 font-medium' : 'text-teal-950 font-extrabold'
           }`}
         >
           {item.transliteration}
@@ -526,29 +646,33 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 className={`font-malayalam text-xs sm:text-[13px] select-text leading-relaxed p-2.5 rounded-xl border ${
                   isDark
                     ? 'bg-teal-950/30 border-teal-800/40 text-teal-100'
-                    : 'bg-emerald-50 border-emerald-300 text-slate-950 shadow-xs'
+                    : 'bg-emerald-50/90 border-emerald-500 text-black shadow-xs'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-1.5">
-                  <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-800 text-white uppercase shadow-xs">
+                  <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-900 text-white uppercase shadow-xs">
                     മലയാളം
                   </span>
                 </div>
-                <p className="leading-relaxed font-semibold text-slate-950 dark:text-teal-100">{visible.ml}</p>
+                <p className={`leading-relaxed ${isDark ? 'font-semibold text-teal-100' : 'font-bold text-black'}`}>
+                  {visible.ml}
+                </p>
               </div>
 
               {/* English Translation */}
               <div
                 className={`text-xs sm:text-[13px] select-text leading-relaxed px-2 py-1 ${
-                  isDark ? 'text-slate-300' : 'text-slate-900 font-medium'
+                  isDark ? 'text-slate-300' : 'text-black font-bold'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-800 dark:text-slate-400">
+                  <span className={`text-[10px] font-black uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-teal-950'}`}>
                     English:
                   </span>
                 </div>
-                <p className="text-slate-900 dark:text-slate-200 font-medium">{visible.en}</p>
+                <p className={isDark ? 'text-slate-200 font-medium' : 'text-black font-bold'}>
+                  {visible.en}
+                </p>
               </div>
             </div>
           );
@@ -560,15 +684,17 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               className={`meaning font-malayalam text-xs sm:text-[13px] select-text leading-relaxed mb-3.5 p-2.5 rounded-xl border ${
                 isDark
                   ? 'bg-teal-950/30 border-teal-800/40 text-teal-100'
-                  : 'bg-emerald-50 border-emerald-300 text-slate-950 shadow-xs'
+                  : 'bg-emerald-50/90 border-emerald-500 text-black shadow-xs'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-800 text-white uppercase shadow-xs">
+                <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-900 text-white uppercase shadow-xs">
                   മലയാളം
                 </span>
               </div>
-              <p className="leading-relaxed font-semibold text-slate-950 dark:text-teal-100">{visible.ml}</p>
+              <p className={`leading-relaxed ${isDark ? 'font-semibold text-teal-100' : 'font-bold text-black'}`}>
+                {visible.ml}
+              </p>
             </div>
           );
         }
@@ -576,8 +702,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
         if (visible.hasEn) {
           return (
             <div
-              className={`meaning text-xs sm:text-sm select-text leading-relaxed mb-3.5 font-medium ${
-                isDark ? 'text-slate-300' : 'text-slate-900'
+              className={`meaning text-xs sm:text-sm select-text leading-relaxed mb-3.5 ${
+                isDark ? 'text-slate-300 font-medium' : 'text-black font-bold'
               }`}
             >
               {visible.en}
@@ -598,14 +724,14 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               setShowVirtue(!showVirtue);
             }}
             aria-expanded={showVirtue}
-            className={`flex items-center justify-between w-full py-1.5 px-2.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+            className={`flex items-center justify-between w-full py-1.5 px-2.5 rounded-lg text-xs transition-colors cursor-pointer border ${
               isDark
-                ? 'bg-slate-800/70 hover:bg-slate-800 text-teal-300 border-slate-700'
-                : 'bg-teal-100 hover:bg-teal-200/90 text-teal-950 border-teal-300 shadow-xs'
+                ? 'bg-slate-800/70 hover:bg-slate-800 text-teal-300 border-slate-700 font-bold'
+                : 'bg-teal-100 hover:bg-teal-200 text-black border-teal-500 font-extrabold shadow-xs'
             }`}
           >
             <span className="flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Source: {item.source}</span>
             </span>
             {showVirtue ? (
@@ -625,7 +751,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 className={`p-3 mt-1.5 rounded-xl text-xs leading-relaxed border space-y-2.5 ${
                   isDark
                     ? 'bg-slate-800/40 border-slate-700/60 text-slate-300'
-                    : 'bg-amber-50 border-amber-300 text-amber-950 shadow-xs'
+                    : 'bg-amber-50 border-amber-500 text-black shadow-xs'
                 }`}
               >
                 {/* Both Malayalam and English */}
@@ -633,18 +759,22 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                   <>
                     <div className="font-malayalam">
                       <div className="flex items-center gap-1.5 mb-1.5">
-                        <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-800 text-white uppercase shadow-xs">
+                        <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-900 text-white uppercase shadow-xs">
                           ശ്രേഷ്ഠത (Hadith Virtue)
                         </span>
                       </div>
-                      <p className="leading-relaxed font-semibold text-amber-950 dark:text-amber-200">{visibleVirtue.ml}</p>
+                      <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-bold text-black'}`}>
+                        {visibleVirtue.ml}
+                      </p>
                     </div>
 
-                    <div className="pt-2 border-t border-amber-300/80 dark:border-slate-700/60">
-                      <div className="text-[10px] font-black uppercase text-amber-950 dark:text-slate-400 mb-0.5">
+                    <div className={`pt-2 border-t ${isDark ? 'border-slate-700/60' : 'border-amber-400'}`}>
+                      <div className={`text-[10px] font-black uppercase mb-0.5 ${isDark ? 'text-slate-400' : 'text-black'}`}>
                         Virtue (English):
                       </div>
-                      <p className="text-[12px] leading-relaxed font-medium text-amber-950 dark:text-slate-200">{visibleVirtue.en}</p>
+                      <p className={`text-[12px] leading-relaxed ${isDark ? 'font-medium text-slate-200' : 'font-bold text-black'}`}>
+                        {visibleVirtue.en}
+                      </p>
                     </div>
                   </>
                 )}
@@ -653,19 +783,21 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                 {visibleVirtue.hasMl && !visibleVirtue.hasEn && (
                   <div className="font-malayalam">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-800 text-white uppercase shadow-xs">
+                      <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-900 text-white uppercase shadow-xs">
                         ശ്രേഷ്ഠത (Hadith Virtue)
                       </span>
                     </div>
-                    <p className="leading-relaxed font-semibold text-amber-950 dark:text-amber-200">{visibleVirtue.ml}</p>
+                    <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-bold text-black'}`}>
+                      {visibleVirtue.ml}
+                    </p>
                   </div>
                 )}
 
                 {/* English only */}
                 {!visibleVirtue.hasMl && visibleVirtue.hasEn && (
                   <div>
-                    <div className="font-black text-amber-950 dark:text-slate-300 mb-0.5">Hadith Virtue:</div>
-                    <p className="font-medium text-amber-950 dark:text-slate-200">{visibleVirtue.en}</p>
+                    <div className={`font-black mb-0.5 ${isDark ? 'text-slate-300' : 'text-black'}`}>Hadith Virtue:</div>
+                    <p className={isDark ? 'font-medium text-slate-200' : 'font-bold text-black'}>{visibleVirtue.en}</p>
                   </div>
                 )}
               </div>
@@ -673,6 +805,300 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           })()}
         </div>
       )}
+
+      {/* Recitation Focus Countdown Timer */}
+      <div
+        data-testid={`dhikr-timer-${item.id}`}
+        onClick={(e) => e.stopPropagation()}
+        className={`dhikr-focus-timer rounded-xl p-2.5 sm:px-3 sm:py-2.5 mb-3.5 border transition-all ${
+          timerState.status === 'running'
+            ? isDark
+              ? 'bg-emerald-950/60 border-emerald-500/80 shadow-md shadow-emerald-950/50'
+              : 'bg-emerald-50 border-emerald-600 shadow-sm'
+            : timerState.status === 'paused'
+            ? isDark
+              ? 'bg-amber-950/40 border-amber-500/60'
+              : 'bg-amber-50/90 border-amber-500'
+            : timerState.status === 'completed'
+            ? isDark
+              ? 'bg-emerald-900/50 border-emerald-400 ring-1 ring-emerald-400/60'
+              : 'bg-emerald-100/90 border-emerald-600 ring-1 ring-emerald-600'
+            : isDark
+            ? 'bg-slate-800/50 border-slate-700/70 hover:border-slate-600'
+            : 'bg-slate-100/90 border-slate-300 hover:border-teal-500'
+        }`}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* Left: Timer Label & Live MM:SS Countdown Display */}
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className={`p-1.5 rounded-lg flex items-center justify-center shrink-0 ${
+                timerState.status === 'running'
+                  ? 'bg-emerald-600 text-white animate-pulse'
+                  : timerState.status === 'paused'
+                  ? 'bg-amber-600 text-white'
+                  : timerState.status === 'completed'
+                  ? 'bg-emerald-700 text-white'
+                  : isDark
+                  ? 'bg-slate-700 text-teal-300'
+                  : 'bg-teal-800 text-white'
+              }`}
+            >
+              <Timer className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span
+                  className={`text-[11px] font-extrabold tracking-tight ${
+                    isDark ? 'text-slate-200' : 'text-black'
+                  }`}
+                >
+                  Focus Timer
+                </span>
+                <span
+                  className={`font-malayalam text-[10px] font-bold ${
+                    isDark ? 'text-teal-300' : 'text-teal-950'
+                  }`}
+                >
+                  • സമയക്രമം
+                </span>
+              </div>
+            </div>
+
+            {/* Countdown Digital Clock Display */}
+            <span
+              data-testid={`timer-display-${item.id}`}
+              aria-live="polite"
+              className={`font-mono text-xs sm:text-sm font-black px-2 py-0.5 rounded-md border tracking-wider select-none ${
+                timerState.status === 'running'
+                  ? isDark
+                    ? 'bg-emerald-950 text-emerald-300 border-emerald-500'
+                    : 'bg-white text-black border-emerald-700 shadow-2xs'
+                  : timerState.status === 'paused'
+                  ? isDark
+                    ? 'bg-amber-950 text-amber-300 border-amber-500'
+                    : 'bg-white text-black border-amber-600'
+                  : timerState.status === 'completed'
+                  ? 'bg-emerald-700 text-white border-emerald-800'
+                  : isDark
+                  ? 'bg-slate-900 text-teal-200 border-slate-700'
+                  : 'bg-white text-black border-slate-400'
+              }`}
+            >
+              {formatCountdown(timerState.remainingSeconds)}
+            </span>
+          </div>
+
+          {/* Right: Start/Pause, Reset, and Duration Toggle Controls */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              data-testid={`timer-toggle-${item.id}`}
+              onClick={handleTimerToggle}
+              aria-label={
+                timerState.status === 'running'
+                  ? `Pause focus timer for ${item.transliteration}`
+                  : timerState.status === 'paused'
+                  ? `Resume focus timer for ${item.transliteration}`
+                  : `Start focus timer for ${item.transliteration}`
+              }
+              className={`px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 transition-all cursor-pointer select-none shadow-2xs ${
+                timerState.status === 'running'
+                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                  : timerState.status === 'paused'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  : 'bg-teal-800 hover:bg-teal-700 text-white'
+              }`}
+            >
+              {timerState.status === 'running' ? (
+                <>
+                  <Pause className="w-3 h-3 fill-current" />
+                  <span>Pause</span>
+                </>
+              ) : timerState.status === 'paused' ? (
+                <>
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>Resume</span>
+                </>
+              ) : timerState.status === 'completed' ? (
+                <>
+                  <RotateCcw className="w-3 h-3 stroke-[2.5]" />
+                  <span>Restart</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>Start</span>
+                </>
+              )}
+            </button>
+
+            {(timerState.status !== 'idle' ||
+              timerState.remainingSeconds !== timerState.durationSeconds) && (
+              <button
+                type="button"
+                data-testid={`timer-reset-${item.id}`}
+                onClick={handleTimerReset}
+                title="Reset focus timer"
+                aria-label="Reset focus timer"
+                className={`p-1.5 rounded-lg text-xs transition-colors cursor-pointer border ${
+                  isDark
+                    ? 'bg-slate-800 text-slate-300 hover:text-white border-slate-700 hover:bg-slate-700'
+                    : 'bg-white text-black hover:bg-slate-200 border-slate-400 font-bold'
+                }`}
+              >
+                <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              data-testid={`timer-customize-toggle-${item.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTimerPresets((prev) => !prev);
+              }}
+              aria-expanded={showTimerPresets}
+              title="Set recitation timer duration"
+              className={`px-2 py-1 rounded-lg text-[11px] font-extrabold flex items-center gap-1 transition-colors cursor-pointer border ${
+                showTimerPresets
+                  ? isDark
+                    ? 'bg-teal-900/80 text-teal-200 border-teal-600'
+                    : 'bg-teal-200 text-black border-teal-600'
+                  : isDark
+                  ? 'bg-slate-900 text-slate-300 hover:text-white border-slate-700'
+                  : 'bg-white text-black hover:bg-slate-200 border-slate-400'
+              }`}
+            >
+              <span>Set Time</span>
+              {showTimerPresets ? (
+                <ChevronUp className="w-3 h-3 stroke-[2.5]" />
+              ) : (
+                <ChevronDown className="w-3 h-3 stroke-[2.5]" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Visual Progress Bar */}
+        {(timerState.status !== 'idle' || showTimerPresets) && (
+          <div
+            className={`w-full h-1.5 rounded-full overflow-hidden mt-2 ${
+              isDark ? 'bg-slate-900' : 'bg-slate-300'
+            }`}
+          >
+            <div
+              data-testid={`timer-progress-${item.id}`}
+              className={`h-full transition-all duration-300 rounded-full ${
+                timerState.status === 'completed'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : timerState.status === 'paused'
+                  ? 'bg-amber-500'
+                  : 'bg-emerald-500'
+              }`}
+              style={{ width: `${timerProgressPercent}%` }}
+            />
+          </div>
+        )}
+
+        {/* Completed Celebration Notice */}
+        {timerState.status === 'completed' && (
+          <div
+            data-testid={`timer-completed-banner-${item.id}`}
+            className={`mt-2 px-2.5 py-1.5 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs font-extrabold border ${
+              isDark
+                ? 'bg-emerald-950/90 text-emerald-200 border-emerald-500/70'
+                : 'bg-white text-black border-emerald-600 shadow-2xs'
+            }`}
+          >
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 fill-amber-400" />
+              <span>Focus Session Complete!</span>
+              <span className="font-malayalam">• സമയം പൂർത്തിയായി!</span>
+            </span>
+            {!isDone && (
+              <button
+                type="button"
+                data-testid={`timer-complete-dhikr-${item.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onIncrement(item.id);
+                }}
+                className="px-2 py-0.5 rounded-md bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-extrabold cursor-pointer transition-colors"
+              >
+                +1 Count ({count}/{item.target})
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Expandable Duration Presets & +/- 15s Fine Adjustment */}
+        {showTimerPresets && (
+          <div
+            data-testid={`timer-presets-panel-${item.id}`}
+            className={`mt-2.5 pt-2 border-t flex flex-wrap items-center justify-between gap-2 ${
+              isDark ? 'border-slate-700/70' : 'border-slate-300'
+            }`}
+          >
+            <div className="flex items-center gap-1 flex-wrap">
+              {TIMER_PRESETS.map((preset) => {
+                const isSelected = timerState.durationSeconds === preset.seconds;
+                return (
+                  <button
+                    key={preset.seconds}
+                    type="button"
+                    data-testid={`timer-preset-${preset.seconds}-${item.id}`}
+                    onClick={(e) => handleSelectPreset(preset.seconds, e)}
+                    className={`px-2 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer border ${
+                      isSelected
+                        ? 'bg-teal-800 text-white border-teal-900 shadow-2xs'
+                        : isDark
+                        ? 'bg-slate-900 text-slate-300 hover:text-white border-slate-700 hover:bg-slate-800'
+                        : 'bg-white text-black hover:bg-teal-50 border-slate-400'
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                data-testid={`timer-minus-${item.id}`}
+                onClick={(e) => handleAdjustDuration(-15, e)}
+                title="Decrease duration by 15 seconds"
+                aria-label="Decrease duration by 15 seconds"
+                className={`px-2 py-1 rounded-md text-[11px] font-extrabold flex items-center gap-0.5 cursor-pointer border transition-colors ${
+                  isDark
+                    ? 'bg-slate-900 text-slate-300 hover:text-white border-slate-700 hover:bg-slate-800'
+                    : 'bg-white text-black hover:bg-slate-200 border-slate-400'
+                }`}
+              >
+                <Minus className="w-3 h-3 stroke-[2.5]" />
+                <span>15s</span>
+              </button>
+              <button
+                type="button"
+                data-testid={`timer-plus-${item.id}`}
+                onClick={(e) => handleAdjustDuration(15, e)}
+                title="Increase duration by 15 seconds"
+                aria-label="Increase duration by 15 seconds"
+                className={`px-2 py-1 rounded-md text-[11px] font-extrabold flex items-center gap-0.5 cursor-pointer border transition-colors ${
+                  isDark
+                    ? 'bg-slate-900 text-slate-300 hover:text-white border-slate-700 hover:bg-slate-800'
+                    : 'bg-white text-black hover:bg-slate-200 border-slate-400'
+                }`}
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" />
+                <span>15s</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Primary Counter Button */}
       <div className="relative">

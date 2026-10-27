@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body, button, input, select, textarea {
@@ -28,6 +29,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Crisp daylight contrast enhancements (applies only when not in dark mode) */
+.daylight-mode .arabic {
+  color: #000000;
+  font-weight: 800;
+}
+
+.daylight-mode .font-malayalam {
+  letter-spacing: -0.005em;
+}
+
 /* Custom scrollbar for adhkar container */
 ::-webkit-scrollbar {
   width: 6px;
@@ -43,3 +54,4 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(15, 118, 110, 0.4);
 }
+

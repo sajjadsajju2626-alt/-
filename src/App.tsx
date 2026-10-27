@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   TabKey,
   AdhkarCategory,
@@ -72,6 +72,18 @@ import {
   addCustomTask,
   completeAllTasks,
 } from './utils/tasks-utils.ts';
+import {
+  SectionCompletionFireOverlay,
+  SectionCompletionEvent,
+} from './components/SectionCompletionFireOverlay.tsx';
+import { AllCompletedFireworksModal } from './components/AllCompletedFireworksModal.tsx';
+import { ProgressAnalyticsSection } from './components/ProgressAnalyticsSection.tsx';
+import {
+  ProgressHistoryMap,
+  buildDailyProgressRecord,
+  upsertDailyProgressHistory,
+  isAllFourAdhkarCompleted,
+} from './utils/progress-history-utils.ts';
 
 const DEFAULT_SETTINGS: AppSettings = {
   arabicFontSize: 'large',
@@ -87,6 +99,8 @@ const DEFAULT_SETTINGS: AppSettings = {
   remindersEnabled: false,
   morningReminderTime: '06:00',
   eveningReminderTime: '17:30',
+  goalReminderEnabled: false,
+  dailyGoalReminderTime: '20:00',
 };
 
 export default function App() {
@@ -95,7 +109,7 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const tabParam = urlParams.get('tab') as TabKey | null;
-      if (tabParam && ['morning', 'evening', 'prayer', 'sleep', 'tasbih', 'favorites', 'tasks'].includes(tabParam)) {
+      if (tabParam && ['morning', 'evening', 'prayer', 'sleep', 'tasbih', 'favorites', 'tasks', 'progress'].includes(tabParam)) {
         return tabParam;
       }
     }
@@ -127,6 +141,20 @@ export default function App() {
     categoryName: '',
     freezeTokens: 1,
     freezeUsed: false,
+  });
+
+  // Section Completion Fire Overlay & All Completed Massive Fireworks Modal State
+  const [sectionFireEvent, setSectionFireEvent] = useState<SectionCompletionEvent | null>(null);
+  const [isAllCompletedFireworksOpen, setIsAllCompletedFireworksOpen] = useState(false);
+
+  // Weekly & Monthly Progress History State (indexed by YYYY-MM-DD in localStorage)
+  const [progressHistory, setProgressHistory] = useState<ProgressHistoryMap>(() => {
+    try {
+      const saved = localStorage.getItem('adhkar_progress_history');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
   });
 
   // Hands-Free Audio Recite-Along ("Autoplay All") State
@@ -213,48 +241,7 @@ export default function App() {
     }
   }, [settings]);
 
-  // Daily Adhkar Reminders Scheduler
-  useEffect(() => {
-    if (!settings.remindersEnabled) return;
 
-    const checkReminders = () => {
-      const now = new Date();
-      const currentHours = now.getHours();
-      const currentMinutes = now.getMinutes();
-      const todayStr = getTodayDateString(now);
-
-      // Check Morning reminder
-      if (isReminderDue(settings.morningReminderTime, currentHours, currentMinutes)) {
-        const lastMorningNotif = localStorage.getItem('adhkar_last_morning_notif_date');
-        if (lastMorningNotif !== todayStr) {
-          sendAdhkarNotification(
-            '☀️ Morning Adhkar Time • أذكار الصباح',
-            'Start your morning with blessings and divine protection. Tap to begin your morning remembrances.',
-            () => setCurrentTab('morning')
-          );
-          localStorage.setItem('adhkar_last_morning_notif_date', todayStr);
-        }
-      }
-
-      // Check Evening reminder
-      if (isReminderDue(settings.eveningReminderTime, currentHours, currentMinutes)) {
-        const lastEveningNotif = localStorage.getItem('adhkar_last_evening_notif_date');
-        if (lastEveningNotif !== todayStr) {
-          sendAdhkarNotification(
-            '🌙 Evening Adhkar Time • أذكار المساء',
-            'Evening has arrived. Bring peace to your heart with the evening remembrances.',
-            () => setCurrentTab('evening')
-          );
-          localStorage.setItem('adhkar_last_evening_notif_date', todayStr);
-        }
-      }
-    };
-
-    // Check immediately and every 30 seconds
-    checkReminders();
-    const interval = setInterval(checkReminders, 30000);
-    return () => clearInterval(interval);
-  }, [settings.remindersEnabled, settings.morningReminderTime, settings.eveningReminderTime]);
 
   // Favorites state: IDs of starred adhkar items
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -458,9 +445,271 @@ export default function App() {
     return totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
   }, [morningProgress, eveningProgress, prayerProgress, sleepProgress, taskStats]);
 
-  const activeCategoryConfig = CATEGORIES_CONFIG.find((c) => c.key === currentTab) || CATEGORIES_CONFIG[0];
+  // Daily Adhkar & Goal Completion Reminders Scheduler
+  useEffect(() => {
+    if (!settings.remindersEnabled && !settings.goalReminderEnabled) return;
 
-  // When any category is completed today, update and persist streak, and trigger animated celebration
+    const checkReminders = () => {
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const todayStr = getTodayDateString(now);
+
+      if (settings.remindersEnabled) {
+        // Check Morning reminder
+        if (isReminderDue(settings.morningReminderTime, currentHours, currentMinutes)) {
+          const lastMorningNotif = localStorage.getItem('adhkar_last_morning_notif_date');
+          if (lastMorningNotif !== todayStr) {
+            sendAdhkarNotification(
+              '☀️ Morning Adhkar Time • أذكار الصباح',
+              'Start your morning with blessings and divine protection. Tap to begin your morning remembrances.',
+              () => setCurrentTab('morning')
+            );
+            localStorage.setItem('adhkar_last_morning_notif_date', todayStr);
+          }
+        }
+
+        // Check Evening reminder
+        if (isReminderDue(settings.eveningReminderTime, currentHours, currentMinutes)) {
+          const lastEveningNotif = localStorage.getItem('adhkar_last_evening_notif_date');
+          if (lastEveningNotif !== todayStr) {
+            sendAdhkarNotification(
+              '🌙 Evening Adhkar Time • أذكار المساء',
+              'Evening has arrived. Bring peace to your heart with the evening remembrances.',
+              () => setCurrentTab('evening')
+            );
+            localStorage.setItem('adhkar_last_evening_notif_date', todayStr);
+          }
+        }
+      }
+
+      // Check Daily Goal completion reminder (if enabled and progress is under 100%)
+      if (
+        settings.goalReminderEnabled &&
+        isReminderDue(settings.dailyGoalReminderTime || '20:00', currentHours, currentMinutes)
+      ) {
+        const lastGoalNotif = localStorage.getItem('adhkar_last_goal_notif_date');
+        if (lastGoalNotif !== todayStr) {
+          if (overallDailyProgress < 100) {
+            sendAdhkarNotification(
+              '🎯 Daily Goal Reminder • تذكير الأهداف',
+              `Your overall daily progress is at ${overallDailyProgress}%. Complete your daily goals to maintain your spiritual streak!`,
+              () => setCurrentTab('morning')
+            );
+          }
+          localStorage.setItem('adhkar_last_goal_notif_date', todayStr);
+        }
+      }
+    };
+
+    // Check immediately and every 30 seconds
+    checkReminders();
+    const interval = setInterval(checkReminders, 30000);
+    return () => clearInterval(interval);
+  }, [
+    settings.remindersEnabled,
+    settings.morningReminderTime,
+    settings.eveningReminderTime,
+    settings.goalReminderEnabled,
+    settings.dailyGoalReminderTime,
+    overallDailyProgress,
+  ]);
+
+  const activeCategoryConfig =
+    CATEGORIES_CONFIG.find((c) => c.key === currentTab) ||
+    (currentTab === 'tasks'
+      ? { key: 'morning', label: 'Daily Sunnah Tasks', arabicLabel: 'السنن والمهام اليومية', timeHint: 'Daily Sunnah & Devotional Checklist' }
+      : currentTab === 'favorites'
+      ? { key: 'morning', label: 'Favorite Adhkar', arabicLabel: 'الأذكار المفضلة', timeHint: 'Your Starred Supplications' }
+      : currentTab === 'progress'
+      ? { key: 'morning', label: 'Progress Analytics', arabicLabel: 'إحصائيات التقدم', timeHint: 'Weekly & Monthly Adhkar History' }
+      : CATEGORIES_CONFIG[0]);
+
+  // Calculate total recitations performed today across all items + completed tasks
+  const totalRecitationsToday = useMemo(() => {
+    const dhikrSum = (Object.values(counts) as number[]).reduce((acc, c) => acc + (Number(c) || 0), 0);
+    let tasbihTotal = 0;
+    try {
+      tasbihTotal = Number(localStorage.getItem('tasbih_total') || '0') || 0;
+    } catch {
+      tasbihTotal = 0;
+    }
+    return dhikrSum + taskStats.completed + tasbihTotal;
+  }, [counts, taskStats.completed]);
+
+  // Update and persist daily progress history in localStorage (adhkar_progress_history)
+  useEffect(() => {
+    let tasbihCount = 0;
+    try {
+      tasbihCount = Number(localStorage.getItem('tasbih_count') || '0') || 0;
+    } catch {
+      tasbihCount = 0;
+    }
+
+    setProgressHistory((prev) => {
+      const record = buildDailyProgressRecord({
+        date: todayDateStr,
+        morningPercent: morningProgress.percent,
+        eveningPercent: eveningProgress.percent,
+        prayerPercent: prayerProgress.percent,
+        sleepPercent: sleepProgress.percent,
+        tasksPercent: taskStats.percent,
+        tasbihCount,
+        overallPercent: overallDailyProgress,
+        counts,
+        completedTasksCount: taskStats.completed,
+      });
+      const updated = upsertDailyProgressHistory(prev, record);
+      try {
+        localStorage.setItem('adhkar_progress_history', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  }, [
+    todayDateStr,
+    morningProgress.percent,
+    eveningProgress.percent,
+    prayerProgress.percent,
+    sleepProgress.percent,
+    taskStats.percent,
+    taskStats.completed,
+    overallDailyProgress,
+    counts,
+  ]);
+
+  // Section Completion Fire (🔥) & All-4-Tabs Massive Fireworks Celebration (🎆🔥)
+  useEffect(() => {
+    const sectionCelebratedStorageKey = `adhkar_section_celebrated_${todayDateStr}`;
+    let celebratedMap: Record<string, boolean> = {};
+    try {
+      const raw = localStorage.getItem(sectionCelebratedStorageKey);
+      celebratedMap = raw ? JSON.parse(raw) : {};
+    } catch {
+      celebratedMap = {};
+    }
+
+    const favItems = getFavoriteDhikrItems(ALL_ADHKAR_ITEMS, favorites);
+    const favProg = calculateCategoryProgress(favItems, counts);
+
+    const sectionsToCheck: Array<{
+      key: string;
+      label: string;
+      completed: number;
+      total: number;
+      isDone: boolean;
+    }> = [
+      {
+        key: 'morning',
+        label: 'Morning Adhkar',
+        completed: morningProgress.completed,
+        total: morningProgress.total,
+        isDone: morningProgress.isAllDone && morningProgress.total > 0,
+      },
+      {
+        key: 'evening',
+        label: 'Evening Adhkar',
+        completed: eveningProgress.completed,
+        total: eveningProgress.total,
+        isDone: eveningProgress.isAllDone && eveningProgress.total > 0,
+      },
+      {
+        key: 'prayer',
+        label: 'After Prayer Adhkar',
+        completed: prayerProgress.completed,
+        total: prayerProgress.total,
+        isDone: prayerProgress.isAllDone && prayerProgress.total > 0,
+      },
+      {
+        key: 'sleep',
+        label: 'Before Sleep Adhkar',
+        completed: sleepProgress.completed,
+        total: sleepProgress.total,
+        isDone: sleepProgress.isAllDone && sleepProgress.total > 0,
+      },
+      {
+        key: 'tasks',
+        label: 'Daily Sunnah Tasks',
+        completed: taskStats.completed,
+        total: taskStats.total,
+        isDone: taskStats.percent === 100 && taskStats.total > 0,
+      },
+      {
+        key: 'favorites',
+        label: 'Favorite Adhkar',
+        completed: favProg.completed,
+        total: favProg.total,
+        isDone: favProg.isAllDone && favProg.total > 0,
+      },
+    ];
+
+    let mapChanged = false;
+    let newlyCompletedSection: SectionCompletionEvent | null = null;
+
+    for (const sec of sectionsToCheck) {
+      if (sec.isDone && !celebratedMap[sec.key]) {
+        celebratedMap[sec.key] = true;
+        mapChanged = true;
+        // Prefer showing the overlay for the currently active tab if multiple complete at once
+        if (!newlyCompletedSection || sec.key === currentTab) {
+          newlyCompletedSection = {
+            sectionKey: sec.key,
+            sectionLabel: sec.label,
+            completedCount: sec.completed,
+            totalCount: sec.total,
+          };
+        }
+      } else if (!sec.isDone && celebratedMap[sec.key]) {
+        delete celebratedMap[sec.key];
+        mapChanged = true;
+      }
+    }
+
+    if (mapChanged) {
+      try {
+        localStorage.setItem(sectionCelebratedStorageKey, JSON.stringify(celebratedMap));
+      } catch {
+        // ignore
+      }
+    }
+
+    if (newlyCompletedSection) {
+      setSectionFireEvent(newlyCompletedSection);
+    }
+
+    // Check 'All Completed' Massive Fireworks Celebration when all 4 daily Adhkar tabs reach 100%
+    const allFourDone = isAllFourAdhkarCompleted(categoryProgressMap);
+    const allCelebratedKey = `adhkar_all_celebrated_${todayDateStr}`;
+    const alreadyAllCelebrated = localStorage.getItem(allCelebratedKey) === 'true';
+
+    if (allFourDone && !alreadyAllCelebrated) {
+      try {
+        localStorage.setItem(allCelebratedKey, 'true');
+      } catch {
+        // ignore
+      }
+      setIsAllCompletedFireworksOpen(true);
+    } else if (!allFourDone && alreadyAllCelebrated) {
+      try {
+        localStorage.removeItem(allCelebratedKey);
+      } catch {
+        // ignore
+      }
+    }
+  }, [
+    todayDateStr,
+    currentTab,
+    morningProgress,
+    eveningProgress,
+    prayerProgress,
+    sleepProgress,
+    taskStats,
+    favorites,
+    counts,
+  ]);
+
+  // When any category is completed today, update and persist streak
   useEffect(() => {
     if (anyCategoryCompletedToday) {
       setStreakData((prev) => {
@@ -473,20 +722,16 @@ export default function App() {
             // ignore
           }
 
-          // Trigger Animated Streak Completion celebration if not yet shown today
-          const celebratedKey = `adhkar_celebrated_${todayDateStr}`;
-          const alreadyCelebrated = localStorage.getItem(celebratedKey);
-          if (!alreadyCelebrated) {
-            localStorage.setItem(celebratedKey, 'true');
-            setCelebrationDetails({
-              previousStreak: prev.currentStreak,
-              newStreak: res.updatedStreakData.currentStreak,
-              categoryName: activeCategoryConfig.label,
-              freezeTokens: res.updatedStreakData.freezeTokens,
-              freezeUsed: res.freezeUsed,
-            });
-            setIsStreakCelebrationOpen(true);
-          }
+          // Streak updated; individual section completion is celebrated via SectionCompletionFireOverlay,
+          // and full-screen fireworks celebration triggers when all 4 sections are completed.
+          localStorage.setItem(`adhkar_celebrated_${todayDateStr}`, 'true');
+          setCelebrationDetails({
+            previousStreak: prev.currentStreak,
+            newStreak: res.updatedStreakData.currentStreak,
+            categoryName: activeCategoryConfig.label,
+            freezeTokens: res.updatedStreakData.freezeTokens,
+            freezeUsed: res.freezeUsed,
+          });
 
           return res.updatedStreakData;
         }
@@ -526,13 +771,22 @@ export default function App() {
           percent: taskStats.percent,
           isAllDone: taskStats.percent === 100 && taskStats.total > 0,
         }
-      : currentTab !== 'tasbih'
+      : currentTab !== 'tasbih' && currentTab !== 'progress'
       ? categoryProgressMap[currentTab as AdhkarCategory]
       : { completed: 0, total: 0, percent: 0, isAllDone: false };
 
   // Current playing item in Autoplay All mode
   const currentAutoplayItem =
     isAutoplayActive && activeItems[autoplayIndex] ? activeItems[autoplayIndex] : null;
+
+  // Track autoplay pause timer ref to prevent overlapping audio playback
+  const autoplayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearAutoplayTimer = () => {
+    if (autoplayTimerRef.current) {
+      clearTimeout(autoplayTimerRef.current);
+      autoplayTimerRef.current = null;
+    }
+  };
 
   // Track global audio playback status
   const [playbackState, setPlaybackState] = useState<AudioPlaybackState>(PronunciationManager.getState());
@@ -544,10 +798,23 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
+  // If the user manually plays a different card while Autoplay is waiting on pause, sync or cancel the timer
+  useEffect(() => {
+    if (!isAutoplayActive || !playbackState.playingId) return;
+    const matchedIdx = activeItems.findIndex((it) => it.id === playbackState.playingId);
+    if (matchedIdx >= 0 && matchedIdx !== autoplayIndex) {
+      clearAutoplayTimer();
+      setAutoplayIndex(matchedIdx);
+      setIsAutoplayWaitingPause(false);
+    }
+  }, [playbackState.playingId, isAutoplayActive, activeItems, autoplayIndex]);
+
   // Stop autoplay if changing tabs
   const handleSelectTab = (tab: TabKey) => {
     if (isAutoplayActive) {
       stopAutoplay();
+    } else {
+      PronunciationManager.stop();
     }
     setCurrentTab(tab);
     setSearchQuery('');
@@ -556,6 +823,7 @@ export default function App() {
   // Start Autoplay All recitation
   const startAutoplayAll = () => {
     if (activeItems.length === 0) return;
+    clearAutoplayTimer();
     setIsAutoplayActive(true);
     setAutoplayIndex(0);
     setIsAutoplayWaitingPause(false);
@@ -576,6 +844,7 @@ export default function App() {
 
   // Stop Autoplay All recitation
   const stopAutoplay = () => {
+    clearAutoplayTimer();
     setIsAutoplayActive(false);
     setIsAutoplayWaitingPause(false);
     PronunciationManager.stop();
@@ -584,11 +853,13 @@ export default function App() {
   const handleAutoplayTogglePlayPause = () => {
     if (!isAutoplayActive) return;
     const state = PronunciationManager.getState();
-    if (state.status === 'playing') {
+    if (state.status === 'playing' || state.status === 'buffering') {
       PronunciationManager.pause();
     } else if (state.status === 'paused') {
       PronunciationManager.resume();
     } else if (currentAutoplayItem) {
+      clearAutoplayTimer();
+      setIsAutoplayWaitingPause(false);
       PronunciationManager.play({
         id: currentAutoplayItem.id,
         arabicText: currentAutoplayItem.arabic,
@@ -602,6 +873,7 @@ export default function App() {
 
   const handleAutoplayNext = () => {
     if (!isAutoplayActive) return;
+    clearAutoplayTimer();
     const nextIdx = autoplayIndex + 1;
     if (nextIdx < activeItems.length) {
       setAutoplayIndex(nextIdx);
@@ -624,6 +896,7 @@ export default function App() {
 
   const handleAutoplayPrev = () => {
     if (!isAutoplayActive) return;
+    clearAutoplayTimer();
     const prevIdx = autoplayIndex - 1;
     if (prevIdx >= 0) {
       setAutoplayIndex(prevIdx);
@@ -656,13 +929,14 @@ export default function App() {
         return { ...prev, [endedId]: newCount };
       });
 
-      // Pause before next supplication
+      // Clear any previous timer and pause before next supplication
+      clearAutoplayTimer();
       setIsAutoplayWaitingPause(true);
       const nextIdx = autoplayIndex + 1;
 
       if (nextIdx < activeItems.length) {
-        setTimeout(() => {
-          if (!isAutoplayActive) return;
+        autoplayTimerRef.current = setTimeout(() => {
+          autoplayTimerRef.current = null;
           setAutoplayIndex(nextIdx);
           setIsAutoplayWaitingPause(false);
           const nextItem = activeItems[nextIdx];
@@ -678,7 +952,8 @@ export default function App() {
           el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, autoplayPauseSeconds * 1000);
       } else {
-        setTimeout(() => {
+        autoplayTimerRef.current = setTimeout(() => {
+          autoplayTimerRef.current = null;
           stopAutoplay();
         }, 1000);
       }
@@ -779,14 +1054,19 @@ export default function App() {
 
   const isDark = settings.theme === 'dark' || settings.theme === 'midnight';
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('daylight-mode', !isDark);
+  }, [isDark]);
+
   return (
     <div
       className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
         settings.theme === 'midnight'
-          ? 'bg-black text-slate-100'
+          ? 'dark bg-black text-slate-100'
           : settings.theme === 'dark'
-          ? 'bg-slate-950 text-slate-100'
-          : 'bg-slate-100 text-slate-950'
+          ? 'dark bg-slate-950 text-slate-100'
+          : 'daylight-mode bg-slate-100 text-black'
       }`}
     >
       {/* PWA In-App Install Prompt Banner */}
@@ -828,36 +1108,68 @@ export default function App() {
       {/* Navigation Tab Bar */}
       <TabBar
         activeTab={currentTab}
-        onTabChange={(tab) => {
-          setCurrentTab(tab);
-          setSearchQuery('');
-        }}
+        onTabChange={handleSelectTab}
         categoryProgress={categoryProgressMap}
         favoritesCount={favorites.length}
+        favoritesCompletedCount={favoritesProgress.completed}
         tasksProgress={{ completed: taskStats.completed, total: taskStats.total }}
+      />
+
+      {/* Section Completion Fire Overlay (🔥 പൂർത്തിയായി!) */}
+      <SectionCompletionFireOverlay
+        event={sectionFireEvent}
+        onDismiss={() => setSectionFireEvent(null)}
+        soundEnabled={settings.soundEnabled}
+        vibrateEnabled={settings.vibrateEnabled}
       />
 
       {/* Main Content Area */}
       <main className="container flex-1 max-w-xl mx-auto px-4 py-4 w-full">
-        {currentTab === 'tasbih' ? (
-          <TasbihCounter
-            soundEnabled={settings.soundEnabled}
-            vibrateEnabled={settings.vibrateEnabled}
-            theme={settings.theme}
+        {currentTab === 'progress' ? (
+          <ProgressAnalyticsSection
+            history={progressHistory}
+            isDark={isDark}
+            todayStr={todayDateStr}
+            currentStreak={streakStatus.effectiveStreak}
+            bestStreak={streakData.bestStreak}
           />
+        ) : currentTab === 'tasbih' ? (
+          <div className="space-y-6">
+            <TasbihCounter
+              soundEnabled={settings.soundEnabled}
+              vibrateEnabled={settings.vibrateEnabled}
+              theme={settings.theme}
+            />
+            <ProgressAnalyticsSection
+              history={progressHistory}
+              isDark={isDark}
+              todayStr={todayDateStr}
+              currentStreak={streakStatus.effectiveStreak}
+              bestStreak={streakData.bestStreak}
+            />
+          </div>
         ) : currentTab === 'tasks' ? (
-          <DailyTasksTracker
-            tasks={tasks}
-            onToggleTask={handleToggleTask}
-            onToggleSubtask={handleToggleSubtask}
-            onAddTask={handleAddTask}
-            onDeleteTask={handleDeleteTask}
-            onResetTasks={handleResetTasks}
-            onCompleteAllTasks={handleCompleteAllTasks}
-            soundEnabled={settings.soundEnabled}
-            vibrateEnabled={settings.vibrateEnabled}
-            theme={settings.theme}
-          />
+          <div className="space-y-6">
+            <DailyTasksTracker
+              tasks={tasks}
+              onToggleTask={handleToggleTask}
+              onToggleSubtask={handleToggleSubtask}
+              onAddTask={handleAddTask}
+              onDeleteTask={handleDeleteTask}
+              onResetTasks={handleResetTasks}
+              onCompleteAllTasks={handleCompleteAllTasks}
+              soundEnabled={settings.soundEnabled}
+              vibrateEnabled={settings.vibrateEnabled}
+              theme={settings.theme}
+            />
+            <ProgressAnalyticsSection
+              history={progressHistory}
+              isDark={isDark}
+              todayStr={todayDateStr}
+              currentStreak={streakStatus.effectiveStreak}
+              bestStreak={streakData.bestStreak}
+            />
+          </div>
         ) : (
           <div>
             {/* Time-Based Recommended Adhkar Banner with 0-100% Visual Progress Bar */}
@@ -879,18 +1191,18 @@ export default function App() {
                 className={`mb-3 px-3 py-2 rounded-xl text-xs flex items-center justify-between border shadow-xs ${
                   isDark
                     ? 'bg-amber-950/30 border-amber-900/50 text-amber-200'
-                    : 'bg-amber-100/90 border-amber-300 text-amber-950'
+                    : 'bg-amber-100 border-amber-500 text-black'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-[10px] tracking-wider uppercase px-2 py-0.5 rounded bg-amber-800 text-white shadow-xs">
+                  <span className="font-black text-[10px] tracking-wider uppercase px-2 py-0.5 rounded bg-amber-900 text-white shadow-xs">
                     Authentic Booklet
                   </span>
-                  <span className="text-[11px] sm:text-xs font-bold text-amber-950 dark:text-amber-200">
+                  <span className={`text-[11px] sm:text-xs font-extrabold ${isDark ? 'text-amber-200' : 'text-black'}`}>
                     All 23 Duas from Shaykh Ibn Uthaymeen (Arabic, Malayalam & English)
                   </span>
                 </div>
-                <span className="text-xs font-black hidden sm:inline font-arabic text-amber-950 dark:text-amber-200">
+                <span className={`text-xs font-black hidden sm:inline font-arabic ${isDark ? 'text-amber-200' : 'text-black'}`}>
                   الأذكار صباحاً ومساءً
                 </span>
               </div>
@@ -901,16 +1213,16 @@ export default function App() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                 {/* Search input */}
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-800'}`} />
                   <input
                     type="text"
                     placeholder="Search in Arabic, English, or മലയാളം..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full pl-9 pr-3 py-2 rounded-xl text-xs sm:text-sm border focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors font-medium ${
+                    className={`w-full pl-9 pr-3 py-2 rounded-xl text-xs sm:text-sm border focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors ${
                       isDark
-                        ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500'
-                        : 'bg-white border-slate-300 text-slate-950 placeholder-slate-600 shadow-xs'
+                        ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500 font-medium'
+                        : 'bg-white border-slate-400 text-black placeholder-slate-700 font-bold shadow-xs'
                     }`}
                   />
                 </div>
@@ -920,13 +1232,15 @@ export default function App() {
                   <button
                     onClick={isAutoplayActive ? stopAutoplay : startAutoplayAll}
                     aria-label={isAutoplayActive ? 'Stop recite-along mode' : 'Start Autoplay All recite-along mode'}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
+                    className={`px-3 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-xs ${
                       isAutoplayActive
-                        ? 'bg-amber-500 text-slate-950 font-black animate-pulse'
-                        : 'bg-emerald-800/15 hover:bg-emerald-800/25 text-emerald-950 dark:text-emerald-200 border border-emerald-600/40 font-bold'
+                        ? 'bg-amber-500 text-black font-black animate-pulse'
+                        : isDark
+                        ? 'bg-emerald-800/15 hover:bg-emerald-800/25 text-emerald-200 border border-emerald-600/40 font-bold'
+                        : 'bg-emerald-100 hover:bg-emerald-200 text-black border-2 border-emerald-700 font-extrabold'
                     }`}
                   >
-                    <Headphones className="w-3.5 h-3.5" />
+                    <Headphones className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>{isAutoplayActive ? 'Stop Recite-Along' : 'Autoplay All'}</span>
                   </button>
                 )}
@@ -935,36 +1249,36 @@ export default function App() {
                 <div className="flex items-center gap-1 self-end sm:self-auto">
                   <button
                     onClick={() => setFilterMode('all')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition-colors cursor-pointer border ${
                       filterMode === 'all'
-                        ? 'bg-teal-800 border-teal-800 text-white shadow-xs'
+                        ? 'bg-teal-900 border-teal-900 text-white shadow-xs'
                         : isDark
-                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
-                        : 'bg-slate-200 border-slate-300 text-slate-950 hover:bg-slate-300'
+                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white font-bold'
+                        : 'bg-white border-slate-400 text-black hover:bg-slate-200 font-extrabold shadow-2xs'
                     }`}
                   >
                     All ({activeItems.length})
                   </button>
                   <button
                     onClick={() => setFilterMode('incomplete')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition-colors cursor-pointer border ${
                       filterMode === 'incomplete'
-                        ? 'bg-teal-800 border-teal-800 text-white shadow-xs'
+                        ? 'bg-teal-900 border-teal-900 text-white shadow-xs'
                         : isDark
-                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
-                        : 'bg-slate-200 border-slate-300 text-slate-950 hover:bg-slate-300'
+                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white font-bold'
+                        : 'bg-white border-slate-400 text-black hover:bg-slate-200 font-extrabold shadow-2xs'
                     }`}
                   >
                     Remaining ({activeProgress.total - activeProgress.completed})
                   </button>
                   <button
                     onClick={() => setFilterMode('completed')}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer border ${
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition-colors cursor-pointer border ${
                       filterMode === 'completed'
-                        ? 'bg-teal-800 border-teal-800 text-white shadow-xs'
+                        ? 'bg-teal-900 border-teal-900 text-white shadow-xs'
                         : isDark
-                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white'
-                        : 'bg-slate-200 border-slate-300 text-slate-950 hover:bg-slate-300'
+                        ? 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white font-bold'
+                        : 'bg-white border-slate-400 text-black hover:bg-slate-200 font-extrabold shadow-2xs'
                     }`}
                   >
                     Done ({activeProgress.completed})
@@ -974,31 +1288,35 @@ export default function App() {
 
               {/* Translation Language Quick Switcher */}
               <div className="flex items-center justify-between px-1 text-xs">
-                <span className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-300 text-[11px]">
-                  <Languages className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
+                <span className={`flex items-center gap-1.5 font-extrabold text-[11px] ${isDark ? 'text-slate-300' : 'text-black'}`}>
+                  <Languages className={`w-3.5 h-3.5 ${isDark ? 'text-teal-400' : 'text-teal-900 stroke-[2.5]'}`} />
                   <span>Translation Language:</span>
                 </span>
-                <div className="inline-flex items-center rounded-lg p-0.5 border border-slate-300 dark:border-slate-800 bg-slate-200/90 dark:bg-slate-900">
+                <div className={`inline-flex items-center rounded-lg p-0.5 border ${isDark ? 'border-slate-800 bg-slate-900' : 'border-slate-400 bg-white shadow-2xs'}`}>
                   <button
                     onClick={() =>
                       setSettings((s) => ({ ...s, translationLanguage: 'both' }))
                     }
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-colors cursor-pointer ${
+                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-extrabold transition-colors cursor-pointer ${
                       (settings.translationLanguage || 'both') === 'both'
-                        ? 'bg-teal-800 text-white font-black shadow-xs'
-                        : 'text-slate-900 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                        ? 'bg-teal-900 text-white font-black shadow-xs'
+                        : isDark
+                        ? 'text-slate-400 hover:text-white font-bold'
+                        : 'text-black hover:bg-slate-200 font-extrabold'
                     }`}
                   >
-                    Both (<span className="font-malayalam">രണ്ടും</span>)
+                    Both (<span className="font-malayalam font-black">രണ്ടും</span>)
                   </button>
                   <button
                     onClick={() =>
                       setSettings((s) => ({ ...s, translationLanguage: 'ml' }))
                     }
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-colors cursor-pointer font-malayalam ${
+                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-extrabold transition-colors cursor-pointer font-malayalam ${
                       settings.translationLanguage === 'ml'
-                        ? 'bg-teal-800 text-white font-black shadow-xs'
-                        : 'text-slate-900 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                        ? 'bg-teal-900 text-white font-black shadow-xs'
+                        : isDark
+                        ? 'text-slate-400 hover:text-white font-bold'
+                        : 'text-black hover:bg-slate-200 font-extrabold'
                     }`}
                   >
                     മലയാളം
@@ -1007,10 +1325,12 @@ export default function App() {
                     onClick={() =>
                       setSettings((s) => ({ ...s, translationLanguage: 'en' }))
                     }
-                    className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-colors cursor-pointer ${
+                    className={`px-2.5 py-0.5 rounded-md text-[11px] font-extrabold transition-colors cursor-pointer ${
                       settings.translationLanguage === 'en'
-                        ? 'bg-teal-800 text-white font-black shadow-xs'
-                        : 'text-slate-900 dark:text-slate-400 hover:text-black dark:hover:text-white'
+                        ? 'bg-teal-900 text-white font-black shadow-xs'
+                        : isDark
+                        ? 'text-slate-400 hover:text-white font-bold'
+                        : 'text-black hover:bg-slate-200 font-extrabold'
                     }`}
                   >
                     English
@@ -1109,22 +1429,42 @@ export default function App() {
             </div>
 
             {/* Bottom Actions: Reset Counters & Mark All */}
-            <div className="mt-4 pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-2">
+            <div className={`mt-4 pt-2 border-t flex flex-col sm:flex-row items-center gap-2 ${isDark ? 'border-slate-800' : 'border-slate-300'}`}>
               <button
-                className="reset-btn w-full sm:flex-1 py-3 px-4 bg-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className={`reset-btn w-full sm:flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer border ${
+                  isDark
+                    ? 'bg-transparent text-slate-400 hover:text-slate-200 border-slate-700 font-semibold'
+                    : 'bg-white hover:bg-slate-200 text-black border-2 border-slate-400 font-extrabold shadow-xs'
+                }`}
                 onClick={handleResetCurrentTab}
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
                 Reset Counters
               </button>
 
               <button
-                className="w-full sm:flex-1 py-3 px-4 bg-teal-800/10 hover:bg-teal-800/20 text-teal-800 dark:text-teal-300 border border-teal-600/30 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                data-testid="complete-all-current-tab-btn"
+                className={`w-full sm:flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer border ${
+                  isDark
+                    ? 'bg-teal-800/10 hover:bg-teal-800/20 text-teal-300 border-teal-600/30 font-semibold'
+                    : 'bg-teal-100 hover:bg-teal-200 text-black border-2 border-teal-700 font-extrabold shadow-xs'
+                }`}
                 onClick={handleCompleteAllCurrentTab}
               >
-                <CheckCheck className="w-3.5 h-3.5" />
+                <CheckCheck className="w-3.5 h-3.5 stroke-[2.5]" />
                 Complete All ({activeCategoryConfig.label})
               </button>
+            </div>
+
+            {/* Dedicated Weekly and Monthly Progress Tracking Section on Dashboard */}
+            <div className="mt-6">
+              <ProgressAnalyticsSection
+                history={progressHistory}
+                isDark={isDark}
+                todayStr={todayDateStr}
+                currentStreak={streakStatus.effectiveStreak}
+                bestStreak={streakData.bestStreak}
+              />
             </div>
           </div>
         )}
@@ -1136,7 +1476,7 @@ export default function App() {
         currentIndex={autoplayIndex}
         totalItems={activeItems.length}
         currentItem={currentAutoplayItem}
-        isPlaying={playbackState.status === 'playing'}
+        isPlaying={playbackState.status === 'playing' || playbackState.status === 'buffering'}
         isPaused={playbackState.status === 'paused'}
         isWaitingPause={isAutoplayWaitingPause}
         pauseSeconds={autoplayPauseSeconds}
@@ -1172,15 +1512,36 @@ export default function App() {
         onUseFreeze={handleUseStreakFreeze}
       />
 
-      {/* Animated Daily Streak Completion Modal */}
+      {/* Animated Daily Streak Completion Modal (only show if full-screen All Completed Fireworks isn't active) */}
       <StreakCompletionModal
-        isOpen={isStreakCelebrationOpen}
+        isOpen={isStreakCelebrationOpen && !isAllCompletedFireworksOpen}
         onClose={() => setIsStreakCelebrationOpen(false)}
         previousStreak={celebrationDetails.previousStreak}
         newStreak={celebrationDetails.newStreak}
         categoryName={celebrationDetails.categoryName}
         freezeTokens={celebrationDetails.freezeTokens}
         freezeUsed={celebrationDetails.freezeUsed}
+        onShare={() => setIsShareModalOpen(true)}
+      />
+
+      {/* 'All Completed' Massive Fireworks Celebration Modal (🎆🔥) */}
+      <AllCompletedFireworksModal
+        isOpen={isAllCompletedFireworksOpen}
+        onDismiss={() => setIsAllCompletedFireworksOpen(false)}
+        streakCount={Math.max(1, streakStatus.effectiveStreak)}
+        bestStreak={Math.max(1, streakData.bestStreak)}
+        totalRecitationsToday={totalRecitationsToday}
+        completedSectionsCount={
+          [
+            morningProgress.isAllDone,
+            eveningProgress.isAllDone,
+            prayerProgress.isAllDone,
+            sleepProgress.isAllDone,
+            taskStats.percent === 100 && taskStats.total > 0,
+          ].filter(Boolean).length
+        }
+        soundEnabled={settings.soundEnabled}
+        vibrateEnabled={settings.vibrateEnabled}
         onShare={() => setIsShareModalOpen(true)}
       />
 

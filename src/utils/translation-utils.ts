@@ -11,13 +11,14 @@ export interface VisibleTranslations {
  * Resolves visible translations based on the selected language preference.
  */
 export function getVisibleTranslations(
-  item: { translation: string; malayalamTranslation?: string },
+  item: { translation: string; malayalamTranslation?: string; malayalam?: string },
   lang: TranslationLanguage
 ): VisibleTranslations {
+  const mlText = item.malayalamTranslation || item.malayalam;
   if (lang === 'ml') {
     return {
       en: undefined,
-      ml: item.malayalamTranslation || item.translation,
+      ml: mlText || item.translation,
       hasEn: false,
       hasMl: true,
     };
@@ -35,9 +36,9 @@ export function getVisibleTranslations(
   // 'both'
   return {
     en: item.translation,
-    ml: item.malayalamTranslation,
+    ml: mlText,
     hasEn: Boolean(item.translation),
-    hasMl: Boolean(item.malayalamTranslation),
+    hasMl: Boolean(mlText),
   };
 }
 
@@ -112,9 +113,11 @@ function normalizeMalayalamStem(text: string): string {
  */
 export function matchesQuery(
   item: {
+    title?: string;
     arabic: string;
     transliteration: string;
     translation: string;
+    malayalam?: string;
     malayalamTranslation?: string;
     virtue?: string;
     malayalamVirtue?: string;
@@ -125,12 +128,20 @@ export function matchesQuery(
   const query = searchQuery.trim().toLowerCase();
   if (!query) return true;
 
+  if (item.title) {
+    const titleLower = item.title.toLowerCase();
+    if (titleLower.includes(query)) return true;
+    const stemQuery = normalizeMalayalamStem(query);
+    if (stemQuery.length >= 3 && titleLower.includes(stemQuery)) return true;
+  }
+
   if (item.arabic.includes(query)) return true;
   if (item.transliteration.toLowerCase().includes(query)) return true;
   if (item.translation.toLowerCase().includes(query)) return true;
 
-  if (item.malayalamTranslation) {
-    const mlLower = item.malayalamTranslation.toLowerCase();
+  const mlTranslation = item.malayalamTranslation || item.malayalam;
+  if (mlTranslation) {
+    const mlLower = mlTranslation.toLowerCase();
     if (mlLower.includes(query)) return true;
 
     // Check with Malayalam chillu stem normalization

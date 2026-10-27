@@ -172,14 +172,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Category Progress Bar (only for list categories) */}
-        {!isTasbih && (
+        {!isTasbih && activeTab !== 'progress' && (
           <div className="mt-2.5 pt-2 border-t border-teal-700/40">
             <div className="flex items-center justify-between text-xs text-teal-100 mb-1.5">
-              <span className="flex items-center gap-1 font-medium">
+              <span className="flex items-center gap-1.5 font-medium">
                 {progress.isAllDone ? (
                   <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                    <span className="text-emerald-200">Completed All Today!</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300 drop-shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                    <span className="text-emerald-200 font-extrabold">
+                      Completed All Today! • <span className="font-malayalam font-black">പൂർത്തിയായി! 🔥</span>
+                    </span>
                   </>
                 ) : (
                   <span>
@@ -187,12 +189,17 @@ export const Header: React.FC<HeaderProps> = ({
                   </span>
                 )}
               </span>
-              <span className="font-semibold text-amber-300">{progress.percent}%</span>
+              <span className={`font-bold ${progress.isAllDone ? 'text-emerald-300 font-black' : 'text-amber-300'}`}>
+                {progress.percent}%
+              </span>
             </div>
-            <div className="w-full bg-teal-950/40 h-2 rounded-full overflow-hidden p-0.5">
+            <div className="w-full bg-teal-950/50 h-2.5 rounded-full overflow-hidden p-0.5">
               <div
+                data-testid="active-section-progress-bar"
                 className={`h-full rounded-full transition-all duration-300 ${
-                  progress.isAllDone ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-amber-300'
+                  progress.isAllDone
+                    ? 'bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,0.95)]'
+                    : 'bg-amber-300'
                 }`}
                 style={{ width: `${Math.max(progress.percent, 0)}%` }}
               />
