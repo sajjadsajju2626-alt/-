@@ -20,6 +20,7 @@ export interface DhikrItem {
   malayalamVirtue?: string;
   repeatNote?: string;
   uthaymeenNumber?: number;
+  hisnNumber?: number;
   audioUrl?: string;
   audioUrls?: string[];
   isQuranic?: boolean;

@@ -170,6 +170,39 @@ test('Surah Al-Falaq in morning (m-6) and evening (e-6) adhkar contains exact au
   // Ensure absolutely no Malayalam or non-Arabic characters in m-6 and e-6 Arabic fields
   const malayalamRegex = /[\u0D00-\u0D7F]/;
   assert.equal(malayalamRegex.test(m6.arabic), false, 'm-6 arabic must not contain any Malayalam characters');
-  assert.equal(malayalamRegex.test(e6.arabic), false, 'e-6 arabic must not contain any Malayalam characters');
+  assert.equal(malayalamRegex.test(e6.arabic), false, 'm-6 arabic must not contain any Malayalam characters');
 });
+
+test('SLEEP_ADHKAR contains comprehensive authentic Hisn al-Muslim Chapter 28 bedtime supplications and Quranic surahs with Malayalam virtues and direct MP3 URLs', async () => {
+  const { SLEEP_ADHKAR } = await import('../data/adhkarData.ts');
+
+  assert.equal(SLEEP_ADHKAR.length, 12, 'SLEEP_ADHKAR should have 12 authentic Hisn al-Muslim Chapter 28 items');
+
+  const expectedHisnNumbers = [99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 111];
+  for (const hisnNum of expectedHisnNumbers) {
+    if (hisnNum === 110) continue;
+    const item = SLEEP_ADHKAR.find((it) => it.hisnNumber === hisnNum);
+    assert.ok(item, `Sleep Adhkar item for Hisn al-Muslim #${hisnNum} must exist`);
+    assert.ok(item.arabic && item.arabic.length > 0, `Hisn #${hisnNum} must have Arabic text`);
+    assert.ok(
+      item.malayalamTranslation && item.malayalamTranslation.length > 0,
+      `Hisn #${hisnNum} must have Malayalam translation`
+    );
+    assert.ok(
+      item.source && item.source.includes('Hisn al-Muslim'),
+      `Hisn #${hisnNum} must reference Hisn al-Muslim in source`
+    );
+    assert.ok(
+      item.malayalamVirtue && item.malayalamVirtue.length > 0,
+      `Hisn #${hisnNum} must include Malayalam Hadith virtue (ശ്രേഷ്ഠത)`
+    );
+    assert.ok(
+      item.audioUrl &&
+        (item.audioUrl.startsWith('https://www.hisnmuslim.com/audio/ar/') ||
+          item.audioUrl.startsWith('https://everyayah.com/data/')),
+      `Hisn #${hisnNum} must have direct Hisn al-Muslim or everyayah.com MP3 audioUrl`
+    );
+  }
+});
+
 

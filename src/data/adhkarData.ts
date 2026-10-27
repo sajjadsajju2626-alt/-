@@ -1318,14 +1318,123 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
 ];
 
 /**
- * Adhkar before Sleep (أذكار النوم)
+ * Adhkar before Sleep (أذكار النوم — ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ)
+ * Authentic collection directly from Hisn al-Muslim (حصن المسلم — Chapter 28, Hadiths #99–#111)
+ * with complete Arabic tashkeel (harakat), Malayalam & English translations, Hadith references,
+ * Malayalam virtues (ഹദീസിന്റെ ശ്രേഷ്ഠത / ഫലം), and direct MP3 audio recitations.
  */
 export const SLEEP_ADHKAR: DhikrItem[] = [
   {
+    id: 'sleep-3quls',
+    category: 'sleep',
+    hisnNumber: 99,
+    type: 'quran',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    title: 'മൂന്ന് ഖുൽ സൂറത്തുകൾ (ഇഖ്‌ലാസ്, ഫലഖ്, നാസ് — കൈകൾ കൂട്ടിപ്പിടിച്ച് ഊതി ശരീരത്തിൽ തടവുക)',
+    arabic:
+      'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)',
+    transliteration:
+      "Qul Huwallahu Ahad. Allahus-Samad. Lam yalid wa lam yoolad. Wa lam yakun lahu kufuwan ahad. / Qul a'oodhu bi-Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-'uqad. Wa min sharri hasidin idha hasad. / Qul a'oodhu bi-Rabbin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fee sudoorin-nas. Minal-jinnati wan-nas.",
+    translation:
+      'Say, "He is Allah, [who is] One, Allah, the Eternal Refuge. He neither begets nor is born, nor is there to Him any equivalent." / Say, "I seek refuge in the Lord of daybreak from the evil of that which He created, from the evil of darkness when it settles, from the evil of the blowers in knots, and from the evil of an envier when he envies." / Say, "I seek refuge in the Lord of mankind, the Sovereign of mankind, the God of mankind, from the evil of the retreating whisperer who whispers into the breasts of mankind - from among the jinn and mankind."',
+    malayalam:
+      'പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ചവയുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയക്കാരൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, ജിന്നുകളിലും മനുഷ്യരിലും പെട്ടവനായ പിശാചിൽ നിന്നും.',
+    malayalamTranslation:
+      'പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ചവയുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയക്കാരൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, ജിന്നുകളിലും മനുഷ്യരിലും പെട്ടവനായ പിശാചിൽ നിന്നും.',
+    target: 3,
+    source: 'Sahih al-Bukhari 5017 (Fath al-Bari 9/62) & Sahih Muslim 2192 • Hisn al-Muslim Ch. 28, #99',
+    virtue:
+      'Aisha (RA) narrated: Every night when the Prophet (ﷺ) went to bed, he would cup his hands together, blow gently into them, recite Surah Al-Ikhlas, Surah Al-Falaq, and Surah An-Nas, and then wipe his hands over whatever he could reach of his body, starting with his head, face, and front of his body—doing that three times for complete divine protection through the night.',
+    malayalamVirtue:
+      'ആഇശ (റ) നിവേദനം: നബി (ﷺ) എല്ലാ രാത്രിയിലും ഉറങ്ങാൻ വിരിപ്പിലേക്ക് അണയുമ്പോൾ തന്റെ രണ്ട് കൈവെള്ളകളും ചേർത്തുപിടിച്ച് അതിൽ ചെറുതായി ഊതുകയും, സൂറത്തുൽ ഇഖ്‌ലാസ്, സൂറത്തുൽ ഫലഖ്, സൂറത്തുന്നാസ് എന്നിവ ഓതിയ ശേഷം തലയിലും മുഖത്തും ശരീരത്തിന്റെ മുൻഭാഗത്തും കൈയെത്തുന്നിടത്തെല്ലാം തടവുകയും ചെയ്യുമായിരുന്നു. ഇപ്രകാരം 3 തവണ ആവർത്തിക്കുന്നത് രാത്രി മുഴുവൻ സിഹ്ർ, കണ്ണേറ്, പിശാച് തുടങ്ങിയ സർവ്വ തിന്മകളിൽ നിന്നും സമ്പൂർണ്ണ കാവൽ നൽകുന്നു (സ്വഹീഹുൽ ബുഖാരി 5017, മുസ്ലിം 2192 • ഹിസ്നുൽ മുസ്ലിം #99).',
+    repeatNote: '3 times (Cup hands, blow gently into palms & wipe over head, face, and body)',
+    audioUrl: 'https://everyayah.com/data/Alafasy_128kbps/112001.mp3',
+    audioUrls: [
+      'https://everyayah.com/data/Alafasy_128kbps/112001.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/112002.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/112003.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/112004.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/113001.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/113002.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/113003.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/113004.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/113005.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114001.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114002.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114003.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114004.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114005.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/114006.mp3',
+    ],
+  },
+  {
+    id: 'sleep-kursi',
+    category: 'sleep',
+    hisnNumber: 100,
+    type: 'quran',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    title: 'ആയത്തുൽ കുർസിയ്യ് (ഉറങ്ങാൻ നേരം ഓതേണ്ടത് — പ്രഭാതം വരെ മലക്കിന്റെ കാവൽ)',
+    arabic:
+      'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    transliteration:
+      "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatuw-wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhitoona bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'ooduhu hifzuhuma, wa Huwal-'Aliyyul-'Azeem.",
+    translation:
+      'Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.',
+    malayalam:
+      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശങ്ങളിലുള്ളതും ഭൂമിയിലുള്ളതുമെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് (അധികാരപീഠം) ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
+    malayalamTranslation:
+      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശങ്ങളിലുള്ളതും ഭൂമിയിലുള്ളതുമെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് (അധികാരപീഠം) ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
+    target: 1,
+    source: 'Sahih al-Bukhari 2311 & 5010 (Fath al-Bari 4/487) • Hisn al-Muslim Ch. 28, #100',
+    virtue:
+      'Whoever recites Ayat al-Kursi when going to bed, a guardian angel from Allah will remain with him to protect him throughout the night, and no devil (Shaytan) will come near him until he wakes up in the morning.',
+    malayalamVirtue:
+      'വിരിപ്പിലേക്ക് അണയുമ്പോൾ ആരെങ്കിലും ആയത്തുൽ കുർസിയ്യ് പാരായണം ചെയ്താൽ അല്ലാഹുവിങ്കൽ നിന്നുള്ള ഒരു സംരക്ഷകൻ (മലക്ക്) അവന് കാവലായി സദാ ഉണ്ടായിരിക്കും; നേരം പുലരുവോളം പിശാച് അവന്റെ സമീപത്ത് പോലും വരികയില്ല (സ്വഹീഹുൽ ബുഖാരി 2311 • ഹിസ്നുൽ മുസ്ലിം #100).',
+    repeatNote: '1 time (Surah Al-Baqarah 2:255)',
+    audioUrl: 'https://everyayah.com/data/Alafasy_128kbps/002255.mp3',
+  },
+  {
+    id: 'sleep-baqarah',
+    category: 'sleep',
+    hisnNumber: 101,
+    type: 'quran',
+    isQuranic: true,
+    reciter: 'Sheikh Mishary Rashid Alafasy',
+    audioClipType: 'tajweed',
+    title: 'സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ (ആമന റസൂലു...)',
+    arabic:
+      'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)',
+    transliteration:
+      "Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon, kullun amana billahi wa mala'ikatihi wa kutubihi wa rusulih, la nufarriqu bayna ahadim-mir-rusulih, wa qaloo sami'na wa ata'na ghufranaka Rabbana wa-ilaykal-maseer. La yukallifullahu nafsan illa wus'aha, laha ma kasabat wa 'alayha maktasabat, Rabbana la tu'akhidhna in-naseena aw akhta'na, Rabbana wa la tahmil 'alayna isran kama hamaltahu 'alalladheena min qablina, Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.",
+    translation:
+      'The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], "We make no distinction between any of His messengers." And they say, "We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination." Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what [good] it has gained, and it will bear [the consequence of] what [evil] it has earned. "Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people."',
+    malayalam:
+      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, നിന്നോട് ഞങ്ങൾ പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല. ഓരോരുത്തർക്കും താൻ പ്രവർത്തിച്ച നന്മയുടെ ഫലമുണ്ട്, താൻ ചെയ്ത തിന്മയുടെ ഭാരവുമുണ്ട്. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങളുടെ മുൻഗാമികളുടെ മേൽ ചുമത്തിയതുപോലുള്ള ഭാരം ഞങ്ങളുടെ മേൽ നീ ചുമത്തരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാനാവാത്ത ഭാരം ഞങ്ങളെ നീ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ മാപ്പുനൽകുകയും, പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
+    malayalamTranslation:
+      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, നിന്നോട് ഞങ്ങൾ പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല. ഓരോരുത്തർക്കും താൻ പ്രവർത്തിച്ച നന്മയുടെ ഫലമുണ്ട്, താൻ ചെയ്ത തിന്മയുടെ ഭാരവുമുണ്ട്. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങളുടെ മുൻഗാമികളുടെ മേൽ ചുമത്തിയതുപോലുള്ള ഭാരം ഞങ്ങളുടെ മേൽ നീ ചുമത്തരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാനാവാത്ത ഭാരം ഞങ്ങളെ നീ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ മാപ്പുനൽകുകയും, പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
+    target: 1,
+    source: 'Sahih al-Bukhari 5009 (Fath al-Bari 9/94) & Sahih Muslim 807 • Hisn al-Muslim Ch. 28, #101',
+    virtue:
+      'The Prophet (ﷺ) said: "Whoever recites the last two verses of Surah Al-Baqarah at night, they will suffice him" — protecting him from all evil, harm, and Shaytan throughout the night.',
+    malayalamVirtue:
+      'തിരുനബി (ﷺ) അരുളി: "ആരെങ്കിലും രാത്രിയിൽ സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ പാരായണം ചെയ്താൽ അവ അവന് മതിയാകുന്നതാണ്" — ആ രാത്രിയിലെ സകല വിപത്തുകളിൽ നിന്നും പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നുമുള്ള കാവലിനും രാത്രി നമസ്കാരത്തിന്റെ പ്രതിഫലത്തിനും ഇത് മതിയാകും (സ്വഹീഹുൽ ബുഖാരി 5009, മുസ്ലിം 807 • ഹിസ്നുൽ മുസ്ലിം #101).',
+    repeatNote: '1 time (Surah Al-Baqarah 2:285–286)',
+    audioUrl: 'https://everyayah.com/data/Alafasy_128kbps/002285.mp3',
+    audioUrls: [
+      'https://everyayah.com/data/Alafasy_128kbps/002285.mp3',
+      'https://everyayah.com/data/Alafasy_128kbps/002286.mp3',
+    ],
+  },
+  {
     id: 'sleep-1',
     category: 'sleep',
+    hisnNumber: 102,
     type: 'adhkar',
-    title: 'ഉറങ്ങാൻ നേരമുള്ള പ്രാർത്ഥന',
+    title: 'ഉറങ്ങാൻ നേരമുള്ള പ്രാർത്ഥന (ബിസ്മിക റബ്ബീ വളഅ്തു ജൻബീ)',
     arabic:
       'بِاسْمِكَ رَبِّـي وَضَعْـتُ جَنْـبي ، وَبِكَ أَرْفَعُـهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ',
     transliteration:
@@ -1337,50 +1446,205 @@ export const SLEEP_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'എന്റെ രക്ഷിതാവേ, നിന്റെ നാമത്തിൽ ഞാൻ എന്റെ പാർശ്വം വെച്ചു, നിന്റെ സഹായത്താൽ ഞാൻ അതിനെ ഉയർത്തുകയും ചെയ്യുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.',
     target: 1,
-    source: 'Sahih al-Bukhari 6320 & Muslim 2714',
-    virtue: 'Comprehensive surrender of body and soul to Allah before sleeping.',
+    source: 'Sahih al-Bukhari 6320 & Sahih Muslim 2714 • Hisn al-Muslim Ch. 28, #102',
+    virtue:
+      'The Prophet (ﷺ) taught that when going to bed, one should dust off the bed three times, lie on the right side, and say this prayer—entrusting the soul to Allah’s mercy if taken in sleep, and to His righteous protection if returned.',
     malayalamVirtue:
-      'ഉറങ്ങുന്നതിന് മുമ്പ് ശരീരവും ആത്മാവും അല്ലാഹുവിന്റെ കാരുണ്യത്തിലും സംരക്ഷണത്തിലും സമ്പൂർണ്ണമായി സമർപ്പിക്കുന്നു (ബുഖാരി, മുസ്ലിം).',
-    repeatNote: '1 time',
-    // Direct HisnMuslim MP3 link:
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/28.mp3',
+      'നിങ്ങളിലൊരാൾ വിരിപ്പിലേക്ക് അണഞ്ഞാൽ വസ്ത്രത്തിന്റെ തുമ്പുകൊണ്ട് വിരിപ്പ് മൂന്ന് തവണ കുടഞ്ഞു വൃത്തിയാക്കി വലതു വശം ചരിഞ്ഞു കിടന്നുകൊണ്ട് ഈ പ്രാർത്ഥന ചൊല്ലാൻ തിരുനബി (ﷺ) കൽപ്പിച്ചു. ഉറക്കത്തിൽ ആത്മാവിനെ അല്ലാഹു തിരിച്ചുപിടിച്ചാൽ അവന്റെ കാരുണ്യം ലഭിക്കാനും, ജീവൻ തിരിച്ചുനൽകിയാൽ സജ്ജനങ്ങളായ ദാസന്മാർക്ക് ലഭിക്കുന്ന ദിവ്യസംരക്ഷണം ലഭിക്കാനും ഇത് കാരണമാകുന്നു (സ്വഹീഹുൽ ബുഖാരി 6320, മുസ്ലിം 2714 • ഹിസ്നുൽ മുസ്ലിം #102).',
+    repeatNote: '1 time (Dust off bed 3 times & lie on right side)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/102.mp3',
   },
   {
-    id: 's-2',
+    id: 'sleep-khalaqta-nafsi',
     category: 'sleep',
+    hisnNumber: 103,
     type: 'adhkar',
-    title: 'ഉറങ്ങാൻ നേരമുള്ള തസ്ബീഹ് (തസ്ബീഹ് ഫാത്വിമി)',
-    arabic: 'سُبْحَانَ اللَّهِ (٣٣)، وَالْحَمْدُ لِلَّهِ (٣٣)، وَاللَّهُ أَكْبَرُ (٣٤)',
-    transliteration: 'Subhanallah (33x), Alhamdulillah (33x), Allahu Akbar (34x)',
+    title: 'ആത്മാവിനെ സ്രഷ്ടാവിൽ സമർപ്പിച്ച് സൗഖ്യം തേടുന്ന പ്രാർത്ഥന (അല്ലാഹുമ്മ ഇന്നക ഖലഖ്ത നഫ്സീ)',
+    arabic:
+      'اللَّهُمَّ إِنَّكَ خَلَقْتَ نَفْسِي وَأَنْتَ تَوَفَّاهَا، لَكَ مَمَاتُهَا وَمَحْيَاهَا، إِنْ أَحْيَيْتَهَا فَاحْفَظْهَا، وَإِنْ أَمَتَّهَا فَاغْفِرْ لَهَا، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ',
+    transliteration:
+      "Allahumma innaka khalaqta nafsi wa Anta tawaffaha, laka mamatuha wa mahyaha, in ahyaytaha fahfazha, wa in amattaha faghfir laha. Allahumma inni as'alukal-'afiyah.",
     translation:
-      'Glory be to Allah (33x), Praise be to Allah (33x), Allah is the Greatest (34x).',
+      'O Allah, Verily You have created my soul and You shall take its life. To You belongs its death and its life. If You keep my soul alive, then protect it; and if You cause it to die, then forgive it. O Allah, I ask You for well-being and safety.',
+    malayalam:
+      'അല്ലാഹുവേ, തീർച്ചയായും നീയാണ് എന്റെ ആത്മാവിനെ സൃഷ്ടിച്ചത്, നീ തന്നെയാണ് അതിനെ പിടിച്ചെടുക്കുന്നതും. അതിന്റെ മരണവും ജീവിതവും നിനക്കുള്ളതാണ്. നീ അതിനെ ജീവിപ്പിക്കുകയാണെങ്കിൽ അതിനെ നീ കാത്തുരക്ഷിക്കേണമേ; നീ അതിനെ മരിപ്പിക്കുകയാണെങ്കിൽ അതിന് നീ പൊറുത്തുതരേണമേ. അല്ലാഹുവേ, നിന്നോട് ഞാൻ സൗഖ്യവും രക്ഷയും (ആഫിയത്ത്) ചോദിക്കുന്നു.',
     malayalamTranslation:
-      'സുബ്ഹാനല്ലാഹ് (33 തവണ), അൽഹംദുലില്ലാഹ് (33 തവണ), അല്ലാഹു അക്ബർ (34 തവണ).',
+      'അല്ലാഹുവേ, തീർച്ചയായും നീയാണ് എന്റെ ആത്മാവിനെ സൃഷ്ടിച്ചത്, നീ തന്നെയാണ് അതിനെ പിടിച്ചെടുക്കുന്നതും. അതിന്റെ മരണവും ജീവിതവും നിനക്കുള്ളതാണ്. നീ അതിനെ ജീവിപ്പിക്കുകയാണെങ്കിൽ അതിനെ നീ കാത്തുരക്ഷിക്കേണമേ; നീ അതിനെ മരിപ്പിക്കുകയാണെങ്കിൽ അതിന് നീ പൊറുത്തുതരേണമേ. അല്ലാഹുവേ, നിന്നോട് ഞാൻ സൗഖ്യവും രക്ഷയും (ആഫിയത്ത്) ചോദിക്കുന്നു.',
     target: 1,
-    source: 'Sahih al-Bukhari 3705 (Taught by the Prophet to Fatima and Ali)',
-    virtue: 'The Prophet (ﷺ) said this is better for you than having a servant or helper for daily labor.',
+    source: 'Sahih Muslim 2712 & Musnad Ahmad (2/79) • Hisn al-Muslim Ch. 28, #103',
+    virtue:
+      'Entrusts the soul completely to its Creator during sleep, asking for divine preservation in life, forgiveness of sins in death, and complete well-being (\'Afiyah).',
     malayalamVirtue:
-      'ഒരു വേലക്കാരനെ വെച്ച് ജോലി ചെയ്യിക്കുന്നതിനേക്കാൾ ശരീരത്തിനും മനസ്സിനും കരുത്തും ഉന്മേഷവും നൽകുന്നതാണ് ഇതെന്ന് തിരുനബി (ﷺ) ഫാത്വിമ (റ) യോടും അലി (റ) യോടും പറഞ്ഞു (ബുഖാരി).',
-    repeatNote: '1 sequence (100 total)',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/106.mp3',
+      'ഉറക്കമാകുന്ന ചെറിയ മരണത്തിലേക്ക് പ്രവേശിക്കുമ്പോൾ ആത്മാവിന്റെ ജീവിതവും മരണവും സ്രഷ്ടാവായ അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുകയും, ജീവിച്ചിരിക്കുമ്പോൾ സംരക്ഷണവും മരണപ്പെട്ടാൽ പാപമോചനവും സമ്പൂർണ്ണ ആഫിയത്തും (സൗഖ്യവും) ഉറപ്പാക്കുകയും ചെയ്യുന്ന മഹത്തായ പ്രാർത്ഥന (സ്വഹീഹ് മുസ്ലിം 2712 • ഹിസ്നുൽ മുസ്ലിം #103).',
+    repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/103.mp3',
   },
   {
     id: 's-3',
     category: 'sleep',
+    hisnNumber: 104,
     type: 'adhkar',
-    title: 'പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്നുള്ള കാവൽ പ്രാർത്ഥന',
+    title: 'പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്നുള്ള കാവൽ പ്രാർത്ഥന (അല്ലാഹുമ്മ ഖിനീ അദാബക)',
     arabic: 'اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ',
     transliteration: "Allahumma qini 'adhabaka yawma tab'athu 'ibadak",
     translation: 'O Allah, protect me from Your punishment on the Day You resurrect Your servants.',
+    malayalam:
+      'അല്ലാഹുവേ, നിന്റെ ദാസന്മാരെ നീ പുനരുജ്ജീവിപ്പിക്കുന്ന ആ വിചാരണ നാളിൽ നിന്റെ ശിക്ഷയിൽ നിന്ന് എന്നെ കാത്തുരക്ഷിക്കേണമേ.',
     malayalamTranslation:
       'അല്ലാഹുവേ, നിന്റെ ദാസന്മാരെ നീ പുനരുജ്ജീവിപ്പിക്കുന്ന ആ വിചാരണ നാളിൽ നിന്റെ ശിക്ഷയിൽ നിന്ന് എന്നെ കാത്തുരക്ഷിക്കേണമേ.',
     target: 3,
-    source: 'Abu Dawud 5045',
-    virtue: 'Recited with right hand placed under the right cheek while facing Qiblah.',
+    source: 'Sunan Abi Dawud 5045 & Sunan at-Tirmidhi 3398 • Hisn al-Muslim Ch. 28, #104',
+    virtue:
+      'Whenever the Prophet (ﷺ) wanted to go to sleep, he would place his right hand under his right cheek and recite this supplication three times, seeking refuge from punishment on the Day of Resurrection.',
     malayalamVirtue:
-      'വലതു കൈ കവിളിനടിയിൽ വെച്ച് ഖിബ്‌ലക്ക് അഭിമുഖമായി കിടന്ന് പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്ന് കാവൽ തേടുന്നു (അബൂദാവൂദ്).',
-    repeatNote: '3 times',
+      'ഉറങ്ങാൻ ഉദ്ദേശിക്കുമ്പോൾ തിരുനബി (ﷺ) തന്റെ വലതു കൈ വലതു കവിളിനടിയിൽ വെച്ച് ഖിബ്‌ലക്ക് അഭിമുഖമായി കിടന്നുകൊണ്ട് ഈ പ്രാർത്ഥന മൂന്ന് തവണ ചൊല്ലുമായിരുന്നു. ഉറക്കവും ഉണർവും മരണത്തെയും പുനരുത്ഥാനത്തെയും ഓർമ്മിപ്പിക്കുന്നതിനാൽ ഖിയാമത്ത് നാളിലെ ശിക്ഷയിൽ നിന്ന് ഇത് സത്യവിശ്വാസിക്ക് കാവൽ നൽകുന്നു (അബൂദാവൂദ് 5045, തിർമിദി 3398 • ഹിസ്നുൽ മുസ്ലിം #104).',
+    repeatNote: '3 times (With right hand placed under right cheek)',
     audioUrl: 'https://www.hisnmuslim.com/audio/ar/104.mp3',
+  },
+  {
+    id: 'sleep-bismika-amutu',
+    category: 'sleep',
+    hisnNumber: 105,
+    type: 'adhkar',
+    title: 'അല്ലാഹുവിന്റെ നാമത്തിൽ ഉറങ്ങുകയും ഉണരുകയും ചെയ്യാനുള്ള പ്രാർത്ഥന',
+    arabic: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+    transliteration: 'Bismika Allahumma amootu wa ahya.',
+    translation: 'In Your name, O Allah, I die (sleep) and I live (wake up).',
+    malayalam:
+      'അല്ലാഹുവേ, നിന്റെ നാമത്തിൽ ഞാൻ മരിക്കുകയും (ഉറങ്ങുകയും) ജീവിക്കുകയും (ഉണരുകയും) ചെയ്യുന്നു.',
+    malayalamTranslation:
+      'അല്ലാഹുവേ, നിന്റെ നാമത്തിൽ ഞാൻ മരിക്കുകയും (ഉറങ്ങുകയും) ജീവിക്കുകയും (ഉണരുകയും) ചെയ്യുന്നു.',
+    target: 1,
+    source: 'Sahih al-Bukhari 6324 & Sahih Muslim 2711 • Hisn al-Muslim Ch. 28, #105',
+    virtue:
+      'The constant nightly Sunnah of the Messenger of Allah (ﷺ) upon laying his head down on the pillow, acknowledging that both sleep and waking are entirely in the hands of Allah.',
+    malayalamVirtue:
+      'വിരിപ്പിലേക്ക് കിടക്കുമ്പോൾ തിരുനബി (ﷺ) പതിവായി ചൊല്ലിയിരുന്ന മഹത്തായ സുന്നത്ത് പ്രാർത്ഥന. ഉറക്കമാകുന്ന ലഘുമരണവും പ്രഭാതത്തിലെ പുനർജീവിതവും അല്ലാഹുവിന്റെ നാമത്തിലും കാവലിലുമാണെന്ന് സത്യവിശ്വാസി സാക്ഷ്യപ്പെടുത്തുന്നു (സ്വഹീഹുൽ ബുഖാരി 6324, മുസ്ലിം 2711 • ഹിസ്നുൽ മുസ്ലിം #105).',
+    repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/105.mp3',
+  },
+  {
+    id: 's-2',
+    category: 'sleep',
+    hisnNumber: 106,
+    type: 'adhkar',
+    title: 'തസ്ബീഹ് ഫാത്വിമി — ഉറങ്ങാൻ നേരമുള്ള തസ്ബീഹ് (33 സുബ്ഹാനല്ലാഹ്, 33 അൽഹംദുലില്ലാഹ്, 34 അല്ലാഹു അക്ബർ)',
+    arabic: 'سُبْحَانَ اللَّهِ (٣٣)، وَالْحَمْدُ لِلَّهِ (٣٣)، وَاللَّهُ أَكْبَرُ (٣٤)',
+    transliteration: 'Subhanallah (33x), wal-Hamdulillah (33x), wallahu Akbar (34x)',
+    translation:
+      'Glory be to Allah (33 times), Praise be to Allah (33 times), and Allah is the Greatest (34 times).',
+    malayalam:
+      'സുബ്ഹാനല്ലാഹ് — അല്ലാഹു എത്ര പരിശുദ്ധൻ (33 തവണ), അൽഹംദുലില്ലാഹ് — സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ് (33 തവണ), അല്ലാഹു അക്ബർ — അല്ലാഹു ഏറ്റവും മഹാനാണ് (34 തവണ).',
+    malayalamTranslation:
+      'സുബ്ഹാനല്ലാഹ് — അല്ലാഹു എത്ര പരിശുദ്ധൻ (33 തവണ), അൽഹംദുലില്ലാഹ് — സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ് (33 തവണ), അല്ലാഹു അക്ബർ — അല്ലാഹു ഏറ്റവും മഹാനാണ് (34 തവണ).',
+    target: 1,
+    source: 'Sahih al-Bukhari 3705 & Sahih Muslim 2727 • Hisn al-Muslim Ch. 28, #106',
+    virtue:
+      'Taught by the Prophet (ﷺ) to his daughter Fatimah (RA) and Ali (RA): reciting 33x SubhanAllah, 33x Alhamdulillah, and 34x Allahu Akbar at bedtime is better for you than having a servant, granting physical strength, relief from daily fatigue, and immense spiritual reward.',
+    malayalamVirtue:
+      'പകലത്തെ അധ്വാനത്താൽ ക്ഷീണിതയായ പ്രിയ മകൾ ഫാത്വിമ (റ) യോടും അലി (റ) യോടും തിരുനബി (ﷺ) പഠിപ്പിച്ച മഹത്തായ തസ്ബീഹ്: ഒരു സഹായിയെ (വേലക്കാരനെ) ലഭിക്കുന്നതിനേക്കാൾ നിങ്ങൾക്ക് ഉത്തമവും, ശരീരത്തിന് ക്ഷീണമകറ്റി ഉന്മേഷവും ആത്മീയ കരുത്തും നൽകുന്നതുമാണ് ഉറങ്ങാൻ നേരമുള്ള ഈ 100 ദിക്റുകൾ (സ്വഹീഹുൽ ബുഖാരി 3705, മുസ്ലിം 2727 • ഹിസ്നുൽ മുസ്ലിം #106).',
+    repeatNote: '33x SubhanAllah + 33x Alhamdulillah + 34x Allahu Akbar (100 total)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/106.mp3',
+  },
+  {
+    id: 'sleep-rabb-samawat',
+    category: 'sleep',
+    hisnNumber: 107,
+    type: 'adhkar',
+    title: 'ഏഴ് ആകാശങ്ങളുടെയും മഹത്തായ അർശിന്റെയും നാഥനോടുള്ള കാവലും കടമോചന പ്രാർത്ഥനയും',
+    arabic:
+      'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَرَبَّ الْعَرْشِ الْعَظِيمِ، رَبَّنَا وَرَبَّ كُلِّ شَيْءٍ، فَالِقَ الْحَبِّ وَالنَّوَى، وَمُنْزِلَ التَّوْرَاةِ وَالْإِنْجِيلِ وَالْفُرْقَانِ، أَعُوذُ بِكَ مِنْ شَرِّ كُلِّ شَيْءٍ أَنْتَ آخِذٌ بِنَاصِيَتِهِ، اللَّهُمَّ أَنْتَ الْأَوَّلُ فَلَيْسَ قَبْلَكَ شَيْءٌ، وَأَنْتَ الْآخِرُ فَلَيْسَ بَعْدَكَ شَيْءٌ، وَأَنْتَ الظَّاهِرُ فَلَيْسَ فَوْقَكَ شَيْءٌ، وَأَنْتَ الْبَاطِنُ فَلَيْسَ دُونَكَ شَيْءٌ، اقْضِ عَنَّا الدَّيْنَ وَأَغْنِنَا مِنَ الْفَقْرِ',
+    transliteration:
+      "Allahumma Rabbas-samawatis-sab'i wa Rabbal-'Arshil-'Azeem, Rabbana wa Rabba kulli shay', faliqal-habbi wan-nawa, wa munzilat-Tawrati wal-Injeeli wal-Furqan, a'oodhu bika min sharri kulli shay'in Anta akhidhun binasiyatih. Allahumma Antal-Awwalu falaysa qablaka shay', wa Antal-Akhiru falaysa ba'daka shay', wa Antaz-Zahiru falaysa fawqaka shay', wa Antal-Batinu falaysa doonaka shay', iqdi 'annad-dayna wa aghnina minal-faqr.",
+    translation:
+      'O Allah, Lord of the seven heavens and Lord of the Magnificent Throne, our Lord and the Lord of everything, Splitter of the grain and the date-stone, Revealer of the Torah, the Gospel, and the Furqan (Quran), I seek refuge in You from the evil of everything whose forelock You hold. O Allah, You are the First and there is nothing before You; You are the Last and there is nothing after You; You are the Most High and there is nothing above You; You are the Most Near and there is nothing closer than You. Settle our debts for us and enrich us from poverty.',
+    malayalam:
+      'ഏഴ് ആകാശങ്ങളുടെയും നാഥനും മഹത്തായ സിംഹാസനത്തിന്റെ (അർശിന്റെ) നാഥനുമായ അല്ലാഹുവേ! ഞങ്ങളുടെ രക്ഷിതാവേ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവേ! ധാന്യമണികളും ഈത്തപ്പഴക്കുരുവും പിളർത്തി മുളപ്പിക്കുന്നവനേ, തൗറാത്തും ഇൻജീലും ഫുർഖാനും (ഖുർആനും) അവതരിപ്പിച്ചവനേ! നിന്റെ നിയന്ത്രണത്തിലുള്ള സകല സൃഷ്ടികളുടെയും തിന്മകളിൽ നിന്ന് ഞാൻ നിന്നിൽ ശരണം തേടുന്നു. അല്ലാഹുവേ, നീയാണ് ആദ്യത്തവൻ, നിനക്ക് മുമ്പ് ഒന്നുമില്ല. നീയാണ് അവസാനത്തവൻ, നിനക്ക് ശേഷം ഒന്നുമില്ല. നീയാണ് സർവ്വോന്നതൻ, നിനക്ക് മീതെ ഒന്നുമില്ല. നീയാണ് എല്ലാം സൂക്ഷ്മമായി അറിയുന്നവൻ, നിനക്ക് മറഞ്ഞതായി ഒന്നുമില്ല. ഞങ്ങളുടെ കടങ്ങൾ നീ വീട്ടിത്തരേണമേ, ദാരിദ്ര്യത്തിൽ നിന്ന് ഞങ്ങളെ നീ ധന്യരാക്കേണമേ.',
+    malayalamTranslation:
+      'ഏഴ് ആകാശങ്ങളുടെയും നാഥനും മഹത്തായ സിംഹാസനത്തിന്റെ (അർശിന്റെ) നാഥനുമായ അല്ലാഹുവേ! ഞങ്ങളുടെ രക്ഷിതാവേ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവേ! ധാന്യമണികളും ഈത്തപ്പഴക്കുരുവും പിളർത്തി മുളപ്പിക്കുന്നവനേ, തൗറാത്തും ഇൻജീലും ഫുർഖാനും (ഖുർആനും) അവതരിപ്പിച്ചവനേ! നിന്റെ നിയന്ത്രണത്തിലുള്ള സകല സൃഷ്ടികളുടെയും തിന്മകളിൽ നിന്ന് ഞാൻ നിന്നിൽ ശരണം തേടുന്നു. അല്ലാഹുവേ, നീയാണ് ആദ്യത്തവൻ, നിനക്ക് മുമ്പ് ഒന്നുമില്ല. നീയാണ് അവസാനത്തവൻ, നിനക്ക് ശേഷം ഒന്നുമില്ല. നീയാണ് സർവ്വോന്നതൻ, നിനക്ക് മീതെ ഒന്നുമില്ല. നീയാണ് എല്ലാം സൂക്ഷ്മമായി അറിയുന്നവൻ, നിനക്ക് മറഞ്ഞതായി ഒന്നുമില്ല. ഞങ്ങളുടെ കടങ്ങൾ നീ വീട്ടിത്തരേണമേ, ദാരിദ്ര്യത്തിൽ നിന്ന് ഞങ്ങളെ നീ ധന്യരാക്കേണമേ.',
+    target: 1,
+    source: 'Sahih Muslim 2713 • Hisn al-Muslim Ch. 28, #107',
+    virtue:
+      'Glorifies Allah by His supreme attributes at bedtime, granting protection from the evil of all creation, relief from the burden of debt, and sufficiency from poverty.',
+    malayalamVirtue:
+      'ഉറങ്ങാൻ കിടക്കുമ്പോൾ അല്ലാഹുവിന്റെ മഹത്തായ നാമഗുണങ്ങളെ മുൻനിർത്തി സകല സൃഷ്ടികളുടെയും ഉപദ്രവങ്ങളിൽ നിന്ന് കാവൽ തേടാനും, കടബാധ്യതകളിൽ നിന്നും ദാരിദ്ര്യത്തിൽ നിന്നും മോചനവും ഐശ്വര്യവും ലഭിക്കാനും തിരുനബി (ﷺ) പഠിപ്പിച്ച പ്രാർത്ഥന (സ്വഹീഹ് മുസ്ലിം 2713 • ഹിസ്നുൽ മുസ്ലിം #107).',
+    repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/107.mp3',
+  },
+  {
+    id: 'sleep-alhamdulillah-atamana',
+    category: 'sleep',
+    hisnNumber: 108,
+    type: 'adhkar',
+    title: 'ഭക്ഷണവും പാനീയവും അഭയവും നൽകിയ അല്ലാഹുവിനെ സ്തുതിക്കുന്ന പ്രാർത്ഥന',
+    arabic:
+      'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِيَ',
+    transliteration:
+      "Alhamdulillahi-lladhi at'amana wa saqana, wa kafana wa awana, fakam mimman la kafiya lahu wa la mu'wiya.",
+    translation:
+      'All praise is for Allah, Who fed us and gave us drink, Who sufficed us and gave us shelter; for how many are there with none to suffice them and none to give them shelter!',
+    malayalam:
+      'ഞങ്ങൾക്ക് ഭക്ഷണവും പാനീയവും നൽകുകയും, ഞങ്ങൾക്ക് മതിയാവുകയും, ഞങ്ങൾക്ക് അന്തിയുറങ്ങാൻ അഭയം നൽകുകയും ചെയ്ത അല്ലാഹുവിന് സർവ്വസ്തുതിയും! സംരക്ഷിക്കാനോ അഭയം നൽകാനോ ആരുമില്ലാത്ത എത്രയെത്ര ആളുകളാണുള്ളത്!',
+    malayalamTranslation:
+      'ഞങ്ങൾക്ക് ഭക്ഷണവും പാനീയവും നൽകുകയും, ഞങ്ങൾക്ക് മതിയാവുകയും, ഞങ്ങൾക്ക് അന്തിയുറങ്ങാൻ അഭയം നൽകുകയും ചെയ്ത അല്ലാഹുവിന് സർവ്വസ്തുതിയും! സംരക്ഷിക്കാനോ അഭയം നൽകാനോ ആരുമില്ലാത്ത എത്രയെത്ര ആളുകളാണുള്ളത്!',
+    target: 1,
+    source: 'Sahih Muslim 2715 & Sunan Abi Dawud 5053 • Hisn al-Muslim Ch. 28, #108',
+    virtue:
+      'The Prophet (ﷺ) used to recite this every night upon going to bed, awakening deep gratitude for daily sustenance, protection, and a peaceful home.',
+    malayalamVirtue:
+      'ഉറങ്ങാൻ വിരിപ്പിലേക്ക് അണയുമ്പോൾ ആ ദിവസത്തെ ഭക്ഷണത്തിനും വെള്ളത്തിനും സംരക്ഷണത്തിനും സുരക്ഷിതമായ വീടിനും അല്ലാഹുവിനോട് നന്ദി (ശുക്റ്) രേഖപ്പെടുത്താൻ തിരുനബി (ﷺ) പതിവായി ചൊല്ലിയിരുന്ന പ്രാർത്ഥന. നന്ദിയുള്ള ദാസന് അല്ലാഹു അനുഗ്രഹങ്ങൾ വർദ്ധിപ്പിച്ചു നൽകുന്നു (സ്വഹീഹ് മുസ്ലിം 2715 • ഹിസ്നുൽ മുസ്ലിം #108).',
+    repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/108.mp3',
+  },
+  {
+    id: 'sleep-alim-ghayb',
+    category: 'sleep',
+    hisnNumber: 109,
+    type: 'adhkar',
+    title: 'മനസ്സിന്റെയും പിശാചിന്റെയും തിന്മകളിൽ നിന്നുള്ള രാത്രി കാവൽ പ്രാർത്ഥന',
+    arabic:
+      'اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا، أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ',
+    transliteration:
+      "Allahumma 'Alimal-ghaybi wash-shahadati Fatiras-samawati wal-ard, Rabba kulli shay'iw-wa maleekah, ash-hadu al-la ilaha illa Ant, a'oodhu bika min sharri nafsi, wa min sharrish-shaytani wa shirkih, wa an aqtarifa 'ala nafsi soo'an, aw ajurrahu ila Muslim.",
+    translation:
+      'O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth, Lord and Sovereign of all things: I bear witness that none has the right to be worshipped except You. I seek refuge in You from the evil of my own soul, from the evil of Satan and his traps of shirk, and from committing evil against myself or bringing it upon any Muslim.',
+    malayalam:
+      'അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനും, ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവും, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെ ഉപദ്രവത്തിൽ നിന്നും അവന്റെ ശിർക്കൻ കെണികളിൽ നിന്നും, എന്റെ ആത്മാവിനോട് തന്നെ ഞാൻ വല്ല തിന്മയും പ്രവർത്തിക്കുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് വല്ല ദോഷവും വരുത്തിവെക്കുന്നതിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.',
+    malayalamTranslation:
+      'അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനും, ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവും, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെ ഉപദ്രവത്തിൽ നിന്നും അവന്റെ ശിർക്കൻ കെണികളിൽ നിന്നും, എന്റെ ആത്മാവിനോട് തന്നെ ഞാൻ വല്ല തിന്മയും പ്രവർത്തിക്കുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് വല്ല ദോഷവും വരുത്തിവെക്കുന്നതിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.',
+    target: 1,
+    source: 'Sunan Abi Dawud 5067 & Sunan at-Tirmidhi 3392 • Hisn al-Muslim Ch. 28, #109',
+    virtue:
+      'Taught by the Prophet (ﷺ) to Abu Bakr as-Siddiq (RA) to recite in the morning, evening, and when going to bed to shield oneself from the whispers of Shaytan and the evil inclinations of the soul.',
+    malayalamVirtue:
+      'അബൂബക്കർ സ്വിദ്ദീഖ് (റ) വിനോട് രാവിലെയും വൈകുന്നേരവും ഉറങ്ങാൻ വിരിപ്പിലേക്ക് അണയുമ്പോഴും ചൊല്ലാൻ തിരുനബി (ﷺ) പ്രത്യേകം വസ്വിയ്യത്ത് ചെയ്ത പ്രാർത്ഥന. പിശാചിന്റെ ദുർബോധനങ്ങളിൽ നിന്നും സ്വന്തം മനസ്സിന്റെ തിന്മകളിൽ നിന്നും ഇത് രാത്രി മുഴുവൻ സംരക്ഷണം നൽകുന്നു (അബൂദാവൂദ് 5067, തിർമിദി 3392 • ഹിസ്നുൽ മുസ്ലിം #109).',
+    repeatNote: '1 time',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/109.mp3',
+  },
+  {
+    id: 'sleep-aslamtu-nafsi',
+    category: 'sleep',
+    hisnNumber: 111,
+    type: 'adhkar',
+    title: 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള അവസാനത്തെ പശ്ചാത്താപ-സമർപ്പണ പ്രാർത്ഥന (അല്ലാഹുമ്മ അസ്‌ലംതു നഫ്സീ ഇലൈക്ക)',
+    arabic:
+      'اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ',
+    transliteration:
+      "Allahumma aslamtu nafsi ilayk, wa fawwadtu amri ilayk, wa wajjahtu wajhi ilayk, wa alja'tu zahri ilayk, raghbatan wa rahbatan ilayk, la malja'a wa la manja minka illa ilayk, amantu bi-Kitabikal-ladhi anzalt, wa bi-Nabiyyikal-ladhi arsalt.",
+    translation:
+      'O Allah, I submit my soul unto You, and I entrust my affair unto You, and I turn my face towards You, and I totally rely on You, in hope and fear of You. Verily there is no refuge nor safe haven from You except with You. I believe in Your Book which You have revealed and in Your Prophet whom You have sent.',
+    malayalam:
+      'അല്ലാഹുവേ, എന്റെ ആത്മാവിനെ ഞാൻ നിനക്ക് കീഴ്പ്പെടുത്തിയിരിക്കുന്നു, എന്റെ കാര്യങ്ങളെല്ലാം ഞാൻ നിന്നിൽ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, എന്റെ മുഖം ഞാൻ നിന്നിലേക്ക് തിരിച്ചിരിക്കുന്നു, നിന്റെ പ്രതിഫലം ആഗ്രഹിച്ചും നിന്റെ ശിക്ഷയെ ഭയന്നും എന്റെ മുതുകിനെ ഞാൻ നിന്നിലേക്ക് ചാരിയിരിക്കുന്നു (നിന്നെ പൂർണ്ണമായി ആശ്രയിച്ചിരിക്കുന്നു). നിന്നിൽ നിന്നുള്ള രക്ഷയും അഭയവും നിന്നിലല്ലാതെ മറ്റൊരിടത്തുമില്ല. നീ അവതരിപ്പിച്ച നിന്റെ വേദഗ്രന്ഥത്തിലും നീ നിയോഗിച്ച നിന്റെ പ്രവാചകനിലും ഞാൻ വിശ്വസിച്ചിരിക്കുന്നു.',
+    malayalamTranslation:
+      'അല്ലാഹുവേ, എന്റെ ആത്മാവിനെ ഞാൻ നിനക്ക് കീഴ്പ്പെടുത്തിയിരിക്കുന്നു, എന്റെ കാര്യങ്ങളെല്ലാം ഞാൻ നിന്നിൽ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, എന്റെ മുഖം ഞാൻ നിന്നിലേക്ക് തിരിച്ചിരിക്കുന്നു, നിന്റെ പ്രതിഫലം ആഗ്രഹിച്ചും നിന്റെ ശിക്ഷയെ ഭയന്നും എന്റെ മുതുകിനെ ഞാൻ നിന്നിലേക്ക് ചാരിയിരിക്കുന്നു (നിന്നെ പൂർണ്ണമായി ആശ്രയിച്ചിരിക്കുന്നു). നിന്നിൽ നിന്നുള്ള രക്ഷയും അഭയവും നിന്നിലല്ലാതെ മറ്റൊരിടത്തുമില്ല. നീ അവതരിപ്പിച്ച നിന്റെ വേദഗ്രന്ഥത്തിലും നീ നിയോഗിച്ച നിന്റെ പ്രവാചകനിലും ഞാൻ വിശ്വസിച്ചിരിക്കുന്നു.',
+    target: 1,
+    source: 'Sahih al-Bukhari 6311 (Fath al-Bari 11/113) & Sahih Muslim 2710 • Hisn al-Muslim Ch. 28, #111',
+    virtue:
+      'The Prophet (ﷺ) told Al-Bara’ ibn ‘Azib (RA): "When you go to bed, perform ablution (wudu) as you do for prayer, then lie down on your right side and say this supplication, and make these the last words you speak at night. If you die on that night, you will die upon Fitrah (pure Islamic monotheism and forgiveness), and if you wake up in the morning, you will wake up blessed with great good."',
+    malayalamVirtue:
+      'അൽ-ബറാഅ് ഇബ്നു ആസിബ് (റ) വിനോട് നബി (ﷺ) അരുളി: "നീ വിരിപ്പിലേക്ക് അണയുമ്പോൾ നമസ്കാരത്തിന് എന്നപോലെ വുളൂഅ് ചെയ്യുക, എന്നിട്ട് വലതു വശം ചരിഞ്ഞു കിടന്ന് ഈ പ്രാർത്ഥന ചൊല്ലുക; രാത്രിയിൽ നീ അവസാനമായി പറയുന്ന വാക്കുകൾ ഇതായിരിക്കട്ടെ. ആ രാത്രി നീ മരണപ്പെട്ടാൽ പാപങ്ങൾ പൊറുക്കപ്പെട്ട് ശുദ്ധപ്രകൃതിയായ ഫിത്റത്തിൽ (ഇസ്‌ലാമിൽ) നീ മരണപ്പെടും; പ്രഭാതത്തിൽ ഉണർന്നാൽ മഹത്തായ നന്മയോടെ ഉണരുകയും ചെയ്യും" (സ്വഹീഹുൽ ബുഖാരി 6311, മുസ്ലിം 2710 • ഹിസ്നുൽ മുസ്ലിം #111).',
+    repeatNote: '1 time (Recite with Wudu on right side as final words before sleep)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/111.mp3',
   },
 ];
 

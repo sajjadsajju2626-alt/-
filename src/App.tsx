@@ -1199,11 +1199,35 @@ export default function App() {
                     Authentic Booklet
                   </span>
                   <span className={`text-[11px] sm:text-xs font-extrabold ${isDark ? 'text-amber-200' : 'text-black'}`}>
-                    All 23 Duas from Shaykh Ibn Uthaymeen (Arabic, Malayalam & English)
+                    All 23 Duas from Shaykh Ibn Uthaymeen (Arabic, Malayalam &amp; English)
                   </span>
                 </div>
                 <span className={`text-xs font-black hidden sm:inline font-arabic ${isDark ? 'text-amber-200' : 'text-black'}`}>
                   الأذكار صباحاً ومساءً
+                </span>
+              </div>
+            )}
+
+            {/* Hisn al-Muslim Sleep Adhkar Reference Banner */}
+            {currentTab === 'sleep' && (
+              <div
+                data-testid="hisn-sleep-banner"
+                className={`mb-3 px-3 py-2.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 border shadow-xs ${
+                  isDark
+                    ? 'bg-amber-950/30 border-amber-900/50 text-amber-200'
+                    : 'bg-amber-100 border-amber-600 text-black'
+                }`}
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-[10px] tracking-wider uppercase px-2 py-0.5 rounded bg-amber-900 text-white shadow-xs">
+                    Hisn al-Muslim Ch. 28
+                  </span>
+                  <span className={`text-[11px] sm:text-xs font-extrabold font-malayalam ${isDark ? 'text-amber-200' : 'text-black'}`}>
+                    ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ • All {SLEEP_ADHKAR.length} Authentic Bedtime Adhkar &amp; Surahs (#99–#111)
+                  </span>
+                </div>
+                <span className={`text-sm font-black font-arabic ${isDark ? 'text-amber-200' : 'text-black'}`}>
+                  حصن المسلم — أذكار النوم
                 </span>
               </div>
             )}

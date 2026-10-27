@@ -64,7 +64,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
   theme,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [showVirtue, setShowVirtue] = useState(false);
+  const [showVirtue, setShowVirtue] = useState(() => item.category === 'sleep');
   const [playbackState, setPlaybackState] = useState<AudioPlaybackState>(PronunciationManager.getState());
   const [speechSpeed, setSpeechSpeed] = useState<PronunciationSpeed>('1.0x');
 
@@ -255,6 +255,19 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               title={`Supplication #${item.uthaymeenNumber} from Shaykh Ibn Uthaymeen collection`}
             >
               #{item.uthaymeenNumber}
+            </span>
+          )}
+          {item.hisnNumber && (
+            <span
+              data-testid={`hisn-badge-${item.id}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-black ${
+                isDark
+                  ? 'bg-amber-950/70 text-amber-300 border border-amber-800/80'
+                  : 'bg-amber-200 text-black border border-amber-600'
+              }`}
+              title={`Hisn al-Muslim (حصن المسلم) Chapter 28 — Hadith #${item.hisnNumber}`}
+            >
+              <span>Hisn #{item.hisnNumber}</span>
             </span>
           )}
           <span
@@ -719,25 +732,35 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
         <div className="mb-3.5">
           <button
             type="button"
+            data-testid={`virtue-toggle-${item.id}`}
             onClick={(e) => {
               e.stopPropagation();
               setShowVirtue(!showVirtue);
             }}
             aria-expanded={showVirtue}
-            className={`flex items-center justify-between w-full py-1.5 px-2.5 rounded-lg text-xs transition-colors cursor-pointer border ${
+            className={`flex items-center justify-between gap-2 w-full py-1.5 px-2.5 rounded-lg text-xs text-left transition-colors cursor-pointer border ${
               isDark
                 ? 'bg-slate-800/70 hover:bg-slate-800 text-teal-300 border-slate-700 font-bold'
-                : 'bg-teal-100 hover:bg-teal-200 text-black border-teal-500 font-extrabold shadow-xs'
+                : 'bg-teal-100 hover:bg-teal-200 text-black border-teal-600 font-extrabold shadow-xs'
             }`}
           >
-            <span className="flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Source: {item.source}</span>
+            <span className="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <Info className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+              <span className="break-words">Hadith Ref: {item.source}</span>
+              <span
+                className={`font-malayalam text-[10px] px-1.5 py-0.5 rounded font-black shrink-0 ${
+                  isDark
+                    ? 'bg-amber-950/80 text-amber-300 border border-amber-800/70'
+                    : 'bg-amber-200 text-black border border-amber-600'
+                }`}
+              >
+                ഹദീസിന്റെ ശ്രേഷ്ഠത
+              </span>
             </span>
             {showVirtue ? (
-              <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" />
+              <ChevronUp className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
             ) : (
-              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+              <ChevronDown className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
             )}
           </button>
 
@@ -748,22 +771,23 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
             return (
               <div
+                data-testid={`virtue-panel-${item.id}`}
                 className={`p-3 mt-1.5 rounded-xl text-xs leading-relaxed border space-y-2.5 ${
                   isDark
                     ? 'bg-slate-800/40 border-slate-700/60 text-slate-300'
-                    : 'bg-amber-50 border-amber-500 text-black shadow-xs'
+                    : 'bg-amber-50 border-amber-600 text-black shadow-xs'
                 }`}
               >
                 {/* Both Malayalam and English */}
                 {visibleVirtue.hasMl && visibleVirtue.hasEn && (
                   <>
                     <div className="font-malayalam">
-                      <div className="flex items-center gap-1.5 mb-1.5">
+                      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                         <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-900 text-white uppercase shadow-xs">
-                          ശ്രേഷ്ഠത (Hadith Virtue)
+                          ശ്രേഷ്ഠത / ഫലം (Hadith Virtue &amp; Benefit)
                         </span>
                       </div>
-                      <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-bold text-black'}`}>
+                      <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-extrabold text-black'}`}>
                         {visibleVirtue.ml}
                       </p>
                     </div>
@@ -784,10 +808,10 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                   <div className="font-malayalam">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-amber-900 text-white uppercase shadow-xs">
-                        ശ്രേഷ്ഠത (Hadith Virtue)
+                        ശ്രേഷ്ഠത / ഫലം (Hadith Virtue &amp; Benefit)
                       </span>
                     </div>
-                    <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-bold text-black'}`}>
+                    <p className={`leading-relaxed ${isDark ? 'font-semibold text-amber-200' : 'font-extrabold text-black'}`}>
                       {visibleVirtue.ml}
                     </p>
                   </div>
