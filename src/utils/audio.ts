@@ -81,9 +81,42 @@ export function playCompletionSound() {
 }
 
 /**
+ * Pleasant 4-note spiritual reminder chime for scheduled Adhkar notifications
+ * Works reliably across mobile browsers without external audio assets.
+ */
+export function playReminderChime() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.11);
+
+      gain.gain.setValueAtTime(0.11, now + idx * 0.11);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.11 + 0.65);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.11);
+      osc.stop(now + idx * 0.11 + 0.7);
+    });
+  } catch {
+    // ignore
+  }
+}
+
+/**
  * Vibration feedback using browser navigator.vibrate
  */
-export function triggerHaptic(type: 'tap' | 'complete' | 'reset' = 'tap') {
+export function triggerHaptic(type: 'tap' | 'complete' | 'reset' | 'reminder' = 'tap') {
   if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
     try {
       if (type === 'tap') {
@@ -92,9 +125,12 @@ export function triggerHaptic(type: 'tap' | 'complete' | 'reset' = 'tap') {
         navigator.vibrate([30, 40, 50]);
       } else if (type === 'reset') {
         navigator.vibrate([20, 20]);
+      } else if (type === 'reminder') {
+        navigator.vibrate([180, 80, 180]);
       }
     } catch {
       // Vibrate not supported or permission denied
     }
   }
 }
+

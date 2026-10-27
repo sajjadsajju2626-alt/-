@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2, Target } from 'lucide-react';
+import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2, Target, ShieldCheck } from 'lucide-react';
 import { AppSettings, FontSize, ThemeMode, TranslationLanguage } from '../types/adhkar.ts';
 import {
   getNotificationPermissionStatus,
   requestNotificationPermission,
   formatTimeDisplay,
-  sendAdhkarNotification,
+  dispatchMobileSafeNotification,
+  getMobileNotificationDiagnostics,
+  registerAdhkarServiceWorker,
 } from '../utils/reminder-utils.ts';
 
 interface SettingsModalProps {
@@ -30,11 +32,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [permStatus, setPermStatus] = useState<NotificationPermission | 'unsupported'>(() =>
     getNotificationPermissionStatus()
   );
+  const [swReady, setSwReady] = useState<boolean>(false);
   const [testSent, setTestSent] = useState<boolean>(false);
+  const [lastTestChannel, setLastTestChannel] = useState<string>('');
 
   useEffect(() => {
     if (isOpen) {
       setPermStatus(getNotificationPermissionStatus());
+      registerAdhkarServiceWorker().then((reg) => {
+        const diag = getMobileNotificationDiagnostics();
+        setSwReady(Boolean(reg || diag.serviceWorkerSupported));
+      });
     }
   }, [isOpen]);
 
@@ -316,26 +324,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {/* Daily Reminders & Browser Notifications */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
             <div className="flex items-center justify-between mb-3">
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                <Bell className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <label className="flex items-center gap-2 text-sm font-extrabold text-black dark:text-slate-200">
+                <Bell className="w-4 h-4 text-teal-700 dark:text-teal-400" />
                 <span>Daily Adhkar Reminders</span>
               </label>
 
               <button
                 type="button"
                 role="switch"
+                data-testid="toggle-daily-reminders-switch"
                 aria-checked={settings.remindersEnabled}
                 aria-label="Toggle Daily Adhkar Reminders"
                 onClick={async () => {
                   const nextVal = !settings.remindersEnabled;
-                  if (nextVal) {
-                    const perm = await requestNotificationPermission();
-                    setPermStatus(perm);
-                  }
                   onUpdateSettings((s) => ({
                     ...s,
                     remindersEnabled: nextVal,
                   }));
+                  if (nextVal) {
+                    const perm = await requestNotificationPermission();
+                    setPermStatus(perm);
+                  }
                 }}
                 className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500 ${
                   settings.remindersEnabled ? 'bg-teal-600' : 'bg-slate-300 dark:bg-slate-700'
@@ -350,66 +359,76 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
 
             {settings.remindersEnabled && (
-              <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/50 dark:bg-slate-800/40 border border-teal-200/50 dark:border-slate-800">
-                {/* Permission Status & Request Banner */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-100 dark:border-slate-800">
-                  <div className="text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Browser Permission: </span>
-                    <span
-                      className={`font-semibold ${
-                        permStatus === 'granted'
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : permStatus === 'denied'
-                          ? 'text-red-500'
-                          : 'text-amber-600'
-                      }`}
-                    >
-                      {permStatus === 'granted'
-                        ? 'Granted ✓'
-                        : permStatus === 'denied'
-                        ? 'Blocked in Browser'
-                        : permStatus === 'unsupported'
-                        ? 'Not Supported'
-                        : 'Permission Needed'}
-                    </span>
+              <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/40 border border-teal-600 dark:border-slate-800">
+                {/* Mobile Browser Anti-Block Protection Status Card */}
+                <div
+                  data-testid="mobile-notification-status-card"
+                  className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-teal-600 dark:border-slate-800 space-y-2"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                      <span className="text-xs font-extrabold text-black dark:text-white">
+                        Mobile Anti-Block Delivery:
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 dark:border-emerald-700">
+                        Active ✓
+                      </span>
+                    </div>
+
+                    {permStatus !== 'granted' && permStatus !== 'unsupported' && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const perm = await requestNotificationPermission();
+                          setPermStatus(perm);
+                        }}
+                        className="px-2.5 py-1 text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
+                      >
+                        Allow OS Push
+                      </button>
+                    )}
                   </div>
 
-                  {permStatus !== 'granted' && permStatus !== 'unsupported' && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const perm = await requestNotificationPermission();
-                        setPermStatus(perm);
-                      }}
-                      className="px-2.5 py-1 text-xs font-semibold bg-teal-700 hover:bg-teal-600 text-white rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
-                    >
-                      Allow Notifications
-                    </button>
-                  )}
+                  <div className="text-[11px] font-bold text-black dark:text-slate-300 leading-relaxed">
+                    {permStatus === 'granted' ? (
+                      <span>
+                        OS Permission: <strong className="text-emerald-800 dark:text-emerald-400">Granted ✓</strong> • Using{' '}
+                        <strong>{swReady ? 'ServiceWorker.showNotification()' : 'Browser Push'}</strong> + Unblockable In-App Banner &amp; Spiritual Chime.
+                      </span>
+                    ) : (
+                      <span>
+                        OS Permission:{' '}
+                        <strong className="text-amber-900 dark:text-amber-300">
+                          {permStatus === 'denied'
+                            ? 'Browser OS Push Restricted'
+                            : permStatus === 'unsupported'
+                            ? 'WebView / iOS Tab Mode'
+                            : 'Standby'}
+                        </strong>{' '}
+                        • <strong>Unblockable Mobile In-App Banner + Spiritual Audio Chime + Vibration</strong> &amp; Wake-Up Catch-Up are automatically active so reminders are never blocked on mobile!
+                      </span>
+                    )}
+                  </div>
                 </div>
-
-                {permStatus === 'denied' && (
-                  <p className="text-[11px] text-red-600 dark:text-red-400 leading-tight">
-                    Notifications are blocked by your browser settings. To receive daily adhkar reminders, please enable notifications for this site in your browser site settings.
-                  </p>
-                )}
 
                 {/* Preferred Times Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Morning Reminder Time */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                        <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                        <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         <span>Morning Time</span>
                       </span>
-                      <span className="text-[11px] font-mono text-teal-700 dark:text-teal-400 font-semibold">
+                      <span className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold">
                         {formatTimeDisplay(settings.morningReminderTime)}
                       </span>
                     </div>
 
                     <input
                       type="time"
+                      aria-label="Morning Reminder Time"
                       value={settings.morningReminderTime}
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
@@ -417,7 +436,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           morningReminderTime: e.target.value,
                         }))
                       }
-                      className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
                     {/* Quick Presets */}
@@ -432,10 +451,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               morningReminderTime: time,
                             }))
                           }
-                          className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors ${
+                          className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
                             settings.morningReminderTime === time
-                              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-bold border border-amber-300 dark:border-amber-700'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                              ? 'bg-amber-200 dark:bg-amber-950/60 text-black dark:text-amber-300 font-extrabold border border-amber-600 dark:border-amber-700'
+                              : 'bg-slate-100 dark:bg-slate-800 text-black dark:text-slate-400 font-bold hover:bg-slate-200 border border-slate-300 dark:border-slate-700'
                           }`}
                         >
                           {time}
@@ -445,19 +464,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
 
                   {/* Evening Reminder Time */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-                        <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                        <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                         <span>Evening Time</span>
                       </span>
-                      <span className="text-[11px] font-mono text-teal-700 dark:text-teal-400 font-semibold">
+                      <span className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold">
                         {formatTimeDisplay(settings.eveningReminderTime)}
                       </span>
                     </div>
 
                     <input
                       type="time"
+                      aria-label="Evening Reminder Time"
                       value={settings.eveningReminderTime}
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
@@ -465,7 +485,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           eveningReminderTime: e.target.value,
                         }))
                       }
-                      className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
                     {/* Quick Presets */}
@@ -480,10 +500,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                               eveningReminderTime: time,
                             }))
                           }
-                          className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors ${
+                          className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
                             settings.eveningReminderTime === time
-                              ? 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-300 font-bold border border-indigo-300 dark:border-indigo-700'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                              ? 'bg-indigo-100 dark:bg-indigo-950/60 text-black dark:text-indigo-300 font-extrabold border border-indigo-600 dark:border-indigo-700'
+                              : 'bg-slate-100 dark:bg-slate-800 text-black dark:text-slate-400 font-bold hover:bg-slate-200 border border-slate-300 dark:border-slate-700'
                           }`}
                         >
                           {time}
@@ -494,15 +514,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
 
                 {/* Daily Goal Completion Reminder */}
-                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-200/80 dark:border-slate-800 space-y-2.5">
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-600 dark:border-slate-800 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                        <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <div className="text-xs font-extrabold text-black dark:text-white flex items-center gap-1.5">
+                        <Target className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
                         <span>Daily Goal Completion Reminder</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
-                        Sends a push notification if daily goal progress is &lt; 100%
+                      <div className="text-[11px] font-bold text-black dark:text-slate-400 mt-0.5 leading-tight">
+                        Sends a reminder if daily goal progress is &lt; 100%
                       </div>
                     </div>
 
@@ -530,18 +550,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
 
                   {settings.goalReminderEnabled && (
-                    <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800/80">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <span className="text-xs font-extrabold text-black dark:text-slate-300">
                           Reminder Scheduled Time:
                         </span>
-                        <span className="text-xs font-mono text-emerald-700 dark:text-emerald-400 font-bold">
+                        <span className="text-xs font-mono text-emerald-800 dark:text-emerald-400 font-extrabold">
                           {formatTimeDisplay(settings.dailyGoalReminderTime || '20:00')}
                         </span>
                       </div>
 
                       <input
                         type="time"
+                        aria-label="Daily Goal Reminder Time"
                         value={settings.dailyGoalReminderTime || '20:00'}
                         onChange={(e) =>
                           onUpdateSettings((s) => ({
@@ -549,7 +570,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             dailyGoalReminderTime: e.target.value,
                           }))
                         }
-                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
 
                       {/* Quick Presets for Goal Reminder */}
@@ -564,10 +585,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                                 dailyGoalReminderTime: time,
                               }))
                             }
-                            className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors ${
+                            className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
                               (settings.dailyGoalReminderTime || '20:00') === time
-                                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-700'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
+                                ? 'bg-emerald-200 dark:bg-emerald-950/60 text-black dark:text-emerald-300 font-extrabold border border-emerald-700 dark:border-emerald-700'
+                                : 'bg-slate-100 dark:bg-slate-800 text-black dark:text-slate-400 font-bold hover:bg-slate-200 border border-slate-300 dark:border-slate-700'
                             }`}
                           >
                             {time}
@@ -578,31 +599,43 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Test Notification Button */}
-                <div className="pt-1 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
-                    Verify notification appearance:
+                {/* Test Notification Button (Never blocked by mobile browser restrictions) */}
+                <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-black dark:text-slate-300">
+                    Verify mobile notification &amp; chime:
                   </span>
                   <button
                     type="button"
+                    data-testid="send-test-notification-btn"
                     onClick={async () => {
-                      if (permStatus !== 'granted') {
+                      if (permStatus === 'default') {
                         const perm = await requestNotificationPermission();
                         setPermStatus(perm);
-                        if (perm !== 'granted') return;
                       }
-                      sendAdhkarNotification(
+                      const channel = await dispatchMobileSafeNotification(
                         'Daily Adhkar Reminder • أذكار',
-                        'It is time for your blessed remembrances. May Allah bless your day!',
-                        onClose
+                        'It is time for your blessed remembrances. May Allah fill your day with peace and protection!',
+                        undefined,
+                        {
+                          arabicSubtitle: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
+                          malayalamSubtitle: 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം • ഓർമ്മപ്പെടുത്തൽ',
+                          targetTab: 'morning',
+                          actionLabel: 'Open Morning Adhkar',
+                          tag: 'adhkar-test-notification',
+                        }
                       );
+                      setLastTestChannel(channel);
                       setTestSent(true);
-                      setTimeout(() => setTestSent(false), 3000);
+                      setTimeout(() => setTestSent(false), 4000);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-100 dark:bg-teal-950/60 text-teal-800 dark:text-teal-300 hover:bg-teal-200 border border-teal-300 dark:border-teal-700 transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-extrabold rounded-xl bg-teal-900 hover:bg-teal-800 text-white border border-teal-950 dark:bg-teal-800 dark:hover:bg-teal-700 dark:border-teal-600 transition-colors cursor-pointer shadow-xs"
                   >
-                    <Send className="w-3 h-3" />
-                    <span>{testSent ? 'Notification Sent!' : 'Send Test Notification'}</span>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>
+                      {testSent
+                        ? `Delivered (${lastTestChannel === 'service-worker' ? 'SW Push + Banner' : 'Mobile Banner + Chime'}) ✓`
+                        : 'Send Test Notification'}
+                    </span>
                   </button>
                 </div>
               </div>

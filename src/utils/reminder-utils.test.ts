@@ -4,7 +4,11 @@ import {
   parseTimeString,
   getMsUntilNextTime,
   isReminderDue,
+  isReminderDueWithinWindow,
   formatTimeDisplay,
+  subscribeToInAppNotifications,
+  dispatchMobileSafeNotification,
+  InAppNotificationEvent,
 } from './reminder-utils.ts';
 
 test('parseTimeString handles valid and invalid inputs gracefully', () => {
@@ -43,9 +47,52 @@ test('isReminderDue detects exact match correctly', () => {
   assert.equal(isReminderDue('06:00', 7, 0), false);
 });
 
+test('isReminderDueWithinWindow supports mobile background timer catch-up', () => {
+  // Exact minute match
+  assert.equal(isReminderDueWithinWindow('06:00', 6, 0, 180), true);
+  // Phone unlocked 25 minutes after 06:00 while background timer was suspended
+  assert.equal(isReminderDueWithinWindow('06:00', 6, 25, 180), true);
+  // Boundary of 180-minute catch-up window (09:00)
+  assert.equal(isReminderDueWithinWindow('06:00', 9, 0, 180), true);
+  // Past the 180-minute catch-up window (09:01)
+  assert.equal(isReminderDueWithinWindow('06:00', 9, 1, 180), false);
+  // Before scheduled reminder time (05:59)
+  assert.equal(isReminderDueWithinWindow('06:00', 5, 59, 180), false);
+});
+
 test('formatTimeDisplay formats 24h to 12h AM/PM properly', () => {
   assert.equal(formatTimeDisplay('06:00'), '6:00 AM');
   assert.equal(formatTimeDisplay('12:00'), '12:00 PM');
   assert.equal(formatTimeDisplay('17:30'), '5:30 PM');
   assert.equal(formatTimeDisplay('00:15'), '12:15 AM');
 });
+
+test('dispatchMobileSafeNotification delivers unblockable in-app fallback when OS Notification is unavailable or blocked', async () => {
+  const receivedEvents: InAppNotificationEvent[] = [];
+  const unsubscribe = subscribeToInAppNotifications((ev) => {
+    receivedEvents.push(ev);
+  });
+
+  try {
+    const channel = await dispatchMobileSafeNotification(
+      'Morning Adhkar Reminder',
+      'Time for your morning remembrances.',
+      undefined,
+      {
+        arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ',
+        malayalamSubtitle: 'രാവിലെയുള്ള ദിക്റുകൾ',
+        targetTab: 'morning',
+        tag: 'unit-test-reminder',
+      }
+    );
+
+    assert.equal(channel, 'in-app-fallback');
+    assert.equal(receivedEvents.length, 1);
+    assert.equal(receivedEvents[0].title, 'Morning Adhkar Reminder');
+    assert.equal(receivedEvents[0].targetTab, 'morning');
+    assert.equal(receivedEvents[0].channel, 'in-app-fallback');
+  } finally {
+    unsubscribe();
+  }
+});
+

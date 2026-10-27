@@ -27,7 +27,7 @@ import {
   shouldResetDaily,
   filterDhikrItems,
 } from './utils/adhkar-utils.ts';
-import { playTapSound, playCompletionSound, triggerHaptic } from './utils/audio.ts';
+import { playTapSound, playCompletionSound, playReminderChime, triggerHaptic } from './utils/audio.ts';
 import { Header } from './components/Header.tsx';
 import { TabBar } from './components/TabBar.tsx';
 import { DhikrCard } from './components/DhikrCard.tsx';
@@ -42,13 +42,15 @@ import { ExportSingleFileModal } from './components/ExportSingleFileModal.tsx';
 import { PWAInstallModal } from './components/PWAInstallModal.tsx';
 import { PWAInstallBanner } from './components/PWAInstallBanner.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
+import { MobileReminderBanner } from './components/MobileReminderBanner.tsx';
 import { usePWAInstall } from './utils/usePWAInstall.ts';
 import { Search, RotateCcw, CheckCheck, Star, Sun, Moon, Languages, Headphones } from 'lucide-react';
 import {
-  isReminderDue,
-  sendAdhkarNotification,
-  getNotificationPermissionStatus,
-  formatTimeDisplay,
+  isReminderDueWithinWindow,
+  dispatchMobileSafeNotification,
+  registerAdhkarServiceWorker,
+  subscribeToInAppNotifications,
+  InAppNotificationEvent,
 } from './utils/reminder-utils.ts';
 import {
   StreakData,
@@ -445,7 +447,41 @@ export default function App() {
     return totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
   }, [morningProgress, eveningProgress, prayerProgress, sleepProgress, taskStats]);
 
-  // Daily Adhkar & Goal Completion Reminders Scheduler
+  // Active unblockable mobile reminder banner state
+  const [activeMobileNotification, setActiveMobileNotification] =
+    useState<InAppNotificationEvent | null>(null);
+
+  // Register Service Worker (/sw.js) for mobile notification support & listen for notification clicks
+  useEffect(() => {
+    registerAdhkarServiceWorker().catch(() => {});
+
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      const handleSwMessage = (event: MessageEvent) => {
+        if (event.data && event.data.type === 'ADHKAR_NOTIFICATION_CLICK' && event.data.tab) {
+          setCurrentTab(event.data.tab as TabKey);
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handleSwMessage);
+      return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+    }
+    return undefined;
+  }, []);
+
+  // Subscribe to unblockable in-app notification events (triggered by scheduled reminders & test button)
+  useEffect(() => {
+    const unsubscribe = subscribeToInAppNotifications((notifEvent) => {
+      setActiveMobileNotification(notifEvent);
+      if (settings.soundEnabled) {
+        playReminderChime();
+      }
+      if (settings.vibrateEnabled) {
+        triggerHaptic('reminder');
+      }
+    });
+    return () => unsubscribe();
+  }, [settings.soundEnabled, settings.vibrateEnabled]);
+
+  // Daily Adhkar & Goal Completion Reminders Scheduler (with Mobile Wake-Up Catch-Up Window)
   useEffect(() => {
     if (!settings.remindersEnabled && !settings.goalReminderEnabled) return;
 
@@ -456,29 +492,49 @@ export default function App() {
       const todayStr = getTodayDateString(now);
 
       if (settings.remindersEnabled) {
-        // Check Morning reminder
-        if (isReminderDue(settings.morningReminderTime, currentHours, currentMinutes)) {
+        // Check Morning reminder (uses 180-min catch-up window so mobile background timer suspension never drops reminders)
+        if (
+          morningProgress.percent < 100 &&
+          isReminderDueWithinWindow(settings.morningReminderTime, currentHours, currentMinutes, 180)
+        ) {
           const lastMorningNotif = localStorage.getItem('adhkar_last_morning_notif_date');
           if (lastMorningNotif !== todayStr) {
-            sendAdhkarNotification(
+            localStorage.setItem('adhkar_last_morning_notif_date', todayStr);
+            void dispatchMobileSafeNotification(
               '☀️ Morning Adhkar Time • أذكار الصباح',
               'Start your morning with blessings and divine protection. Tap to begin your morning remembrances.',
-              () => setCurrentTab('morning')
+              () => setCurrentTab('morning'),
+              {
+                arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ',
+                malayalamSubtitle: 'രാവിലെയുള്ള ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം',
+                targetTab: 'morning',
+                actionLabel: 'Open Morning Adhkar',
+                tag: `morning-adhkar-${todayStr}`,
+              }
             );
-            localStorage.setItem('adhkar_last_morning_notif_date', todayStr);
           }
         }
 
         // Check Evening reminder
-        if (isReminderDue(settings.eveningReminderTime, currentHours, currentMinutes)) {
+        if (
+          eveningProgress.percent < 100 &&
+          isReminderDueWithinWindow(settings.eveningReminderTime, currentHours, currentMinutes, 180)
+        ) {
           const lastEveningNotif = localStorage.getItem('adhkar_last_evening_notif_date');
           if (lastEveningNotif !== todayStr) {
-            sendAdhkarNotification(
+            localStorage.setItem('adhkar_last_evening_notif_date', todayStr);
+            void dispatchMobileSafeNotification(
               '🌙 Evening Adhkar Time • أذكار المساء',
               'Evening has arrived. Bring peace to your heart with the evening remembrances.',
-              () => setCurrentTab('evening')
+              () => setCurrentTab('evening'),
+              {
+                arabicSubtitle: 'أَذْكَارُ الْمَسَاءِ',
+                malayalamSubtitle: 'വൈകുന്നേരമുള്ള ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം',
+                targetTab: 'evening',
+                actionLabel: 'Open Evening Adhkar',
+                tag: `evening-adhkar-${todayStr}`,
+              }
             );
-            localStorage.setItem('adhkar_last_evening_notif_date', todayStr);
           }
         }
       }
@@ -486,32 +542,62 @@ export default function App() {
       // Check Daily Goal completion reminder (if enabled and progress is under 100%)
       if (
         settings.goalReminderEnabled &&
-        isReminderDue(settings.dailyGoalReminderTime || '20:00', currentHours, currentMinutes)
+        isReminderDueWithinWindow(
+          settings.dailyGoalReminderTime || '20:00',
+          currentHours,
+          currentMinutes,
+          180
+        )
       ) {
         const lastGoalNotif = localStorage.getItem('adhkar_last_goal_notif_date');
         if (lastGoalNotif !== todayStr) {
+          localStorage.setItem('adhkar_last_goal_notif_date', todayStr);
           if (overallDailyProgress < 100) {
-            sendAdhkarNotification(
+            void dispatchMobileSafeNotification(
               '🎯 Daily Goal Reminder • تذكير الأهداف',
               `Your overall daily progress is at ${overallDailyProgress}%. Complete your daily goals to maintain your spiritual streak!`,
-              () => setCurrentTab('morning')
+              () => setCurrentTab('morning'),
+              {
+                arabicSubtitle: 'تَذْكِيرُ الْأَهْدَافِ الْيَوْمِيَّةِ',
+                malayalamSubtitle: `ഇന്നത്തെ ലക്ഷ്യം പൂർത്തിയാക്കാം (${overallDailyProgress}%)`,
+                targetTab: 'morning',
+                actionLabel: 'Continue Daily Goals',
+                tag: `goal-adhkar-${todayStr}`,
+              }
             );
           }
-          localStorage.setItem('adhkar_last_goal_notif_date', todayStr);
         }
       }
     };
 
-    // Check immediately and every 30 seconds
+    // Check immediately, every 20 seconds, and whenever mobile browser resumes from background/sleep
     checkReminders();
-    const interval = setInterval(checkReminders, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(checkReminders, 20000);
+
+    const handleVisibilityOrFocus = () => {
+      if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+        checkReminders();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    window.addEventListener('pageshow', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      window.removeEventListener('pageshow', handleVisibilityOrFocus);
+    };
   }, [
     settings.remindersEnabled,
     settings.morningReminderTime,
     settings.eveningReminderTime,
     settings.goalReminderEnabled,
     settings.dailyGoalReminderTime,
+    morningProgress.percent,
+    eveningProgress.percent,
     overallDailyProgress,
   ]);
 
@@ -1069,6 +1155,17 @@ export default function App() {
           : 'daylight-mode bg-slate-100 text-black'
       }`}
     >
+      {/* Unblockable Mobile Reminder Banner + Audio Chime Alert */}
+      <MobileReminderBanner
+        notification={activeMobileNotification}
+        onDismiss={() => setActiveMobileNotification(null)}
+        onSelectTab={(tab) => {
+          setIsSettingsOpen(false);
+          handleSelectTab(tab);
+        }}
+        theme={settings.theme}
+      />
+
       {/* PWA In-App Install Prompt Banner */}
       <PWAInstallBanner
         isInstalled={isInstalled}
