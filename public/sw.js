@@ -21,11 +21,11 @@ self.addEventListener('message', (event) => {
   if (!data || typeof data !== 'object') return;
 
   if (data.type === 'SHOW_NOTIFICATION' && self.registration && self.registration.showNotification) {
-    const title = data.title || 'Daily Adhkar Reminder • أذكار';
+    const title = data.title || 'Daily Adhkar';
     const options = {
-      body: data.body || 'Time for your daily remembrances (Adhkar).',
-      icon: '/icon.svg',
-      badge: '/icon.svg',
+      body: data.body || 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+      icon: data.icon || 'icon.png',
+      badge: 'icon.png',
       tag: data.tag || 'daily-adhkar-reminder',
       renotify: true,
       vibrate: [180, 80, 180],

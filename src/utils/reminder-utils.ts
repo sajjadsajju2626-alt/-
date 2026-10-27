@@ -274,94 +274,103 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   }
 }
 
+export const LOCAL_ADHKAR_REMINDER_MESSAGES = {
+  morning: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+  evening: 'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+  goal: 'ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯',
+} as const;
+
 export interface AdhkarNotificationOptions {
   arabicSubtitle?: string;
   malayalamSubtitle?: string;
   targetTab?: 'morning' | 'evening' | 'prayer' | 'sleep' | 'tasks' | 'tasbih' | 'progress';
   actionLabel?: string;
   tag?: string;
+  icon?: string;
 }
 
 /**
- * Dispatches a mobile-safe Adhkar notification that NEVER gets blocked by mobile browsers:
- * 1. Primary OS path: Uses `ServiceWorkerRegistration.showNotification()` (required on Android Chrome,
- *    Samsung Internet, Firefox Mobile, and iOS Home Screen PWAs where `new Notification()` is illegal).
- * 2. Secondary OS path: Falls back to `new Notification()` inside a `try/catch` for desktop browsers
- *    when Service Worker is unavailable.
- * 3. Guaranteed Mobile Fallback: Always emits an unblockable In-App Notification Banner + Audio Chime
- *    + Haptic Vibration event so the user receives the reminder even if OS notifications are blocked,
- *    denied, inside an embedded WebView/iframe, or on non-standalone iOS Safari.
+ * Local in-app reminder trigger (requires no OneSignal ID or cloud setup).
+ * Executes:
+ *   if (Notification.permission === "granted") {
+ *     new Notification("Daily Adhkar", {
+ *       body: "രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅",
+ *       icon: "icon.png"
+ *     });
+ *   }
+ * While safely catching mobile browser `Illegal constructor` errors to fall back to
+ * `ServiceWorkerRegistration.showNotification()` and always displaying the unblockable
+ * local in-app reminder banner + spiritual audio chime.
  */
 export async function dispatchMobileSafeNotification(
-  title: string,
-  body: string,
+  title = 'Daily Adhkar',
+  body: string = LOCAL_ADHKAR_REMINDER_MESSAGES.morning,
   onClick?: () => void,
   options?: AdhkarNotificationOptions
 ): Promise<'service-worker' | 'notification-api' | 'in-app-fallback'> {
   let channel: 'service-worker' | 'notification-api' | 'in-app-fallback' = 'in-app-fallback';
-  const perm = getNotificationPermissionStatus();
   const tag = options?.tag || 'daily-adhkar-reminder';
   const targetTab = options?.targetTab || 'morning';
+  const icon = options?.icon || 'icon.png';
 
-  if (perm === 'granted') {
-    // 1. Try ServiceWorkerRegistration.showNotification() first (mandatory on mobile browsers)
+  // Local in-app reminder trigger (requires no OneSignal ID or cloud setup)
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     try {
-      const reg = await registerAdhkarServiceWorker();
-      if (reg && typeof reg.showNotification === 'function') {
-        await reg.showNotification(title, {
-          body,
-          icon: '/icon.svg',
-          badge: '/icon.svg',
-          tag,
-          vibrate: [180, 80, 180],
-          data: { tab: targetTab, url: `/?tab=${targetTab}` },
-        } as NotificationOptions);
-        channel = 'service-worker';
-      } else if (
-        typeof navigator !== 'undefined' &&
-        'serviceWorker' in navigator &&
-        navigator.serviceWorker.controller
-      ) {
-        navigator.serviceWorker.controller.postMessage({
-          type: 'SHOW_NOTIFICATION',
-          title,
-          body,
-          tag,
-          targetTab,
-        });
-        channel = 'service-worker';
+      const notification = new Notification(title, {
+        body,
+        icon,
+      });
+
+      if (onClick && typeof window !== 'undefined') {
+        notification.onclick = () => {
+          window.focus();
+          onClick();
+          notification.close();
+        };
       }
+      channel = 'notification-api';
     } catch {
-      // Service Worker notification failed; try desktop Notification constructor next
+      // Mobile browsers (e.g., Android Chrome) block `new Notification()` on the main thread
+      // and require ServiceWorkerRegistration.showNotification() instead.
+      channel = 'in-app-fallback';
     }
 
-    // 2. If Service Worker didn't handle it, safely try `new Notification` inside try/catch
-    // (Mobile Chrome throws TypeError: Illegal constructor here, which we catch gracefully)
-    if (channel === 'in-app-fallback' && typeof window !== 'undefined' && 'Notification' in window) {
+    // Mobile OS fallback via ServiceWorkerRegistration.showNotification() if `new Notification()` threw
+    if (channel === 'in-app-fallback') {
       try {
-        const notification = new Notification(title, {
-          body,
-          icon: '/icon.svg',
-          badge: '/icon.svg',
-          tag,
-        });
-
-        if (onClick) {
-          notification.onclick = () => {
-            window.focus();
-            onClick();
-            notification.close();
-          };
+        const reg = await registerAdhkarServiceWorker();
+        if (reg && typeof reg.showNotification === 'function') {
+          await reg.showNotification(title, {
+            body,
+            icon,
+            badge: icon,
+            tag,
+            vibrate: [180, 80, 180],
+            data: { tab: targetTab, url: `/?tab=${targetTab}` },
+          } as NotificationOptions);
+          channel = 'service-worker';
+        } else if (
+          typeof navigator !== 'undefined' &&
+          'serviceWorker' in navigator &&
+          navigator.serviceWorker.controller
+        ) {
+          navigator.serviceWorker.controller.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            title,
+            body,
+            icon,
+            tag,
+            targetTab,
+          });
+          channel = 'service-worker';
         }
-        channel = 'notification-api';
       } catch {
-        // Caught mobile browser `Illegal constructor` or restriction -> handled by in-app fallback below
         channel = 'in-app-fallback';
       }
     }
   }
 
-  // 3. Always emit unblockable In-App Mobile Reminder Banner + Audio/Haptic event
+  // Always emit unblockable Local In-App Mobile Reminder Banner + Audio/Haptic event
   emitInAppNotification({
     id: `${tag}-${Date.now()}`,
     title,
@@ -379,16 +388,32 @@ export async function dispatchMobileSafeNotification(
 }
 
 /**
+ * Convenience helper for the local in-app reminder trigger with default
+ * "Daily Adhkar" title, Malayalam morning reminder text, and "icon.png".
+ */
+export function triggerLocalInAppReminder(
+  body: string = LOCAL_ADHKAR_REMINDER_MESSAGES.morning,
+  onClick?: () => void,
+  options?: AdhkarNotificationOptions
+): Promise<'service-worker' | 'notification-api' | 'in-app-fallback'> {
+  return dispatchMobileSafeNotification('Daily Adhkar', body, onClick, {
+    icon: 'icon.png',
+    ...options,
+  });
+}
+
+/**
  * Backward-compatible synchronous/fire-and-forget notification helper.
  * Routes through `dispatchMobileSafeNotification` so it never gets blocked on mobile browsers.
  */
 export function sendAdhkarNotification(
-  title: string,
-  body: string,
+  title = 'Daily Adhkar',
+  body: string = LOCAL_ADHKAR_REMINDER_MESSAGES.morning,
   onClick?: () => void,
   options?: AdhkarNotificationOptions
 ): null {
   void dispatchMobileSafeNotification(title, body, onClick, options);
   return null;
 }
+
 

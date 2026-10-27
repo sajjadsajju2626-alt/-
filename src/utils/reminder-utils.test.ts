@@ -8,6 +8,8 @@ import {
   formatTimeDisplay,
   subscribeToInAppNotifications,
   dispatchMobileSafeNotification,
+  triggerLocalInAppReminder,
+  LOCAL_ADHKAR_REMINDER_MESSAGES,
   InAppNotificationEvent,
 } from './reminder-utils.ts';
 
@@ -75,24 +77,57 @@ test('dispatchMobileSafeNotification delivers unblockable in-app fallback when O
 
   try {
     const channel = await dispatchMobileSafeNotification(
-      'Morning Adhkar Reminder',
-      'Time for your morning remembrances.',
+      'Daily Adhkar',
+      LOCAL_ADHKAR_REMINDER_MESSAGES.morning,
       undefined,
       {
         arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ',
-        malayalamSubtitle: 'രാവിലെയുള്ള ദിക്റുകൾ',
+        malayalamSubtitle: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
         targetTab: 'morning',
         tag: 'unit-test-reminder',
+        icon: 'icon.png',
       }
     );
 
     assert.equal(channel, 'in-app-fallback');
     assert.equal(receivedEvents.length, 1);
-    assert.equal(receivedEvents[0].title, 'Morning Adhkar Reminder');
+    assert.equal(receivedEvents[0].title, 'Daily Adhkar');
+    assert.equal(receivedEvents[0].body, 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅');
     assert.equal(receivedEvents[0].targetTab, 'morning');
     assert.equal(receivedEvents[0].channel, 'in-app-fallback');
   } finally {
     unsubscribe();
   }
 });
+
+test('triggerLocalInAppReminder invokes new Notification("Daily Adhkar", { body, icon: "icon.png" }) when Notification.permission === "granted"', async () => {
+  const constructedNotifications: Array<{ title: string; options?: NotificationOptions }> = [];
+  const origNotification = (globalThis as Record<string, unknown>).Notification;
+
+  class MockNotification {
+    static permission: NotificationPermission = 'granted';
+    onclick: (() => void) | null = null;
+    constructor(title: string, options?: NotificationOptions) {
+      constructedNotifications.push({ title, options });
+    }
+    close() {}
+  }
+
+  (globalThis as Record<string, unknown>).Notification = MockNotification;
+
+  try {
+    const channel = await triggerLocalInAppReminder();
+    assert.equal(channel, 'notification-api');
+    assert.equal(constructedNotifications.length, 1);
+    assert.equal(constructedNotifications[0].title, 'Daily Adhkar');
+    assert.equal(
+      constructedNotifications[0].options?.body,
+      'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅'
+    );
+    assert.equal(constructedNotifications[0].options?.icon, 'icon.png');
+  } finally {
+    (globalThis as Record<string, unknown>).Notification = origNotification;
+  }
+});
+
 

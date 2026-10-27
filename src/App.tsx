@@ -501,15 +501,16 @@ export default function App() {
           if (lastMorningNotif !== todayStr) {
             localStorage.setItem('adhkar_last_morning_notif_date', todayStr);
             void dispatchMobileSafeNotification(
-              '☀️ Morning Adhkar Time • أذكار الصباح',
-              'Start your morning with blessings and divine protection. Tap to begin your morning remembrances.',
+              'Daily Adhkar',
+              'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
               () => setCurrentTab('morning'),
               {
                 arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ',
-                malayalamSubtitle: 'രാവിലെയുള്ള ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം',
+                malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
                 targetTab: 'morning',
                 actionLabel: 'Open Morning Adhkar',
                 tag: `morning-adhkar-${todayStr}`,
+                icon: 'icon.png',
               }
             );
           }
@@ -524,15 +525,16 @@ export default function App() {
           if (lastEveningNotif !== todayStr) {
             localStorage.setItem('adhkar_last_evening_notif_date', todayStr);
             void dispatchMobileSafeNotification(
-              '🌙 Evening Adhkar Time • أذكار المساء',
-              'Evening has arrived. Bring peace to your heart with the evening remembrances.',
+              'Daily Adhkar',
+              'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
               () => setCurrentTab('evening'),
               {
                 arabicSubtitle: 'أَذْكَارُ الْمَسَاءِ',
-                malayalamSubtitle: 'വൈകുന്നേരമുള്ള ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം',
+                malayalamSubtitle: 'സായാഹ്ന ദിക്റുകൾ • Evening Adhkar',
                 targetTab: 'evening',
                 actionLabel: 'Open Evening Adhkar',
                 tag: `evening-adhkar-${todayStr}`,
+                icon: 'icon.png',
               }
             );
           }
@@ -554,8 +556,8 @@ export default function App() {
           localStorage.setItem('adhkar_last_goal_notif_date', todayStr);
           if (overallDailyProgress < 100) {
             void dispatchMobileSafeNotification(
-              '🎯 Daily Goal Reminder • تذكير الأهداف',
-              `Your overall daily progress is at ${overallDailyProgress}%. Complete your daily goals to maintain your spiritual streak!`,
+              'Daily Adhkar',
+              `ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯 (${overallDailyProgress}%)`,
               () => setCurrentTab('morning'),
               {
                 arabicSubtitle: 'تَذْكِيرُ الْأَهْدَافِ الْيَوْمِيَّةِ',
@@ -563,6 +565,7 @@ export default function App() {
                 targetTab: 'morning',
                 actionLabel: 'Continue Daily Goals',
                 tag: `goal-adhkar-${todayStr}`,
+                icon: 'icon.png',
               }
             );
           }

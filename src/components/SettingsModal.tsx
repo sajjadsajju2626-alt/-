@@ -360,7 +360,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {settings.remindersEnabled && (
               <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/40 border border-teal-600 dark:border-slate-800">
-                {/* Mobile Browser Anti-Block Protection Status Card */}
+                {/* Local In-App Reminder Status Card (Requires no OneSignal ID or Cloud Setup) */}
                 <div
                   data-testid="mobile-notification-status-card"
                   className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-teal-600 dark:border-slate-800 space-y-2"
@@ -369,10 +369,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <div className="flex items-center gap-2">
                       <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                       <span className="text-xs font-extrabold text-black dark:text-white">
-                        Mobile Anti-Block Delivery:
+                        Local In-App Reminder Trigger:
                       </span>
                       <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 dark:border-emerald-700">
-                        Active ✓
+                        100% Local • No Cloud/OneSignal
                       </span>
                     </div>
 
@@ -385,7 +385,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         }}
                         className="px-2.5 py-1 text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
                       >
-                        Allow OS Push
+                        Allow Browser Notification
                       </button>
                     )}
                   </div>
@@ -393,8 +393,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div className="text-[11px] font-bold text-black dark:text-slate-300 leading-relaxed">
                     {permStatus === 'granted' ? (
                       <span>
-                        OS Permission: <strong className="text-emerald-800 dark:text-emerald-400">Granted ✓</strong> • Using{' '}
-                        <strong>{swReady ? 'ServiceWorker.showNotification()' : 'Browser Push'}</strong> + Unblockable In-App Banner &amp; Spiritual Chime.
+                        OS Permission: <strong className="text-emerald-800 dark:text-emerald-400">Granted ✓</strong> • Fires{' '}
+                        <strong>new Notification(&quot;Daily Adhkar&quot;, &#123; icon: &quot;icon.png&quot; &#125;)</strong>{' '}
+                        {swReady ? '+ ServiceWorker fallback' : ''} + Local In-App Banner &amp; Spiritual Chime.
                       </span>
                     ) : (
                       <span>
@@ -406,7 +407,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             ? 'WebView / iOS Tab Mode'
                             : 'Standby'}
                         </strong>{' '}
-                        • <strong>Unblockable Mobile In-App Banner + Spiritual Audio Chime + Vibration</strong> &amp; Wake-Up Catch-Up are automatically active so reminders are never blocked on mobile!
+                        • <strong>100% Local In-App Reminder Trigger (No OneSignal ID or Cloud Setup)</strong> + Spiritual Audio Chime &amp; Wake-Up Catch-Up are automatically active!
                       </span>
                     )}
                   </div>
@@ -599,10 +600,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Test Notification Button (Never blocked by mobile browser restrictions) */}
+                {/* Test Notification Button (Local in-app reminder trigger — requires no OneSignal ID or cloud setup) */}
                 <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <span className="text-xs font-bold text-black dark:text-slate-300">
-                    Verify mobile notification &amp; chime:
+                    Test local in-app reminder &amp; chime:
                   </span>
                   <button
                     type="button"
@@ -613,15 +614,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         setPermStatus(perm);
                       }
                       const channel = await dispatchMobileSafeNotification(
-                        'Daily Adhkar Reminder • أذكار',
-                        'It is time for your blessed remembrances. May Allah fill your day with peace and protection!',
+                        'Daily Adhkar',
+                        'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
                         undefined,
                         {
-                          arabicSubtitle: 'أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ',
-                          malayalamSubtitle: 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയം • ഓർമ്മപ്പെടുത്തൽ',
+                          arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ • تذكير الأذكار',
+                          malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ • Morning Remembrances',
                           targetTab: 'morning',
                           actionLabel: 'Open Morning Adhkar',
                           tag: 'adhkar-test-notification',
+                          icon: 'icon.png',
                         }
                       );
                       setLastTestChannel(channel);
@@ -633,7 +635,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <Send className="w-3.5 h-3.5" />
                     <span>
                       {testSent
-                        ? `Delivered (${lastTestChannel === 'service-worker' ? 'SW Push + Banner' : 'Mobile Banner + Chime'}) ✓`
+                        ? `Delivered (${
+                            lastTestChannel === 'notification-api'
+                              ? 'Notification API + Banner'
+                              : lastTestChannel === 'service-worker'
+                              ? 'SW Push + Banner'
+                              : 'Local Banner + Chime'
+                          }) ✓`
                         : 'Send Test Notification'}
                     </span>
                   </button>
