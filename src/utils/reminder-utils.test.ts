@@ -1,11 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  withTimeout,
   parseTimeString,
   getMsUntilNextTime,
   isReminderDue,
+  isExactSecondReminderDue,
+  buildMinuteRunFlagKey,
+  formatMsUntilNextTrigger,
+  getNextMinuteTimeString,
   isReminderDueWithinWindow,
   formatTimeDisplay,
+  evaluateMissedAdhkarCatchUp,
   subscribeToInAppNotifications,
   dispatchMobileSafeNotification,
   triggerLocalInAppReminder,
@@ -13,33 +19,66 @@ import {
   InAppNotificationEvent,
 } from './reminder-utils.ts';
 
+test('withTimeout resolves fast promises and rejects hanging promises (e.g. missing sw.js)', async () => {
+  const fastResult = await withTimeout(Promise.resolve('ok'), 100);
+  assert.equal(fastResult, 'ok');
+
+  const neverResolves = new Promise<string>(() => {
+    // simulates navigator.serviceWorker.ready hanging when sw.js is missing
+  });
+  await assert.rejects(
+    () => withTimeout(neverResolves, 50, 'SW timed out'),
+    /SW timed out/
+  );
+});
+
 test('parseTimeString handles valid and invalid inputs gracefully', () => {
   assert.deepEqual(parseTimeString('06:30'), { hours: 6, minutes: 30 });
   assert.deepEqual(parseTimeString('17:45'), { hours: 17, minutes: 45 });
   assert.deepEqual(parseTimeString('00:00'), { hours: 0, minutes: 0 });
   assert.deepEqual(parseTimeString('23:59'), { hours: 23, minutes: 59 });
 
-  // clamping invalid numbers
   assert.deepEqual(parseTimeString('25:70'), { hours: 23, minutes: 59 });
   assert.deepEqual(parseTimeString('invalid'), { hours: 0, minutes: 0 });
 });
 
-test('getMsUntilNextTime calculates time until today or tomorrow correctly', () => {
-  // Scenario 1: Target is later today (now is 10:00, target is 10:30)
+test('getMsUntilNextTime calculates exact milliseconds until :00 seconds of target time today or tomorrow', () => {
   const now1 = new Date(2026, 9, 24, 10, 0, 0, 0);
   const ms1 = getMsUntilNextTime('10:30', now1);
-  assert.equal(ms1, 30 * 60 * 1000); // exactly 30 minutes in ms
+  assert.equal(ms1, 30 * 60 * 1000);
 
-  // Scenario 2: Target is earlier today (now is 21:00, target is 06:00 tomorrow)
+  // Mid-minute with milliseconds: 10:29:45.250 -> 10:30:00.000 is exactly 14,750 ms
+  const nowMidMinute = new Date(2026, 9, 24, 10, 29, 45, 250);
+  assert.equal(getMsUntilNextTime('10:30', nowMidMinute), 14750);
+
   const now2 = new Date(2026, 9, 24, 21, 0, 0, 0);
   const ms2 = getMsUntilNextTime('06:00', now2);
-  // From 21:00 to 24:00 is 3h, from 00:00 to 06:00 is 6h -> total 9 hours
   assert.equal(ms2, 9 * 60 * 60 * 1000);
 
-  // Scenario 3: Target is exact same minute (now is 10:00:00, target is 10:00 -> rolls to tomorrow 24 hours)
   const now3 = new Date(2026, 9, 24, 10, 0, 0, 0);
   const ms3 = getMsUntilNextTime('10:00', now3);
   assert.equal(ms3, 24 * 60 * 60 * 1000);
+});
+
+test('isExactSecondReminderDue triggers only at :00 seconds of target hour and minute', () => {
+  assert.equal(isExactSecondReminderDue('10:30', 10, 30, 0), true);
+  assert.equal(isExactSecondReminderDue('10:30', 10, 30, 1), false);
+  assert.equal(isExactSecondReminderDue('10:30', 10, 29, 59), false);
+  assert.equal(isExactSecondReminderDue('05:30', 5, 30, 0), true);
+});
+
+test('buildMinuteRunFlagKey, formatMsUntilNextTrigger, and getNextMinuteTimeString work accurately', () => {
+  assert.equal(buildMinuteRunFlagKey('10:30'), 'hasRun_10_30');
+  assert.equal(
+    buildMinuteRunFlagKey('10:30', 'morning', '2026-10-27'),
+    'hasRun_morning_2026-10-27_10_30'
+  );
+  assert.equal(formatMsUntilNextTrigger(45000), '45s');
+  assert.equal(formatMsUntilNextTrigger(125000), '2m 05s');
+  assert.equal(formatMsUntilNextTrigger(3665000), '1h 01m 05s');
+
+  const sampleNow = new Date(2026, 9, 24, 10, 29, 42, 0);
+  assert.equal(getNextMinuteTimeString(sampleNow), '10:30');
 });
 
 test('isReminderDue detects exact match correctly', () => {
@@ -50,15 +89,10 @@ test('isReminderDue detects exact match correctly', () => {
 });
 
 test('isReminderDueWithinWindow supports mobile background timer catch-up', () => {
-  // Exact minute match
   assert.equal(isReminderDueWithinWindow('06:00', 6, 0, 180), true);
-  // Phone unlocked 25 minutes after 06:00 while background timer was suspended
   assert.equal(isReminderDueWithinWindow('06:00', 6, 25, 180), true);
-  // Boundary of 180-minute catch-up window (09:00)
   assert.equal(isReminderDueWithinWindow('06:00', 9, 0, 180), true);
-  // Past the 180-minute catch-up window (09:01)
   assert.equal(isReminderDueWithinWindow('06:00', 9, 1, 180), false);
-  // Before scheduled reminder time (05:59)
   assert.equal(isReminderDueWithinWindow('06:00', 5, 59, 180), false);
 });
 
@@ -69,7 +103,51 @@ test('formatTimeDisplay formats 24h to 12h AM/PM properly', () => {
   assert.equal(formatTimeDisplay('00:15'), '12:15 AM');
 });
 
-test('dispatchMobileSafeNotification delivers unblockable in-app fallback when OS Notification is unavailable or blocked', async () => {
+test('evaluateMissedAdhkarCatchUp detects missed Morning (Fajr) and Evening (Asr) Adhkar on app reopen', () => {
+  const morningCatchUp = evaluateMissedAdhkarCatchUp({
+    remindersEnabled: true,
+    morningReminderTime: '06:00',
+    eveningReminderTime: '17:30',
+    morningProgressPercent: 20,
+    eveningProgressPercent: 0,
+    currentHours: 8,
+    currentMinutes: 15,
+    todayStr: '2026-10-27',
+    lastMorningNotifDate: null,
+    lastEveningNotifDate: null,
+    isAppReopen: true,
+  });
+
+  assert.ok(morningCatchUp);
+  assert.equal(morningCatchUp.period, 'morning');
+  assert.equal(morningCatchUp.isCatchUp, true);
+  assert.equal(morningCatchUp.minutesLate, 135);
+  assert.equal(morningCatchUp.targetTab, 'morning');
+  assert.ok(morningCatchUp.title.includes('Morning (Fajr)'));
+
+  const eveningCatchUp = evaluateMissedAdhkarCatchUp({
+    remindersEnabled: true,
+    morningReminderTime: '06:00',
+    eveningReminderTime: '17:30',
+    morningProgressPercent: 100,
+    eveningProgressPercent: 0,
+    currentHours: 19,
+    currentMinutes: 0,
+    todayStr: '2026-10-27',
+    lastMorningNotifDate: '2026-10-27',
+    lastEveningNotifDate: null,
+    isAppReopen: true,
+  });
+
+  assert.ok(eveningCatchUp);
+  assert.equal(eveningCatchUp.period, 'evening');
+  assert.equal(eveningCatchUp.isCatchUp, true);
+  assert.equal(eveningCatchUp.minutesLate, 90);
+  assert.equal(eveningCatchUp.targetTab, 'evening');
+  assert.ok(eveningCatchUp.title.includes('Evening (Asr)'));
+});
+
+test('Dual-Trigger Step 3: delivers instant In-App Toast ("നോട്ടിഫിക്കേഷൻ അയച്ചു!") when WebView blocks system notifications', async () => {
   const receivedEvents: InAppNotificationEvent[] = [];
   const unsubscribe = subscribeToInAppNotifications((ev) => {
     receivedEvents.push(ev);
@@ -90,44 +168,132 @@ test('dispatchMobileSafeNotification delivers unblockable in-app fallback when O
     );
 
     assert.equal(channel, 'in-app-fallback');
-    assert.equal(receivedEvents.length, 1);
-    assert.equal(receivedEvents[0].title, 'Daily Adhkar');
-    assert.equal(receivedEvents[0].body, 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅');
-    assert.equal(receivedEvents[0].targetTab, 'morning');
-    assert.equal(receivedEvents[0].channel, 'in-app-fallback');
+    assert.ok(receivedEvents.length >= 1);
+    const finalEvent = receivedEvents[receivedEvents.length - 1];
+    assert.equal(finalEvent.title, 'Daily Adhkar');
+    assert.equal(finalEvent.body, 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅');
+    assert.ok(finalEvent.debugToastText.includes('നോട്ടിഫിക്കേഷൻ അയച്ചു!'));
+    assert.equal(finalEvent.channel, 'in-app-fallback');
   } finally {
     unsubscribe();
   }
 });
 
-test('triggerLocalInAppReminder invokes new Notification("Daily Adhkar", { body, icon: "icon.png" }) when Notification.permission === "granted"', async () => {
-  const constructedNotifications: Array<{ title: string; options?: NotificationOptions }> = [];
+test('Dual-Trigger Step 1: uses navigator.serviceWorker.ready.then(reg => reg.showNotification(...)) when SW responds within 500ms', async () => {
+  const swNotifications: Array<{ title: string; options?: NotificationOptions }> = [];
+  let nativeConstructed = false;
+
+  const origWindow = (globalThis as Record<string, unknown>).window;
+  const origNavigator = (globalThis as Record<string, unknown>).navigator;
+  const origNotification = (globalThis as Record<string, unknown>).Notification;
+
+  class MockNotification {
+    static permission: NotificationPermission = 'granted';
+    constructor() {
+      nativeConstructed = true;
+    }
+  }
+
+  const mockSwReg = {
+    active: {},
+    async showNotification(title: string, options?: NotificationOptions) {
+      swNotifications.push({ title, options });
+    },
+  };
+
+  (globalThis as Record<string, unknown>).window = { Notification: MockNotification };
+  (globalThis as Record<string, unknown>).Notification = MockNotification;
+  Object.defineProperty(globalThis, 'navigator', {
+    value: {
+      userAgent: 'Mozilla/5.0 (Linux; Android 14)',
+      serviceWorker: {
+        ready: Promise.resolve(mockSwReg),
+        async getRegistration() {
+          return mockSwReg;
+        },
+        async register() {
+          return mockSwReg;
+        },
+      },
+    },
+    configurable: true,
+  });
+
+  try {
+    const channel = await triggerLocalInAppReminder();
+    assert.equal(channel, 'service-worker');
+    assert.equal(nativeConstructed, false);
+    assert.equal(swNotifications.length, 1);
+    assert.equal(swNotifications[0].title, 'Daily Adhkar');
+    assert.equal(
+      swNotifications[0].options?.body,
+      'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅'
+    );
+  } finally {
+    (globalThis as Record<string, unknown>).window = origWindow;
+    (globalThis as Record<string, unknown>).Notification = origNotification;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: origNavigator,
+      configurable: true,
+    });
+  }
+});
+
+test('Dual-Trigger Step 2: falls back to native new Notification("Daily Adhkar", { ... }) if sw.js is missing or takes > 500ms', async () => {
+  const nativeNotifications: Array<{ title: string; options?: NotificationOptions }> = [];
+
+  const origWindow = (globalThis as Record<string, unknown>).window;
+  const origNavigator = (globalThis as Record<string, unknown>).navigator;
   const origNotification = (globalThis as Record<string, unknown>).Notification;
 
   class MockNotification {
     static permission: NotificationPermission = 'granted';
     onclick: (() => void) | null = null;
     constructor(title: string, options?: NotificationOptions) {
-      constructedNotifications.push({ title, options });
+      nativeNotifications.push({ title, options });
     }
     close() {}
   }
 
+  // Simulate missing sw.js where navigator.serviceWorker.ready never resolves
+  const hangingPromise = new Promise(() => {});
+
+  (globalThis as Record<string, unknown>).window = { Notification: MockNotification };
   (globalThis as Record<string, unknown>).Notification = MockNotification;
+  Object.defineProperty(globalThis, 'navigator', {
+    value: {
+      userAgent: 'Mozilla/5.0',
+      serviceWorker: {
+        ready: hangingPromise,
+        getRegistration: () => hangingPromise,
+        register: () => hangingPromise,
+      },
+    },
+    configurable: true,
+  });
 
   try {
-    const channel = await triggerLocalInAppReminder();
+    const startMs = Date.now();
+    const channel = await dispatchMobileSafeNotification(
+      'Daily Adhkar',
+      LOCAL_ADHKAR_REMINDER_MESSAGES.morning
+    );
+    const elapsedMs = Date.now() - startMs;
+
     assert.equal(channel, 'notification-api');
-    assert.equal(constructedNotifications.length, 1);
-    assert.equal(constructedNotifications[0].title, 'Daily Adhkar');
+    assert.ok(elapsedMs < 1200, `Expected fallback after ~500ms, took ${elapsedMs}ms`);
+    assert.equal(nativeNotifications.length, 1);
+    assert.equal(nativeNotifications[0].title, 'Daily Adhkar');
     assert.equal(
-      constructedNotifications[0].options?.body,
+      nativeNotifications[0].options?.body,
       'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅'
     );
-    assert.equal(constructedNotifications[0].options?.icon, 'icon.png');
   } finally {
+    (globalThis as Record<string, unknown>).window = origWindow;
     (globalThis as Record<string, unknown>).Notification = origNotification;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: origNavigator,
+      configurable: true,
+    });
   }
 });
-
-

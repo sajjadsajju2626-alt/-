@@ -8,6 +8,9 @@ import {
   dispatchMobileSafeNotification,
   getMobileNotificationDiagnostics,
   registerAdhkarServiceWorker,
+  getMsUntilNextTime,
+  formatMsUntilNextTrigger,
+  getNextMinuteTimeString,
 } from '../utils/reminder-utils.ts';
 
 interface SettingsModalProps {
@@ -35,15 +38,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [swReady, setSwReady] = useState<boolean>(false);
   const [testSent, setTestSent] = useState<boolean>(false);
   const [lastTestChannel, setLastTestChannel] = useState<string>('');
+  const [nowTick, setNowTick] = useState<Date>(() => new Date());
 
   useEffect(() => {
-    if (isOpen) {
-      setPermStatus(getNotificationPermissionStatus());
-      registerAdhkarServiceWorker().then((reg) => {
-        const diag = getMobileNotificationDiagnostics();
-        setSwReady(Boolean(reg || diag.serviceWorkerSupported));
-      });
-    }
+    if (!isOpen) return;
+    setPermStatus(getNotificationPermissionStatus());
+    setNowTick(new Date());
+    registerAdhkarServiceWorker().then((reg) => {
+      const diag = getMobileNotificationDiagnostics();
+      setSwReady(Boolean(reg || diag.serviceWorkerSupported));
+    });
+    const timer = setInterval(() => {
+      setNowTick(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -360,19 +368,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {settings.remindersEnabled && (
               <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/40 border border-teal-600 dark:border-slate-800">
-                {/* Local In-App Reminder Status Card (Requires no OneSignal ID or Cloud Setup) */}
+                {/* Dual-Trigger Notification Architecture Status Card */}
                 <div
                   data-testid="mobile-notification-status-card"
                   className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-teal-600 dark:border-slate-800 space-y-2"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
                       <span className="text-xs font-extrabold text-black dark:text-white">
-                        Local In-App Reminder Trigger:
+                        Dual-Trigger Notification Engine:
                       </span>
                       <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 dark:border-emerald-700">
-                        100% Local • No Cloud/OneSignal
+                        {swReady ? 'SW + Native + In-App ✓' : 'Native + In-App ✓'}
                       </span>
                     </div>
 
@@ -380,56 +388,61 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={async () => {
-                          const perm = await requestNotificationPermission();
+                          const perm = await requestNotificationPermission(1500);
                           setPermStatus(perm);
                         }}
                         className="px-2.5 py-1 text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
                       >
-                        Allow Browser Notification
+                        Allow System Push
                       </button>
                     )}
                   </div>
 
                   <div className="text-[11px] font-bold text-black dark:text-slate-300 leading-relaxed">
-                    {permStatus === 'granted' ? (
-                      <span>
-                        OS Permission: <strong className="text-emerald-800 dark:text-emerald-400">Granted ✓</strong> • Fires{' '}
-                        <strong>new Notification(&quot;Daily Adhkar&quot;, &#123; icon: &quot;icon.png&quot; &#125;)</strong>{' '}
-                        {swReady ? '+ ServiceWorker fallback' : ''} + Local In-App Banner &amp; Spiritual Chime.
-                      </span>
-                    ) : (
-                      <span>
-                        OS Permission:{' '}
-                        <strong className="text-amber-900 dark:text-amber-300">
-                          {permStatus === 'denied'
-                            ? 'Browser OS Push Restricted'
-                            : permStatus === 'unsupported'
-                            ? 'WebView / iOS Tab Mode'
-                            : 'Standby'}
-                        </strong>{' '}
-                        • <strong>100% Local In-App Reminder Trigger (No OneSignal ID or Cloud Setup)</strong> + Spiritual Audio Chime &amp; Wake-Up Catch-Up are automatically active!
-                      </span>
-                    )}
+                    <span>
+                      1. <strong>Service Worker (500ms timeout)</strong>:{' '}
+                      <code>navigator.serviceWorker.ready.then(reg =&gt; reg.showNotification(...))</code>
+                      <br />
+                      2. <strong>Native Fallback</strong>:{' '}
+                      <code>new Notification(&apos;Daily Adhkar&apos;, &#123; ... &#125;)</code> if SW takes &gt;500ms or is unavailable
+                      <br />
+                      3. <strong>Guaranteed In-App Toast + Chime</strong>: Displays{' '}
+                      <span className="font-malayalam font-black">നോട്ടിഫിക്കേഷൻ അയച്ചു!</span> immediately even if WebView blocks OS notifications.
+                    </span>
                   </div>
                 </div>
 
-                {/* Preferred Times Grid */}
+                {/* Preferred Times Grid (Morning Fajr & Evening Asr) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Morning Reminder Time */}
+                  {/* Morning (Fajr) Reminder Time */}
                   <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
                         <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                        <span>Morning Time</span>
+                        <span>Morning (Fajr)</span>
                       </span>
-                      <span className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold">
+                      <span
+                        data-testid="morning-formatted-time"
+                        className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold"
+                      >
                         {formatTimeDisplay(settings.morningReminderTime)}
+                      </span>
+                    </div>
+
+                    <div
+                      data-testid="morning-next-countdown"
+                      className="text-[10px] font-mono font-extrabold text-emerald-900 dark:text-emerald-400 mb-1.5 flex items-center justify-between"
+                    >
+                      <span> Exact :00s Timer Armed</span>
+                      <span>
+                        in {formatMsUntilNextTrigger(getMsUntilNextTime(settings.morningReminderTime, nowTick))}
                       </span>
                     </div>
 
                     <input
                       type="time"
                       aria-label="Morning Reminder Time"
+                      data-testid="morning-time-input"
                       value={settings.morningReminderTime}
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
@@ -440,8 +453,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
-                    {/* Quick Presets */}
-                    <div className="flex gap-1.5 mt-2">
+                    {/* Quick Presets + Instant Next-Minute Test Pill */}
+                    <div className="flex gap-1 mt-2">
                       {['05:30', '06:00', '07:00'].map((time) => (
                         <button
                           key={time}
@@ -461,24 +474,53 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           {time}
                         </button>
                       ))}
+                      <button
+                        type="button"
+                        data-testid="morning-plus-1m-pill"
+                        title="Set Morning reminder to next minute (:00s) to test auto-trigger"
+                        onClick={() => {
+                          const nextMin = getNextMinuteTimeString(new Date());
+                          onUpdateSettings((s) => ({
+                            ...s,
+                            morningReminderTime: nextMin,
+                          }));
+                        }}
+                        className="px-1.5 py-1 text-[10px] font-mono font-extrabold rounded bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 hover:bg-emerald-200 transition-colors cursor-pointer"
+                      >
+                        +1m
+                      </button>
                     </div>
                   </div>
 
-                  {/* Evening Reminder Time */}
+                  {/* Evening (Asr) Reminder Time */}
                   <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
                         <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                        <span>Evening Time</span>
+                        <span>Evening (Asr)</span>
                       </span>
-                      <span className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold">
+                      <span
+                        data-testid="evening-formatted-time"
+                        className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold"
+                      >
                         {formatTimeDisplay(settings.eveningReminderTime)}
+                      </span>
+                    </div>
+
+                    <div
+                      data-testid="evening-next-countdown"
+                      className="text-[10px] font-mono font-extrabold text-emerald-900 dark:text-emerald-400 mb-1.5 flex items-center justify-between"
+                    >
+                      <span>Exact :00s Timer Armed</span>
+                      <span>
+                        in {formatMsUntilNextTrigger(getMsUntilNextTime(settings.eveningReminderTime, nowTick))}
                       </span>
                     </div>
 
                     <input
                       type="time"
                       aria-label="Evening Reminder Time"
+                      data-testid="evening-time-input"
                       value={settings.eveningReminderTime}
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
@@ -489,8 +531,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
-                    {/* Quick Presets */}
-                    <div className="flex gap-1.5 mt-2">
+                    {/* Quick Presets + Instant Next-Minute Test Pill */}
+                    <div className="flex gap-1 mt-2">
                       {['16:30', '17:30', '18:30'].map((time) => (
                         <button
                           key={time}
@@ -510,6 +552,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           {time}
                         </button>
                       ))}
+                      <button
+                        type="button"
+                        data-testid="evening-plus-1m-pill"
+                        title="Set Evening reminder to next minute (:00s) to test auto-trigger"
+                        onClick={() => {
+                          const nextMin = getNextMinuteTimeString(new Date());
+                          onUpdateSettings((s) => ({
+                            ...s,
+                            eveningReminderTime: nextMin,
+                          }));
+                        }}
+                        className="px-1.5 py-1 text-[10px] font-mono font-extrabold rounded bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 hover:bg-emerald-200 transition-colors cursor-pointer"
+                      >
+                        +1m
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -600,51 +657,114 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Test Notification Button (Local in-app reminder trigger — requires no OneSignal ID or cloud setup) */}
-                <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-black dark:text-slate-300">
-                    Test local in-app reminder &amp; chime:
-                  </span>
-                  <button
-                    type="button"
-                    data-testid="send-test-notification-btn"
-                    onClick={async () => {
-                      if (permStatus === 'default') {
-                        const perm = await requestNotificationPermission();
-                        setPermStatus(perm);
-                      }
-                      const channel = await dispatchMobileSafeNotification(
-                        'Daily Adhkar',
-                        'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
-                        undefined,
-                        {
-                          arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ • تذكير الأذكار',
-                          malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ • Morning Remembrances',
-                          targetTab: 'morning',
-                          actionLabel: 'Open Morning Adhkar',
-                          tag: 'adhkar-test-notification',
-                          icon: 'icon.png',
+                {/* Dual-Trigger Test Notification & Screen-Off Catch-Up Alert */}
+                <div className="pt-1 space-y-2">
+                  <div className="text-xs font-bold text-black dark:text-slate-300">
+                    Test Dual-Trigger Notification (SW 500ms &rarr; Native &rarr; In-App Toast):
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      data-testid="send-test-notification-btn"
+                      onClick={async () => {
+                        setTestSent(true);
+                        if (permStatus === 'default') {
+                          requestNotificationPermission(1500)
+                            .then((perm) => setPermStatus(perm))
+                            .catch(() => {});
                         }
-                      );
-                      setLastTestChannel(channel);
-                      setTestSent(true);
-                      setTimeout(() => setTestSent(false), 4000);
-                    }}
-                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-extrabold rounded-xl bg-teal-900 hover:bg-teal-800 text-white border border-teal-950 dark:bg-teal-800 dark:hover:bg-teal-700 dark:border-teal-600 transition-colors cursor-pointer shadow-xs"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>
-                      {testSent
-                        ? `Delivered (${
-                            lastTestChannel === 'notification-api'
-                              ? 'Notification API + Banner'
-                              : lastTestChannel === 'service-worker'
-                              ? 'SW Push + Banner'
-                              : 'Local Banner + Chime'
-                          }) ✓`
-                        : 'Send Test Notification'}
-                    </span>
-                  </button>
+                        const channel = await dispatchMobileSafeNotification(
+                          'Daily Adhkar',
+                          'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+                          undefined,
+                          {
+                            arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ • تذكير الأذكار',
+                            malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ • Morning Remembrances',
+                            targetTab: 'morning',
+                            actionLabel: 'Open Morning Adhkar',
+                            tag: 'adhkar-test-notification',
+                            icon: 'icon.png',
+                          }
+                        );
+                        setLastTestChannel(channel);
+                        setTimeout(() => setTestSent(false), 5000);
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-extrabold rounded-xl bg-teal-900 hover:bg-teal-800 text-white border border-teal-950 dark:bg-teal-800 dark:hover:bg-teal-700 dark:border-teal-600 transition-colors cursor-pointer shadow-xs"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span className="font-malayalam">
+                        {testSent
+                          ? `നോട്ടിഫിക്കേഷൻ അയച്ചു! (${
+                              lastTestChannel === 'service-worker'
+                                ? 'SW Push'
+                                : lastTestChannel === 'notification-api'
+                                ? 'Native Push'
+                                : 'In-App Toast'
+                            }) ✓`
+                          : 'Send Test Notification'}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      data-testid="simulate-catchup-alert-btn"
+                      onClick={async () => {
+                        setTestSent(true);
+                        const isEveningHour = new Date().getHours() >= 15;
+                        const channel = await dispatchMobileSafeNotification(
+                          isEveningHour
+                            ? '🌙 Missed Evening (Asr) Adhkar • Catch-Up Alert'
+                            : '🌅 Missed Morning (Fajr) Adhkar • Catch-Up Alert',
+                          isEveningHour
+                            ? `വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙 • Scheduled Asr Adhkar (${formatTimeDisplay(
+                                settings.eveningReminderTime
+                              )}) was missed while screen was off.`
+                            : `രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅 • Scheduled Fajr Adhkar (${formatTimeDisplay(
+                                settings.morningReminderTime
+                              )}) was missed while screen was off.`,
+                          undefined,
+                          {
+                            arabicSubtitle: isEveningHour
+                              ? 'أَذْكَارُ الْمَسَاءِ (العصر)'
+                              : 'أَذْكَارُ الصَّبَاحِ (الفجر)',
+                            malayalamSubtitle: isEveningHour
+                              ? 'സായാഹ്ന ദിക്റുകൾ (അസർ) • Screen-Off Catch-Up'
+                              : 'പ്രഭാത ദിക്റുകൾ (ഫജ്റ്) • Screen-Off Catch-Up',
+                            targetTab: isEveningHour ? 'evening' : 'morning',
+                            actionLabel: isEveningHour
+                              ? 'Recite Evening (Asr) Adhkar'
+                              : 'Recite Morning (Fajr) Adhkar',
+                            tag: 'adhkar-catchup-test',
+                            icon: 'icon.png',
+                            isCatchUp: true,
+                            period: isEveningHour ? 'evening' : 'morning',
+                          }
+                        );
+                        setLastTestChannel(channel);
+                        setTimeout(() => setTestSent(false), 5000);
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-extrabold rounded-xl bg-amber-100 hover:bg-amber-200 text-black border border-amber-700 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-300 dark:border-amber-600 transition-colors cursor-pointer shadow-xs"
+                    >
+                      <span>⚡ Test Screen-Off Catch-Up</span>
+                    </button>
+                  </div>
+
+                  {testSent && (
+                    <div
+                      data-testid="settings-debug-feedback"
+                      className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-700 text-xs font-extrabold text-black dark:text-emerald-200 flex items-center justify-between gap-2"
+                    >
+                      <span className="font-malayalam">നോട്ടിഫിക്കേഷൻ അയച്ചു! ✓</span>
+                      <span className="font-mono text-[11px]">
+                        Channel:{' '}
+                        {lastTestChannel === 'service-worker'
+                          ? 'Service Worker (reg.showNotification)'
+                          : lastTestChannel === 'notification-api'
+                          ? 'Native new Notification()'
+                          : 'In-App Toast + Audio Chime'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

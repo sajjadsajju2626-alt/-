@@ -18,6 +18,7 @@ interface HeaderProps {
   isInstalled: boolean;
   onOpenStreak: () => void;
   onOpenSettings: () => void;
+  onTriggerBellNotification: () => void;
   onResetActiveTab: () => void;
   onOpenExportSingleFile: () => void;
   onOpenInstallModal: () => void;
@@ -40,6 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
   isInstalled,
   onOpenStreak,
   onOpenSettings,
+  onTriggerBellNotification,
   onResetActiveTab,
   onOpenExportSingleFile,
   onOpenInstallModal,
@@ -109,10 +111,12 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
 
             <button
-              onClick={onOpenSettings}
-              aria-label={remindersEnabled ? 'Adhkar reminders active. Open reminder settings' : 'Enable daily adhkar reminders'}
-              title={remindersEnabled ? 'Daily Reminders Active' : 'Setup Daily Reminders'}
-              className="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors relative"
+              type="button"
+              data-testid="header-bell-btn"
+              onClick={onTriggerBellNotification}
+              aria-label="Send Adhkar Reminder Notification"
+              title="Tap to trigger Adhkar Reminder Notification (നോട്ടിഫിക്കേഷൻ അയച്ചു!)"
+              className="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors relative cursor-pointer"
             >
               <Bell className="w-4 h-4" />
               {remindersEnabled && (

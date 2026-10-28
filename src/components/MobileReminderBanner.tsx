@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Bell, X, ArrowRight, ShieldCheck, Volume2 } from 'lucide-react';
+import { Bell, X, ArrowRight, ShieldCheck, Volume2, Settings, CheckCircle2 } from 'lucide-react';
 import { InAppNotificationEvent } from '../utils/reminder-utils.ts';
 import { TabKey, ThemeMode } from '../types/adhkar.ts';
 
@@ -24,7 +24,7 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
       onDismiss();
     }, 15000);
     return () => clearTimeout(timer);
-  }, [notification, onDismiss]);
+  }, [notification?.id, onDismiss]);
 
   if (!notification) return null;
 
@@ -41,10 +41,10 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
 
   const channelBadgeText =
     notification.channel === 'service-worker'
-      ? 'Service Worker Push + Mobile Audio Alert'
+      ? 'SW Push (reg.showNotification)'
       : notification.channel === 'notification-api'
-      ? 'Browser Push + Mobile Audio Alert'
-      : 'Unblockable Mobile In-App + Audio Alert';
+      ? 'Native Notification Fallback'
+      : 'In-App Toast + Audio Alert';
 
   return (
     <div
@@ -74,18 +74,44 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
             </div>
 
             <div className="min-w-0 flex-1">
-              {/* Top Delivery Badge */}
-              <div className="flex flex-wrap items-center gap-1.5 mb-1">
+              {/* Instant Debug Feedback Toast Pill + Delivery Channel */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+                <span
+                  data-testid="notification-debug-toast"
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-malayalam font-black border ${
+                    isDark
+                      ? 'bg-emerald-900/90 border-emerald-400 text-emerald-200'
+                      : 'bg-emerald-200 border-emerald-800 text-black'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>{notification.debugToastText || 'നോട്ടിഫിക്കേഷൻ അയച്ചു! ✓'}</span>
+                </span>
+
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider border ${
                     isDark
-                      ? 'bg-emerald-950/80 border-emerald-600/60 text-emerald-300'
-                      : 'bg-emerald-100 border-emerald-700 text-black'
+                      ? 'bg-slate-800 border-slate-600 text-teal-300'
+                      : 'bg-teal-100 border-teal-800 text-black'
                   }`}
                 >
                   <ShieldCheck className="w-3 h-3 shrink-0" />
                   <span>{channelBadgeText}</span>
                 </span>
+
+                {notification.isCatchUp && (
+                  <span
+                    data-testid="catchup-alert-badge"
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider border ${
+                      isDark
+                        ? 'bg-amber-950/90 border-amber-500/70 text-amber-300'
+                        : 'bg-amber-200 border-amber-800 text-black'
+                    }`}
+                  >
+                    <span>⚡ Screen-Off Catch-Up Alert</span>
+                  </span>
+                )}
+
                 <span
                   className={`inline-flex items-center gap-1 text-[10px] font-extrabold ${
                     isDark ? 'text-amber-300' : 'text-black'
@@ -138,6 +164,18 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
                 {notification.body}
               </p>
 
+              {/* Debug Reason Caption */}
+              {notification.debugReason && (
+                <div
+                  data-testid="notification-debug-reason"
+                  className={`text-[10px] mt-1 font-mono font-bold ${
+                    isDark ? 'text-slate-400' : 'text-black'
+                  }`}
+                >
+                  Status: {notification.debugReason}
+                </div>
+              )}
+
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 <button
@@ -160,6 +198,25 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
                   <span>{actionLabel}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
+
+                {notification.onOpenSettings && (
+                  <button
+                    type="button"
+                    data-testid="mobile-reminder-settings-btn"
+                    onClick={() => {
+                      notification.onOpenSettings?.();
+                      onDismiss();
+                    }}
+                    className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer ${
+                      isDark
+                        ? 'bg-slate-800 hover:bg-slate-700 border-slate-600 text-teal-300'
+                        : 'bg-teal-50 hover:bg-teal-100 border-teal-700 text-black'
+                    }`}
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    <span>Schedule</span>
+                  </button>
+                )}
 
                 <button
                   type="button"
