@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Bell, X, ArrowRight, ShieldCheck, Volume2, Settings, CheckCircle2 } from 'lucide-react';
-import { InAppNotificationEvent } from '../utils/reminder-utils.ts';
+import { InAppNotificationEvent, buildGoogleCalendarAlarmUrl, openGoogleCalendarAlarm } from '../utils/reminder-utils.ts';
 import { TabKey, ThemeMode } from '../types/adhkar.ts';
 
 interface MobileReminderBannerProps {
@@ -217,6 +217,40 @@ export const MobileReminderBanner: React.FC<MobileReminderBannerProps> = ({
                     <span>Schedule</span>
                   </button>
                 )}
+
+                <a
+                  href={buildGoogleCalendarAlarmUrl('morning')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="banner-add-morning-calendar-btn"
+                  onClick={() => {
+                    openGoogleCalendarAlarm('morning', { skipDOMOpen: true });
+                  }}
+                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer no-underline ${
+                    isDark
+                      ? 'bg-amber-950/80 hover:bg-amber-900/80 border-amber-500/70 text-amber-200'
+                      : 'bg-amber-100 hover:bg-amber-200 border-amber-700 text-black'
+                  }`}
+                >
+                  <span>📅 Add Morning Alarm to Calendar</span>
+                </a>
+
+                <a
+                  href={buildGoogleCalendarAlarmUrl('evening')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="banner-add-evening-calendar-btn"
+                  onClick={() => {
+                    openGoogleCalendarAlarm('evening', { skipDOMOpen: true });
+                  }}
+                  className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-extrabold border transition-colors cursor-pointer no-underline ${
+                    isDark
+                      ? 'bg-indigo-950/80 hover:bg-indigo-900/80 border-indigo-500/70 text-indigo-200'
+                      : 'bg-indigo-100 hover:bg-indigo-200 border-indigo-700 text-black'
+                  }`}
+                >
+                  <span>📅 Add Evening Alarm to Calendar</span>
+                </a>
 
                 <button
                   type="button"

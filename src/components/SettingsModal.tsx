@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2, Target, ShieldCheck } from 'lucide-react';
+import { X, Check, Volume2, Smartphone, Type, BookOpen, Sparkles, Moon, Sun, Bell, Send, Languages, Download, ExternalLink, Share2, Target, ShieldCheck, Calendar } from 'lucide-react';
 import { AppSettings, FontSize, ThemeMode, TranslationLanguage } from '../types/adhkar.ts';
 import {
   getNotificationPermissionStatus,
@@ -11,6 +11,10 @@ import {
   getMsUntilNextTime,
   formatMsUntilNextTrigger,
   getNextMinuteTimeString,
+  buildGoogleCalendarAlarmUrl,
+  openGoogleCalendarAlarm,
+  getAppLaunchUrl,
+  CALENDAR_ALARM_SUCCESS_MESSAGE,
 } from '../utils/reminder-utils.ts';
 
 interface SettingsModalProps {
@@ -38,6 +42,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [swReady, setSwReady] = useState<boolean>(false);
   const [testSent, setTestSent] = useState<boolean>(false);
   const [lastTestChannel, setLastTestChannel] = useState<string>('');
+  const [calendarDownloaded, setCalendarDownloaded] = useState<boolean>(false);
   const [nowTick, setNowTick] = useState<Date>(() => new Date());
 
   useEffect(() => {
@@ -366,6 +371,84 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
             </div>
 
+            {/* Direct Google Calendar Daily Alarms — Replaces .ics Download */}
+            <div
+              data-testid="calendar-alarms-card"
+              className="mb-3 p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 border-2 border-amber-600 dark:border-amber-700/80 space-y-2.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-xs font-extrabold text-black dark:text-amber-200 flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-amber-700 dark:text-amber-400 shrink-0" />
+                    <span>Direct Google Calendar Alarms (ഫോൺ കലണ്ടർ അലാറം)</span>
+                  </div>
+                  <div className="text-[11px] font-bold text-black dark:text-slate-300 mt-1 leading-relaxed font-malayalam">
+                    ആപ്പ് ക്ലോസ് ചെയ്താലും കൃത്യസമയത്ത് ഓർമ്മിപ്പിക്കാൻ ഗൂഗിൾ കലണ്ടറിലേക്ക് നേരിട്ട് അലാറം ചേർക്കുക. അലാറം അടിക്കുമ്പോൾ നോട്ടിഫിക്കേഷനിലെ ലിങ്കിൽ തൊട്ട് ആപ്പ് നേരിട്ട് തുറക്കാം:
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <a
+                  href={buildGoogleCalendarAlarmUrl('morning', {
+                    timeStr: settings.morningReminderTime || '05:30',
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="add-morning-calendar-btn"
+                  onClick={() => {
+                    openGoogleCalendarAlarm('morning', {
+                      timeStr: settings.morningReminderTime || '05:30',
+                      skipDOMOpen: true,
+                    });
+                    setCalendarDownloaded(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs border border-amber-900 shadow-sm transition-colors cursor-pointer text-center no-underline"
+                >
+                  <span>📅 Add Morning Alarm to Calendar</span>
+                  <span className="font-mono text-[10px] opacity-95">
+                    ({formatTimeDisplay(settings.morningReminderTime || '05:30')})
+                  </span>
+                </a>
+
+                <a
+                  href={buildGoogleCalendarAlarmUrl('evening', {
+                    timeStr: settings.eveningReminderTime || '17:30',
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="add-evening-calendar-btn"
+                  onClick={() => {
+                    openGoogleCalendarAlarm('evening', {
+                      timeStr: settings.eveningReminderTime || '17:30',
+                      skipDOMOpen: true,
+                    });
+                    setCalendarDownloaded(true);
+                  }}
+                  className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold text-xs border border-indigo-950 shadow-sm transition-colors cursor-pointer text-center no-underline"
+                >
+                  <span>📅 Add Evening Alarm to Calendar</span>
+                  <span className="font-mono text-[10px] opacity-95">
+                    ({formatTimeDisplay(settings.eveningReminderTime || '17:30')})
+                  </span>
+                </a>
+              </div>
+
+              <div className="text-[10px] font-mono font-bold text-black dark:text-slate-300 flex items-center justify-between gap-2 pt-0.5">
+                <span>🔁 Recurrence: RRULE:FREQ=DAILY</span>
+                <span className="truncate">🔗 App Link Included: {getAppLaunchUrl()}</span>
+              </div>
+
+              {calendarDownloaded && (
+                <div
+                  data-testid="calendar-ics-instructions"
+                  className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-emerald-700 text-xs font-extrabold text-black dark:text-emerald-200 leading-relaxed whitespace-pre-line font-malayalam"
+                >
+                  {CALENDAR_ALARM_SUCCESS_MESSAGE}
+                </div>
+              )}
+            </div>
+
             {settings.remindersEnabled && (
               <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/40 border border-teal-600 dark:border-slate-800">
                 {/* Dual-Trigger Notification Architecture Status Card */}
@@ -567,6 +650,59 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       >
                         +1m
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Sleep (Bedtime) Reminder Time */}
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800 sm:col-span-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                        <Moon className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400" />
+                        <span>Sleep (Bedtime • ഉറങ്ങാൻ നേരം)</span>
+                      </span>
+                      <span
+                        data-testid="sleep-formatted-time"
+                        className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold"
+                      >
+                        {formatTimeDisplay(settings.sleepReminderTime || '22:00')}
+                      </span>
+                    </div>
+
+                    <input
+                      type="time"
+                      aria-label="Sleep Reminder Time"
+                      data-testid="sleep-time-input"
+                      value={settings.sleepReminderTime || '22:00'}
+                      onChange={(e) =>
+                        onUpdateSettings((s) => ({
+                          ...s,
+                          sleepReminderTime: e.target.value,
+                        }))
+                      }
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                    />
+
+                    {/* Quick Presets for Bedtime */}
+                    <div className="flex gap-1 mt-2">
+                      {['21:30', '22:00', '22:30'].map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() =>
+                            onUpdateSettings((s) => ({
+                              ...s,
+                              sleepReminderTime: time,
+                            }))
+                          }
+                          className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
+                            (settings.sleepReminderTime || '22:00') === time
+                              ? 'bg-purple-200 dark:bg-purple-950/60 text-black dark:text-purple-300 font-extrabold border border-purple-700 dark:border-purple-700'
+                              : 'bg-slate-100 dark:bg-slate-800 text-black dark:text-slate-400 font-bold hover:bg-slate-200 border border-slate-300 dark:border-slate-700'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>

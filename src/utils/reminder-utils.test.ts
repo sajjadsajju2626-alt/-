@@ -17,7 +17,73 @@ import {
   triggerLocalInAppReminder,
   LOCAL_ADHKAR_REMINDER_MESSAGES,
   InAppNotificationEvent,
+  getICSTime,
+  getAppLaunchUrl,
+  getGoogleCalendarDatesRange,
+  buildGoogleCalendarAlarmUrl,
+  openGoogleCalendarAlarm,
+  DEFAULT_PUBLIC_APP_URL,
 } from './reminder-utils.ts';
+
+test('buildGoogleCalendarAlarmUrl generates direct Google Calendar web intent with RRULE:FREQ=DAILY and app launch URL in description', () => {
+  const sampleDate = new Date(2026, 9, 28, 8, 15, 0); // 2026-10-28
+  assert.equal(getICSTime('05:30', sampleDate), '20261028T053000');
+  assert.equal(
+    getGoogleCalendarDatesRange('05:30', 15, sampleDate),
+    '20261028T053000/20261028T054500'
+  );
+  assert.equal(
+    getGoogleCalendarDatesRange('17:50', 15, sampleDate),
+    '20261028T175000/20261028T180500'
+  );
+
+  const morningUrl = buildGoogleCalendarAlarmUrl('morning', {
+    timeStr: '05:30',
+    now: sampleDate,
+  });
+
+  assert.ok(morningUrl.startsWith('https://calendar.google.com/calendar/render?action=TEMPLATE'));
+  assert.ok(morningUrl.includes('dates=20261028T053000/20261028T054500'));
+  assert.ok(morningUrl.includes('recur=RRULE:FREQ=DAILY'));
+  assert.ok(
+    decodeURIComponent(morningUrl).includes('Daily Adhkar - രാവിലെത്തെ ദിക്റുകൾ 🌅')
+  );
+  assert.ok(
+    decodeURIComponent(morningUrl).includes(`${DEFAULT_PUBLIC_APP_URL}/?tab=morning`)
+  );
+
+  const eveningUrl = buildGoogleCalendarAlarmUrl('evening', {
+    timeStr: '17:30',
+    now: sampleDate,
+  });
+
+  assert.ok(eveningUrl.startsWith('https://calendar.google.com/calendar/render?action=TEMPLATE'));
+  assert.ok(eveningUrl.includes('dates=20261028T173000/20261028T174500'));
+  assert.ok(eveningUrl.includes('recur=RRULE:FREQ=DAILY'));
+  assert.ok(
+    decodeURIComponent(eveningUrl).includes('Daily Adhkar - വൈകുന്നേരത്തെ ദിക്റുകൾ 🌇')
+  );
+  assert.ok(
+    decodeURIComponent(eveningUrl).includes(`${DEFAULT_PUBLIC_APP_URL}/?tab=evening`)
+  );
+
+  // Verify openGoogleCalendarAlarm emits confirmation notification with launch URL
+  const events: InAppNotificationEvent[] = [];
+  const unsub = subscribeToInAppNotifications((e) => events.push(e));
+  try {
+    const outUrl = openGoogleCalendarAlarm('morning', {
+      timeStr: '06:00',
+      now: sampleDate,
+      skipDOMOpen: true,
+    });
+    assert.ok(outUrl.includes('dates=20261028T060000/20261028T061500'));
+    assert.equal(events.length, 1);
+    assert.ok(events[0].title.includes('Daily Adhkar - രാവിലെത്തെ ദിക്റുകൾ 🌅'));
+    assert.ok(events[0].body.includes(getAppLaunchUrl('morning')));
+  } finally {
+    unsub();
+  }
+});
 
 test('withTimeout resolves fast promises and rejects hanging promises (e.g. missing sw.js)', async () => {
   const fastResult = await withTimeout(Promise.resolve('ok'), 100);

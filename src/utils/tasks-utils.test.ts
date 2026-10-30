@@ -11,6 +11,8 @@ import {
   syncAdhkarWithTasks,
   filterDailyTasks,
   shouldResetTasksDate,
+  upsertTaskHistoryForDate,
+  buildTaskAuditReport,
 } from './tasks-utils.ts';
 import type { DailyTask } from '../types/tasks.ts';
 
@@ -195,3 +197,52 @@ test('shouldResetTasksDate detects calendar date boundaries', () => {
   assert.equal(shouldResetTasksDate('2026-10-24', '2026-10-25'), true);
   assert.equal(shouldResetTasksDate('2026-10-25', '2026-10-25'), false);
 });
+
+test('buildTaskAuditReport computes weekly (7d) and monthly (30d) itemized ratios, status dots, filters, and summary notes', () => {
+  const tasks = createMockTasks(); // t-2 is completed today, t-1 and t-3 are false
+  let history = {};
+  history = upsertTaskHistoryForDate(history, '2026-10-27', [
+    { ...tasks[0], completed: true },
+    { ...tasks[1], completed: true },
+    { ...tasks[2], completed: false },
+  ]);
+  history = upsertTaskHistoryForDate(history, '2026-10-28', [
+    { ...tasks[0], completed: false },
+    { ...tasks[1], completed: true },
+    { ...tasks[2], completed: false },
+  ]);
+  history = upsertTaskHistoryForDate(history, '2026-10-29', tasks);
+
+  const weekReport = buildTaskAuditReport(tasks, history, 'week', 'all', '2026-10-29');
+  assert.equal(weekReport.totalDays, 7);
+  assert.equal(weekReport.rows.length, 3);
+  assert.equal(weekReport.rows[0].dots.length, 7);
+
+  // t-2 was completed on Oct 27, Oct 28, Oct 29 => 3/7 days
+  const t2Row = weekReport.rows.find((r) => r.task.id === 't-2')!;
+  assert.equal(t2Row.completedDays, 3);
+  assert.equal(t2Row.ratioLabel, '3/7 days');
+
+  // t-3 was completed 0/7 days
+  const t3Row = weekReport.rows.find((r) => r.task.id === 't-3')!;
+  assert.equal(t3Row.completedDays, 0);
+  assert.equal(t3Row.ratioLabel, '0/7 days');
+
+  // Most completed should be t-2, most skipped should be t-3
+  assert.equal(weekReport.mostCompletedTask?.task.id, 't-2');
+  assert.equal(weekReport.mostSkippedTask?.task.id, 't-3');
+
+  // Test 'completed' filter chip (t-1 has 1/7, t-2 has 3/7, t-3 has 0/7)
+  const completedReport = buildTaskAuditReport(tasks, history, 'week', 'completed', '2026-10-29');
+  assert.equal(completedReport.filteredRows.length, 2);
+
+  // Test 'month' period (30 dots)
+  const monthReport = buildTaskAuditReport(tasks, history, 'month', 'all', '2026-10-29');
+  assert.equal(monthReport.totalDays, 30);
+  assert.equal(monthReport.rows[0].dots.length, 30);
+  assert.equal(
+    monthReport.rows.find((r) => r.task.id === 't-2')?.ratioLabel,
+    '3/30 days'
+  );
+});
+

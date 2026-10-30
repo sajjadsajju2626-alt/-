@@ -829,3 +829,216 @@ export function sendAdhkarNotification(
   void dispatchMobileSafeNotification(title, body, onClick, options);
   return null;
 }
+
+export interface AdhkarCalendarAlarmOptions {
+  morningTime?: string;
+  eveningTime?: string;
+  sleepTime?: string;
+  appUrl?: string;
+  now?: Date;
+  uidSuffix?: number | string;
+}
+
+export const DEFAULT_PUBLIC_APP_URL =
+  'https://ais-pre-vnltcvivdjsnkrcxvjxrzx-323150098264.asia-east1.run.app';
+
+export const CALENDAR_ALARM_SUCCESS_MESSAGE =
+  "ഗൂഗിൾ കലണ്ടർ തുറന്നിട്ടുണ്ട്! കലണ്ടറിൽ 'Save' നൽകുക. ഫോൺ അലാറം അടിക്കുമ്പോൾ നോട്ടിഫിക്കേഷനിലെ ലിങ്കിൽ തൊട്ട് നേരിട്ട് Daily Adhkar ആപ്പ് തുറക്കാം.";
+
+/**
+ * Returns the direct launch URL for the app (with optional ?tab=morning|evening|sleep)
+ * to embed inside the Google Calendar event description so tapping the link in the
+ * phone's calendar notification opens the app directly.
+ */
+export function getAppLaunchUrl(
+  tab?: 'morning' | 'evening' | 'sleep',
+  customOrigin?: string
+): string {
+  let baseOrigin = DEFAULT_PUBLIC_APP_URL;
+
+  if (customOrigin) {
+    baseOrigin = customOrigin.replace(/\/+$/, '');
+  } else if (typeof window !== 'undefined' && window.location?.origin) {
+    const origin = window.location.origin;
+    if (!origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+      baseOrigin = origin.replace(/\/+$/, '');
+    }
+  }
+
+  return tab ? `${baseOrigin}/?tab=${tab}` : baseOrigin;
+}
+
+/**
+ * Helper to format a Date object into Google Calendar / iCalendar Local format (YYYYMMDDTHHmm00)
+ */
+export function formatDateToCalendarLocal(date: Date): string {
+  const y = date.getFullYear();
+  const mon = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  const h = String(date.getHours()).padStart(2, '0');
+  const m = String(date.getMinutes()).padStart(2, '0');
+  return `${y}${mon}${d}T${h}${m}00`;
+}
+
+/**
+ * Helper to format date and time into Local format (YYYYMMDDTHHmm00)
+ */
+export function getICSTime(timeStr: string, now: Date = new Date()): string {
+  const { hours, minutes } = parseTimeString(timeStr);
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+  return formatDateToCalendarLocal(target);
+}
+
+/**
+ * Builds the `YYYYMMDDTHHmm00/YYYYMMDDTHHmm00` start/end range for Google Calendar template links.
+ */
+export function getGoogleCalendarDatesRange(
+  timeStr: string,
+  durationMinutes = 15,
+  now: Date = new Date()
+): string {
+  const { hours, minutes } = parseTimeString(timeStr);
+  const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+  const endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
+  return `${formatDateToCalendarLocal(startDate)}/${formatDateToCalendarLocal(endDate)}`;
+}
+
+/**
+ * Builds a direct Google Calendar Web Intent URL (`https://calendar.google.com/calendar/render?action=TEMPLATE...`)
+ * for Morning or Evening Adhkar using the user's selected time, daily recurrence (`RRULE:FREQ=DAILY`),
+ * pre-filled Malayalam + English title, and the App Launch URL inside the event description.
+ */
+export function buildGoogleCalendarAlarmUrl(
+  period: 'morning' | 'evening' | 'sleep',
+  options?: {
+    timeStr?: string;
+    appUrl?: string;
+    now?: Date;
+  }
+): string {
+  let savedTime =
+    period === 'morning' ? '05:30' : period === 'evening' ? '17:30' : '22:00';
+
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const key =
+        period === 'morning'
+          ? 'morning_time'
+          : period === 'evening'
+          ? 'evening_time'
+          : 'sleep_time';
+      savedTime = localStorage.getItem(key) || savedTime;
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  const targetTime = options?.timeStr || savedTime;
+  const now = options?.now || new Date();
+  const datesRange = getGoogleCalendarDatesRange(targetTime, 15, now);
+  const launchUrl = options?.appUrl || getAppLaunchUrl(period);
+
+  const title =
+    period === 'morning'
+      ? 'Daily Adhkar - രാവിലെത്തെ ദിക്റുകൾ 🌅'
+      : period === 'evening'
+      ? 'Daily Adhkar - വൈകുന്നേരത്തെ ദിക്റുകൾ 🌇'
+      : 'Daily Adhkar - ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ 🌙';
+
+  const introText =
+    period === 'morning'
+      ? 'പ്രഭാത ദിക്റുകൾ പൂർത്തിയാക്കാൻ സമയമായി. അല്ലാഹു അനുഗ്രഹിക്കട്ടെ. 🌅'
+      : period === 'evening'
+      ? 'വൈകുന്നേരത്തെ ദിക്റുകൾ പൂർത്തിയാക്കാൻ സമയമായി. അല്ലാഹു അനുഗ്രഹിക്കട്ടെ. 🌇'
+      : 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലുക. 🌙';
+
+  const description = `${introText}\n\n📲 ദിക്റുകൾ ചൊല്ലാൻ ആപ്പ് നേരിട്ട് തുറക്കുക (Tap to Open Daily Adhkar App):\n${launchUrl}`;
+
+  const params = [
+    'action=TEMPLATE',
+    `text=${encodeURIComponent(title)}`,
+    `dates=${datesRange}`,
+    `details=${encodeURIComponent(description)}`,
+    `location=${encodeURIComponent(launchUrl)}`,
+    'recur=RRULE:FREQ=DAILY',
+  ];
+
+  return `https://calendar.google.com/calendar/render?${params.join('&')}`;
+}
+
+/**
+ * Generates and opens the direct Google Calendar Web Intent for Morning or Evening Adhkar
+ * (replacing the old .ics blob download so Android/iOS opens Google Calendar directly
+ * instead of WPS Office or third-party file viewers).
+ */
+export function openGoogleCalendarAlarm(
+  period: 'morning' | 'evening' | 'sleep',
+  options?: {
+    timeStr?: string;
+    appUrl?: string;
+    now?: Date;
+    skipDOMOpen?: boolean;
+  }
+): string {
+  if (typeof localStorage !== 'undefined' && options?.timeStr) {
+    try {
+      const key =
+        period === 'morning'
+          ? 'morning_time'
+          : period === 'evening'
+          ? 'evening_time'
+          : 'sleep_time';
+      localStorage.setItem(key, options.timeStr);
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  const calendarUrl = buildGoogleCalendarAlarmUrl(period, options);
+  const launchUrl = options?.appUrl || getAppLaunchUrl(period);
+
+  if (!options?.skipDOMOpen && typeof document !== 'undefined') {
+    try {
+      const link = document.createElement('a');
+      link.href = calendarUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch {
+      // ignore DOM errors in non-browser tests
+    }
+  }
+
+  const isMorning = period === 'morning';
+  const label = isMorning
+    ? 'Daily Adhkar - രാവിലെത്തെ ദിക്റുകൾ 🌅'
+    : period === 'evening'
+    ? 'Daily Adhkar - വൈകുന്നേരത്തെ ദിക്റുകൾ 🌇'
+    : 'Daily Adhkar - ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ 🌙';
+
+  emitInAppNotification({
+    id: `google-cal-${period}-${Date.now()}`,
+    title: `📅 ${label}`,
+    body: `ഗൂഗിൾ കലണ്ടറിൽ 'Save' നൽകുക. അലാറം അടിക്കുമ്പോൾ നോട്ടിഫിക്കേഷനിലെ ലിങ്കിൽ (${launchUrl}) തൊട്ട് ആപ്പ് നേരിട്ട് തുറക്കാം.`,
+    debugToastText: isMorning
+      ? 'Morning Calendar Alarm Opened! ✓'
+      : 'Evening Calendar Alarm Opened! ✓',
+    debugReason: `Direct Google Calendar Link (RRULE:FREQ=DAILY • ${launchUrl})`,
+    arabicSubtitle: isMorning
+      ? 'أَذْكَارُ الصَّبَاحِ • تقويم جوجل'
+      : 'أَذْكَارُ الْمَسَاءِ • تقويم جوجل',
+    malayalamSubtitle: isMorning
+      ? 'പ്രഭാത ദിക്റുകൾ • Google Calendar Daily Alarm'
+      : 'സായാഹ്ന ദിക്റുകൾ • Google Calendar Daily Alarm',
+    targetTab: period,
+    actionLabel: isMorning ? 'Open Morning Adhkar' : 'Open Evening Adhkar',
+    channel: 'in-app-fallback',
+    timestamp: Date.now(),
+  });
+
+  return calendarUrl;
+}
+
+

@@ -46,6 +46,7 @@ export interface AppSettings {
   remindersEnabled: boolean;
   morningReminderTime: string; // HH:mm format, e.g. "06:00"
   eveningReminderTime: string; // HH:mm format, e.g. "17:30"
+  sleepReminderTime?: string; // HH:mm format, e.g. "22:00"
   goalReminderEnabled: boolean;
   dailyGoalReminderTime: string; // HH:mm format, e.g. "20:00"
 }

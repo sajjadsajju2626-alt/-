@@ -80,6 +80,7 @@ import {
   shouldResetTasksDate,
   addCustomTask,
   completeAllTasks,
+  upsertTaskHistoryForDate,
 } from './utils/tasks-utils.ts';
 import {
   SectionCompletionFireOverlay,
@@ -106,8 +107,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   cardTapToCount: false,
   autoScrollNext: true,
   remindersEnabled: false,
-  morningReminderTime: '06:00',
+  morningReminderTime: '05:30',
   eveningReminderTime: '17:30',
+  sleepReminderTime: '22:00',
   goalReminderEnabled: false,
   dailyGoalReminderTime: '20:00',
 };
@@ -241,10 +243,13 @@ export default function App() {
     }
   }, [counts]);
 
-  // Persist settings
+  // Persist settings and sync morning_time, evening_time, sleep_time for iCalendar (.ics) alarm export
   useEffect(() => {
     try {
       localStorage.setItem('adhkar_settings', JSON.stringify(settings));
+      localStorage.setItem('morning_time', settings.morningReminderTime || '05:30');
+      localStorage.setItem('evening_time', settings.eveningReminderTime || '17:30');
+      localStorage.setItem('sleep_time', settings.sleepReminderTime || '22:00');
     } catch {
       // ignore
     }
@@ -283,6 +288,18 @@ export default function App() {
       const savedDate = localStorage.getItem('adhkar_tasks_date');
       const savedTasks = localStorage.getItem('adhkar_daily_tasks');
       if (shouldResetTasksDate(savedDate, today)) {
+        // Archive previous day's task completions into adhkar_tasks_history before resetting
+        if (savedDate && savedTasks) {
+          try {
+            const parsedPrevTasks = JSON.parse(savedTasks) as DailyTask[];
+            const existingHistoryRaw = localStorage.getItem('adhkar_tasks_history');
+            const existingHistory = existingHistoryRaw ? JSON.parse(existingHistoryRaw) : {};
+            const archived = upsertTaskHistoryForDate(existingHistory, savedDate, parsedPrevTasks);
+            localStorage.setItem('adhkar_tasks_history', JSON.stringify(archived));
+          } catch {
+            // ignore archive error
+          }
+        }
         localStorage.setItem('adhkar_tasks_date', today);
         return DEFAULT_DAILY_TASKS;
       }
@@ -1553,13 +1570,6 @@ export default function App() {
               soundEnabled={settings.soundEnabled}
               vibrateEnabled={settings.vibrateEnabled}
               theme={settings.theme}
-            />
-            <ProgressAnalyticsSection
-              history={progressHistory}
-              isDark={isDark}
-              todayStr={todayDateStr}
-              currentStreak={streakStatus.effectiveStreak}
-              bestStreak={streakData.bestStreak}
             />
           </div>
         ) : (
