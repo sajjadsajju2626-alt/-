@@ -26,4 +26,1491 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Daily Adhkar (مداومة) - Morning, Evening & Daily Remembrances</title>
+  <meta name="description" content="Authentic daily morning and evening adhkar (Ibn Uthaymeen collection), after-prayer remembrances, and digital tasbih with Arabic text, transliteration, English & Malayalam translations. Single-file offline version.">
+  <meta name="theme-color" content="#115e59">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daily Adhkar">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23115e59'/%3E%3Cpath d='M 280 140 A 120 120 0 1 0 380 340 A 100 100 0 1 1 280 140 Z' fill='%23fbbf24'/%3E%3C/svg%3E">
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
 
+  <!-- Tailwind CSS v4 Browser Build -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where(.dark, .dark *));
+  </style>
+
+  <style>
+    body, button, input, select, textarea {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Malayalam', 'Scheherazade New', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-arabic {
+      font-family: 'Scheherazade New', 'Amiri', 'Traditional Arabic', serif;
+    }
+    .font-malayalam {
+      font-family: 'Noto Sans Malayalam', system-ui, -apple-system, sans-serif;
+    }
+    .theme-transition {
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(13, 148, 136, 0.3);
+      border-radius: 9999px;
+    }
+    .theme-midnight {
+      --bg-main: #000000;
+      --bg-card: #09090b;
+      --border-card: #27272a;
+      --text-main: #fafafa;
+      --text-muted: #a1a1aa;
+    }
+    .theme-dark {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --border-card: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    .theme-emerald {
+      --bg-main: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-card: #cbd5e1;
+      --text-main: #000000;
+      --text-muted: #0f172a;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-black dark:text-slate-100 antialiased min-h-full flex flex-col theme-transition pb-20 select-none" id="appBody">
+
+  <!-- ================= HEADER ================= -->
+  <header class="sticky top-0 z-30 bg-teal-800 text-white shadow-md border-b border-teal-700/60 backdrop-blur-md">
+    <div class="max-w-xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between gap-2">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📿</span>
+            <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+              Daily Adhkar
+            </h1>
+            <!-- Streak badge -->
+            <button id="streakBtn" class="ml-1 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 bg-teal-900/90 text-amber-300 border-teal-700/80 hover:bg-teal-950" title="Daily Streak">
+              <span>🔥</span>
+              <span id="streakCount">0d</span>
+            </button>
+          </div>
+          <p class="text-xs text-teal-200/90 flex items-center gap-1 mt-0.5">
+            <span id="headerCategoryLabel">Morning</span>
+            <span class="opacity-60">•</span>
+            <span id="headerCategoryArabic" class="font-arabic text-sm">أذكار الصباح</span>
+          </p>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center gap-1">
+          <!-- Standalone offline download button -->
+          <button id="downloadHtmlBtn" aria-label="Download standalone HTML file" title="Save offline single-file HTML" class="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+          </button>
+
+          <!-- Sound Mute/Unmute -->
+          <button id="soundToggleBtn" aria-label="Toggle Sound" title="Sound" class="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors">
+            <span id="soundIcon">🔊</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button id="themeToggleBtn" aria-label="Toggle Theme" title="Theme" class="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors">
+            <span id="themeIcon">🌙</span>
+          </button>
+
+          <!-- Reset Counters for Category -->
+          <button id="resetCategoryBtn" aria-label="Reset Category Counters" title="Reset this category" class="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </button>
+
+          <!-- Settings -->
+          <button id="openSettingsBtn" aria-label="Open Settings" title="Settings" class="p-2 rounded-lg text-teal-100 hover:text-white hover:bg-teal-700/60 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div id="headerProgressContainer" class="mt-2.5 pt-2 border-t border-teal-700/40">
+        <div class="flex items-center justify-between text-xs text-teal-100 mb-1.5">
+          <span id="progressStatusText" class="font-medium">Progress: 0 of 23 Completed</span>
+          <span id="progressPercentText" class="font-semibold text-amber-300">0%</span>
+        </div>
+        <div class="w-full bg-teal-950/40 h-2 rounded-full overflow-hidden p-0.5">
+          <div id="progressBarFill" class="h-full rounded-full transition-all duration-300 bg-amber-300" style="width: 0%"></div>
+        </div>
+        <div id="headerTimeHint" class="text-[11px] text-teal-200/80 mt-1 italic">After Fajr prayer until sunrise</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= TABS NAVIGATION ================= -->
+  <nav class="sticky top-[86px] z-20 bg-teal-900/95 backdrop-blur-md border-b border-teal-800/80 shadow-sm" aria-label="Adhkar Categories">
+    <div class="max-w-xl mx-auto px-2 py-1.5 overflow-x-auto no-scrollbar flex items-center gap-1.5">
+      <button data-tab="morning" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer bg-teal-600 text-white shadow-sm">
+        <span>☀️</span>
+        <span>Morning</span>
+        <span class="tab-badge text-[10px] bg-teal-800/80 px-1.5 py-0.2 rounded-full">0/23</span>
+      </button>
+
+      <button data-tab="evening" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60">
+        <span>🌙</span>
+        <span>Evening</span>
+        <span class="tab-badge text-[10px] bg-teal-950/60 px-1.5 py-0.2 rounded-full">0/23</span>
+      </button>
+
+      <button data-tab="prayer" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60">
+        <span>✨</span>
+        <span>After Prayer</span>
+        <span class="tab-badge text-[10px] bg-teal-950/60 px-1.5 py-0.2 rounded-full">0/7</span>
+      </button>
+
+      <button data-tab="sleep" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60">
+        <span>🛌</span>
+        <span>Sleep</span>
+        <span class="tab-badge text-[10px] bg-teal-950/60 px-1.5 py-0.2 rounded-full">0/7</span>
+      </button>
+
+      <button data-tab="favorites" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60">
+        <span>⭐</span>
+        <span>Favorites</span>
+        <span class="tab-badge text-[10px] bg-teal-950/60 px-1.5 py-0.2 rounded-full">0</span>
+      </button>
+
+      <button data-tab="tasbih" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60">
+        <span>📿</span>
+        <span>Tasbih</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 max-w-xl w-full mx-auto px-4 py-4 space-y-4">
+
+    <!-- Completion Celebration Banner -->
+    <div id="completionBanner" class="hidden p-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg border border-emerald-400/40 animate-fade-in">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <div class="text-3xl">🎉</div>
+          <div>
+            <h3 class="font-bold text-base">Alhamdulillah! Category Completed</h3>
+            <p class="text-xs text-emerald-100 mt-0.5">You have completed all remembrances in this category today. May Allah accept and bless your day!</p>
+          </div>
+        </div>
+        <button id="closeBannerBtn" class="text-emerald-200 hover:text-white p-1">✕</button>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls (for list views) -->
+    <div id="searchFilterSection" class="space-y-2">
+      <div class="relative">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Search Arabic, English, or Malayalam..." 
+          class="w-full pl-9 pr-8 py-2.5 rounded-xl border border-slate-400 dark:border-slate-700 bg-white dark:bg-slate-900 text-black dark:text-white placeholder-slate-700 dark:placeholder-slate-400 font-bold shadow-xs text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+        >
+        <div class="absolute left-3 top-3 text-slate-800 dark:text-slate-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <button id="clearSearchBtn" class="hidden absolute right-2.5 top-2.5 p-1 rounded-full text-slate-700 hover:text-black dark:text-slate-400 dark:hover:text-white">
+          ✕
+        </button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="flex items-center gap-1 text-xs">
+        <button data-filter="all" class="filter-btn px-2.5 py-1 rounded-md font-extrabold bg-teal-900 text-white border border-teal-900">All</button>
+        <button data-filter="incomplete" class="filter-btn px-2.5 py-1 rounded-md font-extrabold text-black dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-400 dark:border-slate-700 hover:bg-slate-200">Incomplete</button>
+        <button data-filter="completed" class="filter-btn px-2.5 py-1 rounded-md font-extrabold text-black dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-400 dark:border-slate-700 hover:bg-slate-200">Completed</button>
+      </div>
+    </div>
+
+    <!-- Adhkar Cards Container -->
+    <div id="adhkarList" class="space-y-4">
+      <!-- Cards rendered via JS -->
+    </div>
+
+    <!-- Digital Tasbih Counter Container (Visible when Tab is 'tasbih') -->
+    <div id="tasbihView" class="hidden flex flex-col items-center justify-center py-6 space-y-6">
+      
+      <!-- Preset Selectors -->
+      <div class="w-full flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        <button data-tasbih-preset="subhanallah" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-teal-700 text-white border border-teal-600 shadow-xs cursor-pointer">
+          سُبْحَانَ اللَّهِ (33)
+        </button>
+        <button data-tasbih-preset="alhamdulillah" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          الْحَمْدُ لِلَّهِ (33)
+        </button>
+        <button data-tasbih-preset="allahuakbar" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          اللَّهُ أَكْبَرُ (34)
+        </button>
+        <button data-tasbih-preset="astaghfirullah" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          أَسْتَغْفِرُ اللَّهَ (100)
+        </button>
+        <button data-tasbih-preset="lailahaillallah" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          لَا إِلَهَ إِلَّا اللَّهُ (100)
+        </button>
+        <button data-tasbih-preset="salawat" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+          الصَّلَاةُ عَلَى النَّبِيِّ (10)
+        </button>
+      </div>
+
+      <!-- Current Dhikr Display -->
+      <div class="w-full bg-white rounded-3xl p-6 text-center border border-teal-100 shadow-sm space-y-2 card-surface">
+        <p id="tasbihArabic" class="text-2xl font-bold font-arabic text-teal-900 leading-relaxed">سُبْحَانَ اللَّهِ</p>
+        <p id="tasbihTranslit" class="text-xs font-medium text-slate-500">Subhanallah</p>
+        <p id="tasbihTrans" class="text-xs text-slate-600">Glory be to Allah • അല്ലാഹു എത്ര പരിശുദ്ധൻ</p>
+      </div>
+
+      <!-- Huge Tactile Counter Circle -->
+      <div class="relative flex items-center justify-center">
+        <!-- Target indicator ring -->
+        <svg class="w-64 h-64 -rotate-90 transform" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-100 dark:text-slate-800" />
+          <circle id="tasbihRingCircle" cx="50" cy="50" r="44" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="transparent" stroke-dasharray="276.46" stroke-dashoffset="276.46" class="text-teal-600 transition-all duration-150" />
+        </svg>
+
+        <!-- Tap Button -->
+        <button id="tasbihLargeBtn" class="absolute w-52 h-52 rounded-full bg-gradient-to-b from-teal-600 to-teal-800 text-white shadow-xl shadow-teal-700/30 flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-transform border-4 border-teal-500/30 select-none">
+          <span class="text-xs font-semibold uppercase tracking-wider text-teal-200">Count</span>
+          <span id="tasbihCurrentCount" class="text-5xl font-black font-mono tracking-tight my-1">0</span>
+          <span id="tasbihTargetDisplay" class="text-xs text-teal-200/90 font-medium">Target: 33</span>
+        </button>
+      </div>
+
+      <!-- Tasbih Controls -->
+      <div class="flex items-center gap-3">
+        <button id="tasbihMinusBtn" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all border border-slate-200 cursor-pointer">
+          -1 Step
+        </button>
+        <button id="tasbihResetBtn" class="px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all border border-rose-200 cursor-pointer">
+          Reset (0)
+        </button>
+        <button id="tasbihChangeTargetBtn" class="px-4 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold transition-all border border-teal-200 cursor-pointer">
+          Change Target
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Empty state (Search or Favorites) -->
+    <div id="emptyState" class="hidden text-center py-12 px-4 space-y-3">
+      <div class="text-4xl">🔍</div>
+      <h3 class="text-base font-semibold text-slate-800">No Remembrances Found</h3>
+      <p id="emptyStateMsg" class="text-xs text-slate-500 max-w-xs mx-auto">No adhkar match your active filter or search terms. Try clearing your search.</p>
+    </div>
+
+  </main>
+
+  <!-- ================= SETTINGS MODAL ================= -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
+    <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl max-h-[85vh] overflow-y-auto card-surface">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span>⚙️</span> Display & Preferences
+        </h2>
+        <button id="closeSettingsBtn" class="p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-white">✕</button>
+      </div>
+
+      <div class="py-4 space-y-5 text-sm">
+        
+        <!-- Arabic Font Size -->
+        <div>
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-2">Arabic Font Size</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button data-fontsize="medium" class="font-size-opt py-2 px-3 rounded-xl border border-slate-200 text-center text-xs">
+              <div>Medium</div>
+              <div class="font-arabic text-base">بِسْمِ اللَّهِ</div>
+            </button>
+            <button data-fontsize="large" class="font-size-opt py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold ring-2 ring-teal-600/20 text-center text-xs">
+              <div>Large</div>
+              <div class="font-arabic text-lg">بِسْمِ اللَّهِ</div>
+            </button>
+            <button data-fontsize="xlarge" class="font-size-opt py-2 px-3 rounded-xl border border-slate-200 text-center text-xs">
+              <div>Extra Large</div>
+              <div class="font-arabic text-xl">بِسْمِ اللَّهِ</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Translation Language -->
+        <div>
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-2">Translation Language</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button data-lang="both" class="lang-opt py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold text-xs">
+              Both (EN + ML)
+            </button>
+            <button data-lang="ml" class="lang-opt py-2 px-3 rounded-xl border border-slate-200 text-xs">
+              Malayalam Only
+            </button>
+            <button data-lang="en" class="lang-opt py-2 px-3 rounded-xl border border-slate-200 text-xs">
+              English Only
+            </button>
+          </div>
+        </div>
+
+        <!-- Display Toggles -->
+        <div class="space-y-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Show Transliteration (Pronunciation)</span>
+            <input type="checkbox" id="toggleTranslit" checked class="w-4 h-4 text-teal-600 rounded">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Show Translations</span>
+            <input type="checkbox" id="toggleTrans" checked class="w-4 h-4 text-teal-600 rounded">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Show Hadith Virtues & Rewards</span>
+            <input type="checkbox" id="toggleVirtues" checked class="w-4 h-4 text-teal-600 rounded">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Audio Tap Sounds</span>
+            <input type="checkbox" id="toggleSoundSetting" checked class="w-4 h-4 text-teal-600 rounded">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Haptic Vibration on Tap</span>
+            <input type="checkbox" id="toggleVibrate" checked class="w-4 h-4 text-teal-600 rounded">
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-slate-700 dark:text-slate-300">Tap anywhere on card to count</span>
+            <input type="checkbox" id="toggleCardTap" class="w-4 h-4 text-teal-600 rounded">
+          </label>
+        </div>
+
+        <!-- Theme Options -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
+          <label class="block font-semibold text-slate-800 dark:text-slate-200 mb-2">Theme Mode</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button data-theme="emerald" class="theme-choice py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold text-xs">
+              Emerald Light
+            </button>
+            <button data-theme="dark" class="theme-choice py-2 px-3 rounded-xl border border-slate-200 text-xs">
+              Slate Dark
+            </button>
+            <button data-theme="midnight" class="theme-choice py-2 px-3 rounded-xl border border-slate-200 text-xs">
+              OLED Black
+            </button>
+          </div>
+        </div>
+
+        <!-- Offline Standalone Download Action -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+          <button id="modalDownloadBtn" class="w-full py-2.5 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+            <span>💾</span>
+            <span>Download Standalone Single-File (.html)</span>
+          </button>
+          <p class="text-[11px] text-slate-500 text-center mt-1.5">Saves this complete app as a single .html file that runs 100% offline with zero dependencies on any phone or computer.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STREAK MODAL ================= -->
+  <div id="streakModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl text-center space-y-4 card-surface">
+      <div class="text-5xl">🔥</div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">Daily Adhkar Streak</h3>
+      <p class="text-xs text-slate-600 dark:text-slate-300">Complete all morning, evening, or prayer adhkar each day to keep your spiritual consistency shining.</p>
+      
+      <div class="grid grid-cols-2 gap-3 py-2">
+        <div class="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50">
+          <div class="text-xs font-semibold text-amber-800 dark:text-amber-200">Current Streak</div>
+          <div id="modalCurrentStreak" class="text-3xl font-black text-amber-600 mt-1">0 Days</div>
+        </div>
+        <div class="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800/50">
+          <div class="text-xs font-semibold text-teal-800 dark:text-teal-200">Best Record</div>
+          <div id="modalBestStreak" class="text-3xl font-black text-teal-600 mt-1">0 Days</div>
+        </div>
+      </div>
+
+      <button id="closeStreakModalBtn" class="w-full py-2.5 rounded-xl bg-teal-700 text-white font-semibold cursor-pointer">Got It</button>
+    </div>
+  </div>
+
+  <!-- EMBEDDED COMPLETE DATASET -->
+  <script>
+    window.ADHKAR_DATA = {"morning":[{"id":"m-1","category":"morning","uthaymeenNumber":1,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالم (١) ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ (٢) الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ (٣) وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ (٤) أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ (٥)","transliteration":"Bismillahir-Rahmanir-Raheem. Alif-Lam-Meem. Dhalikal-Kitabu la rayba feeh, hudal-lil-muttaqeen. Alladheena yu'minoona bil-ghaybi wa yuqeemoonas-Salata wa mimma razaqnahum yunfiqoon. Walladheena yu'minoona bima unzila ilayka wa ma unzila min qablika wa bil-Akhirati hum yooqinoon. Ula'ika 'ala hudam-mir-Rabbihim wa ula'ika humul-muflihoon.","translation":"In the name of Allah, the Entirely Merciful, the Especially Merciful. Alif, Lam, Meem. This is the Book about which there is no doubt, a guidance for those conscious of Allah - Who believe in the unseen, establish prayer, and spend out of what We have provided for them, and who believe in what has been revealed to you, [O Muhammad], and what was revealed before you, and of the Hereafter they are certain [in faith]. Those are upon [right] guidance from their Lord, and it is those who are the successful.","malayalamTranslation":"പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. അലിഫ്-ലാം-മീം. ഇത് അല്ലാഹുവിന്റെ വേദഗ്രന്ഥമാകുന്നു; ഇതിൽ യാതൊരു സംശയവുമില്ല, ഭയഭക്തിയുള്ളവർക്ക് (മുത്തഖികൾക്ക്) മാർഗദർശനമാണിത്. അദൃശ്യകാര്യങ്ങളിൽ വിശ്വസിക്കുകയും, നമസ്കാരം മുറപ്രകാരം നിർവ്വഹിക്കുകയും, നാം അവർക്ക് നൽകിയതിൽ നിന്ന് ചെലവഴിക്കുകയും ചെയ്യുന്നവരാണവർ. നിനക്ക് അവതരിപ്പിച്ചു കിട്ടിയതിലും നിനക്ക് മുമ്പ് അവതരിപ്പിക്കപ്പെട്ടതിലും അവർ വിശ്വസിക്കുന്നു; പരലോകത്തിൽ അവർ ദൃഢമായി വിശ്വസിക്കുകയും ചെയ്യുന്നു. അവരാകുന്നു തങ്ങളുടെ നാഥനിൽ നിന്നുള്ള സന്മാർഗത്തിലുള്ളവർ. അവർ തന്നെയാണ് വിജയികൾ.","target":1,"source":"Surah Al-Baqarah (2:1-5) • Shaykh Ibn Uthaymeen Collection #1","virtue":"Reciting the opening of Surah Al-Baqarah brings divine guidance, firm faith in the unseen, and spiritual protection for the day.","malayalamVirtue":"സൂറത്തുൽ ബഖറയുടെ ആദ്യ അഞ്ച് ആയത്തുകൾ പാരായണം ചെയ്യുന്നത് ദിവ്യമായ സന്മാർഗ്ഗദർശനവും, അദൃശ്യകാര്യങ്ങളിൽ ദൃഢവിശ്വാസവും, ആ ദിവസത്തെ സംരക്ഷണവും നേടിത്തരുന്നു.","repeatNote":"1 time (Surah Al-Baqarah 1-5)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/8.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/9.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/10.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/11.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/12.mp3"]},{"id":"m-2","category":"morning","uthaymeenNumber":2,"arabic":"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ","transliteration":"Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatuw-wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhitoona bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'ooduhu hifzuhuma, wa Huwal-'Aliyyul-'Azeem.","translation":"Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.","malayalamTranslation":"അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.","target":1,"source":"Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani • Shaykh Ibn Uthaymeen #2","virtue":"Whoever recites this when waking up in the morning will be shielded from jinn and harm until evening.","malayalamVirtue":"പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ വൈകുന്നേരം വരെ ജിന്നുകളിൽ നിന്നും എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നും അല്ലാഹുവിന്റെ കാവലിലായിരിക്കും (ഹാകിം, ത്വബ്റാനി).","repeatNote":"1 time (Ayat al-Kursi)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrl":"https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3"},{"id":"m-3","category":"morning","uthaymeenNumber":3,"arabic":"آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)","transliteration":"Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon, kullun amana billahi wa mala'ikatihi wa kutubihi wa rusulih, la nufarriqu bayna ahadim-mir-rusulih, wa qaloo sami'na wa ata'na ghufranaka Rabbana wa-ilaykal-maseer. La yukallifullahu nafsan illa wus'aha, laha ma kasabat wa 'alayha maktasabat, Rabbana la tu'akhidhna in-naseena aw akhta'na, Rabbana wa la tahmil 'alayna isran kama hamaltahu 'alalladheena min qablina, Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.","translation":"The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], \"We make no distinction between any of His messengers.\" And they say, \"We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination.\" Allah does not charge a soul except [with that within] its capacity... \"Our Lord, do not impose blame upon us if we have forgotten or erred... and pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people.\"","malayalamTranslation":"റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, ഞങ്ങൾ നിന്നോട് പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല... ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ... ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.","target":1,"source":"Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807 • Shaykh Ibn Uthaymeen #3","virtue":"The Prophet (ﷺ) said: \"Whoever recites the last two verses of Surah Al-Baqarah at night/day, they will suffice him for all protection and blessing.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"ആരെങ്കിലും സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ പാരായണം ചെയ്താൽ, എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകുന്നതാണ്\" (ബുഖാരി, മുസ്ലിം).","repeatNote":"1 time (Last two verses of Al-Baqarah)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/292.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/293.mp3"]},{"id":"m-4","category":"morning","uthaymeenNumber":4,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nحم (١) تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْعَلِيمِ (٢) غَافِرِ الذَّنبِ وَقَابِلِ التَّوْبِ شَدِيدِ الْعِقَابِ ذِي الطَّوْلِ، لَا إِلَٰهَ إِلَّا هُوَ، إِلَيْهِ الْمَصِيرُ (٣)","transliteration":"Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.","translation":"Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.","malayalamTranslation":"ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.","target":1,"source":"Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879 • Shaykh Ibn Uthaymeen #4","virtue":"The Prophet (ﷺ) stated that reciting Ha-Meem (Ghafir 1-3) together with Ayat al-Kursi in the morning preserves a person until evening.","malayalamVirtue":"പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ കൂടി ഓതുന്നവൻ വൈകുന്നേരം വരെ സകല തിന്മകളിൽ നിന്നും സംരക്ഷിക്കപ്പെടുമെന്ന് നബി (ﷺ) അരുളിയിരിക്കുന്നു (തിർമിദി).","repeatNote":"1 time (Surah Ghafir 1-3)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/4134.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/4135.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/4136.mp3"]},{"id":"m-5","category":"morning","uthaymeenNumber":5,"arabic":"هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ، عَالِمُ الْغَيْبِ وَالشَّهَادَةِ، هُوَ الرَّحْمَٰنُ الرَّحِيمُ (٢٢) هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ، سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ (٢٣) هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ، لَهُ الْأَسْمَاءُ الْحُسْنَىٰ، يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ، وَهُوَ الْعَزِيزُ الْحَكِيمُ (٢٤)","transliteration":"Huwallahul-ladhi la ilaha illa Huwa, 'Alimul-ghaybi wash-shahadah, Huwar-Rahmanur-Raheem. Huwallahul-ladhi la ilaha illa Huwal-Malikul-Quddoosus-Salamul-Mu'minul-Muhayminul-'Azeezul-Jabbarul-Mutakabbir, Subhanallahi 'amma yushrikoon. Huwallahul-Khaliqul-Bari'ul-Musawwiru lahul-Asma'ul-Husna, yusabbihu lahu ma fis-samawati wal-ard, wa Huwal-'Azeezul-Hakeem.","translation":"He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful. He is Allah, other than whom there is no deity, the Sovereign, the Pure, the Perfection, the Bestower of Faith, the Overseer, the Exalted in Might, the Compeller, the Superior. Exalted is Allah above whatever they associate with Him. He is Allah, the Creator, the Inventor, the Fashioner; to Him belong the best names. Whatever is in the heavens and earth is exalting Him. And He is the Exalted in Might, the Wise.","malayalamTranslation":"യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അദൃശ്യവും ദൃശ്യവും അറിയുന്നവൻ. അവൻ പരമകാരുണികനും കരുണാനിധിയുമാകുന്നു. യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അവൻ രാജാവും, പരമപരിശുദ്ധനും, സമാധാനം നൽകുന്നവനും, അഭയം നൽകുന്നവനും, മേൽനോട്ടം വഹിക്കുന്നവനും, പ്രതാപശാലിയും, പരമാധികാരിയും, സർവ്വോന്നതനുമാകുന്നു. അവർ പങ്കുചേർക്കുന്നതിൽ നിന്നെല്ലാം അല്ലാഹു എത്രയോ പരിശുദ്ധൻ! സൃഷ്ടികർത്താവും, ശൂന്യതയിൽ നിന്ന് ഉണ്ടാക്കിയവനും, രൂപം നൽകിയവനുമായ അല്ലാഹുവാണ് അവൻ. അവന്നാണ് ഏറ്റവും ഉത്കൃഷ്ടമായ നാമങ്ങളുള്ളത്. ആകാശങ്ങളിലുള്ളതും ഭൂമിയിലുള്ളതുമെല്ലാം അവന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു. അവൻ പ്രതാപശാലിയും യുക്തിമാനുമാകുന്നു.","target":1,"source":"Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922 • Shaykh Ibn Uthaymeen #5","virtue":"Reciting these concluding verses of Surah Al-Hashr prompts seventy thousand angels to supplicate for Allah’s mercy and forgiveness upon the reciter until evening.","malayalamVirtue":"സൂറത്തുൽ ഹശ്റിലെ അവസാനത്തെ ഈ ആയത്തുകൾ പ്രഭാതത്തിൽ പാരായണം ചെയ്യുന്നയാൾക്കായി വൈകുന്നേരം വരെ എഴുപതിനായിരം മലക്കുകൾ കാരുണ്യത്തിനും പാപമോചനത്തിനുമായി പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).","repeatNote":"1 time (Surah Al-Hashr 22-24)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/5148.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/5149.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/5150.mp3"]},{"id":"m-6","category":"morning","uthaymeenNumber":6,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)","transliteration":"Qul Huwallahu Ahad. Allahus-Samad. Lam yalid wa lam yoolad. Wa lam yakun lahu kufuwan ahad. / Qul a'oodhu bi-Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-'uqad. Wa min sharri hasidin idha hasad. / Qul a'oodhu bi-Rabbin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fee sudoorin-nas. Minal-jinnati wan-nas.","translation":"Say, \"He is Allah, [who is] One, Allah, the Eternal Refuge. He neither begets nor is born, nor is there to Him any equivalent.\" / Say, \"I seek refuge in the Lord of daybreak from the evil of that which He created and from the evil of darkness when it settles and from the evil of the blowers in knots and from the evil of an envier when he envies.\" / Say, \"I seek refuge in the Lord of mankind, the Sovereign of mankind, the God of mankind, from the evil of the retreating whisperer who whispers into the breasts of mankind - from among the jinn and mankind.\"","malayalamTranslation":"പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ച ജീവികളുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയപ്പെടുന്നവൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, മനുഷ്യരിലും ജിന്നുകളിലും പെട്ടവനായ പിശാചിൽ നിന്നും.","target":3,"source":"Abu Dawud 5082 & Tirmidhi 3575 • Shaykh Ibn Uthaymeen #6","virtue":"The Prophet (ﷺ) said: \"Recite Qul Huwallahu Ahad and the Mu'awwidhatayn three times every morning and evening; they will suffice you against every single evil.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"സൂറത്തുൽ ഇഖ്ലാസും മുഅവ്വിദതൈനിയും (ഫലഖ്, നാസ്) രാവിലെയും വൈകുന്നേരവും 3 തവണ വീതം ഓതുക; എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അത് നിനക്ക് മതിയാകും\" (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times each (Al-Ikhlas, Al-Falaq, An-Nas)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/6221.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6222.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6223.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6224.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6225.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6226.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6227.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6228.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6229.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6230.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6231.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6232.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6233.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6234.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6235.mp3"]},{"id":"m-7","category":"morning","uthaymeenNumber":7,"arabic":"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ","transliteration":"A'oodhu bi-kalimatillahit-tammati min sharri ma khalaq","translation":"I seek refuge in the perfect words of Allah from the evil of what He has created.","malayalamTranslation":"അല്ലാഹു സൃഷ്ടിച്ച സർവ്വ സൃഷ്ടികളുടെയും ദോഷങ്ങളിൽ നിന്നും അവന്റെ സമ്പൂർണ്ണ വചനങ്ങളെക്കൊണ്ട് ഞാൻ രക്ഷതേടുന്നു.","target":3,"source":"Sahih Muslim 2709 • Shaykh Ibn Uthaymeen #7","virtue":"Whoever recites this 3 times in the evening and morning will be protected against poisonous stings, venomous creatures, and malicious harm.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നവനെ വിഷജന്തുക്കളുടെ കുത്തോ കടയോ മറ്റു ദോഷങ്ങളോ ബാധിക്കുകയില്ല (മുസ്ലിം).","repeatNote":"3 times","type":"adhkar","title":"വിഷജന്തുക്കളിൽ നിന്നും ഉപദ്രവങ്ങളിൽ നിന്നുമുള്ള കാവൽ","audioUrl":"https://www.hisnmuslim.com/audio/ar/97.mp3"},{"id":"m-8","category":"morning","uthaymeenNumber":8,"arabic":"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ","transliteration":"Bismillahil-ladhi la yadurru ma'asmihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Samee'ul-'Aleem","translation":"In the name of Allah, with Whose name nothing can cause harm in the earth nor in the heavens, and He is the All-Hearing, the All-Knowing.","malayalamTranslation":"ആരുടെ നാമത്തോടൊപ്പം ഭൂമിയിലോ ആകാശത്തോ ഉള്ള യാതൊരു വസ്തുവും ഉപദ്രവം വരുത്തുകയില്ലയോ, ആ അല്ലാഹുവിന്റെ നാമത്തിൽ. അവൻ എല്ലാം കേൾക്കുന്നവനും അറിയുന്നവനുമാകുന്നു.","target":3,"source":"Abu Dawud 5088 & Tirmidhi 3388 • Shaykh Ibn Uthaymeen #8","virtue":"Whoever recites this 3 times in the morning will not be afflicted by any unexpected calamity until evening, and whoever recites it in the evening will not be afflicted until morning.","malayalamVirtue":"പ്രഭാതത്തിൽ ഇത് 3 തവണ ചൊല്ലുന്നവന് വൈകുന്നേരം വരെയും, വൈകുന്നേരം ചൊല്ലുന്നവന് പ്രഭാതം വരെയും പെട്ടെന്നുണ്ടാകുന്ന യാതൊരു വിപത്തും ഭവിഷ്യത്തും ഏൽക്കുകയില്ല (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times","type":"adhkar","title":"ആകസ്മിക വിപത്തുകളിൽ നിന്നുള്ള സംരക്ഷണം","audioUrl":"https://www.hisnmuslim.com/audio/ar/86.mp3"},{"id":"m-9","category":"morning","uthaymeenNumber":9,"arabic":"رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا","transliteration":"Radeetu billahi Rabban, wa bil-Islami deenan, wa bi-Muhammadin sallallahu 'alayhi wa sallama Nabiyya","translation":"I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad (peace and blessings of Allah be upon him) as my Prophet.","malayalamTranslation":"അല്ലാഹുവിനെ രക്ഷിതാവായും, ഇസ്ലാമിനെ ദീനായും, മുഹമ്മദ് നബി (സ്വ) യെ പ്രവാചകനായും ഞാൻ തൃപ്തിപ്പെട്ടിരിക്കുന്നു.","target":3,"source":"Abu Dawud 5072 & Tirmidhi 3389 • Shaykh Ibn Uthaymeen #9","virtue":"Allah has promised that whoever recites this 3 times morning and evening, He will surely please him on the Day of Resurrection.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നയാളെ അന്ത്യദിനത്തിൽ തൃപ്തിപ്പെടുത്തൽ അല്ലാഹുവിന്റെ ബാധ്യതയായിരിക്കുന്നുവെന്ന് നബി (ﷺ) അരുളി (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times","type":"adhkar","title":"അല്ലാഹുവിന്റെ പ്രീതി ലഭിക്കാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/87.mp3"},{"id":"m-10","category":"morning","uthaymeenNumber":10,"arabic":"أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ","transliteration":"Asbahna wa-asbahal-mulku lillah, wal-hamdu lillah, la ilaha illallahu wahdahu la shareeka lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in qadeer. Rabbi as'aluka khayra ma fee hadhal-yawmi wa khayra ma ba'dahu, wa a'oodhu bika min sharri ma fee hadhal-yawmi wa sharri ma ba'dah, Rabbi a'oodhu bika minal-kasali wa soo'il-kibar, Rabbi a'oodhu bika min 'adhabin fin-nari wa 'adhabin fil-qabr.","translation":"We have entered the morning and the kingdom belongs to Allah, and all praise is for Allah. None has the right to be worshipped except Allah alone, without partner. To Him belongs all sovereignty and to Him belongs all praise, and He has power over all things. My Lord, I ask You for the good of what is in this day and the good of what follows it, and I seek refuge in You from the evil of what is in this day and the evil of what follows it. My Lord, I seek refuge in You from laziness and the hardships of old age. My Lord, I seek refuge in You from punishment in the Fire and punishment in the grave.","malayalamTranslation":"ഞങ്ങളിതാ പ്രഭാതത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നു; സർവ്വാധിപത്യവും അല്ലാഹുവിന്നുള്ളതായി പ്രഭാതമായിരിക്കുന്നു. സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ്. അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. അവന്നാണ് സർവ്വാധികാരവും സർവ്വസ്തുതിയും, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്. എന്റെ രക്ഷിതാവേ, ഈ ദിവസത്തിലുള്ള നന്മയും ഇതിനുശേഷമുള്ള നന്മയും നിന്നോട് ഞാൻ ചോദിക്കുന്നു; ഈ ദിവസത്തിലുള്ള തിന്മയിൽ നിന്നും ഇതിനുശേഷമുള്ള തിന്മയിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു. എന്റെ നാഥാ, മടിയിൽ നിന്നും വാർദ്ധക്യത്തിന്റെ അവശതകളിൽ നിന്നും നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എന്റെ നാഥാ, നരകശിക്ഷയിൽ നിന്നും ഖബർ ശിക്ഷയിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു.","target":1,"source":"Sahih Muslim 2723 • Shaykh Ibn Uthaymeen #10","virtue":"Affirms complete submission to Allah’s dominion, asking for the blessings of the new day while seeking sanctuary from the Fire, laziness, and the grave.","malayalamVirtue":"അല്ലാഹുവിന്റെ സർവ്വാധിപത്യം ഏറ്റുപറയുകയും, പുതിയ ദിനത്തിന്റെ എല്ലാ നന്മകളും ചോദിക്കുകയും, മടി, വാർദ്ധക്യത്തിന്റെ ദുരിതങ്ങൾ, നരകശിക്ഷ, ഖബർശിക്ഷ എന്നിവയിൽ നിന്ന് സമ്പൂർണ്ണ കാവൽ നേടുകയും ചെയ്യുന്നു (മുസ്ലിം).","repeatNote":"1 time","type":"adhkar","title":"പ്രഭാതത്തിൽ നന്മ തേടിയുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/77.mp3"},{"id":"m-11","category":"morning","uthaymeenNumber":11,"arabic":"اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ","transliteration":"Allahumma bika asbahna, wa bika amsayna, wa bika nahya, wa bika namootu wa-ilaykan-nushoor.","translation":"O Allah, by You we have entered the morning, and by You we enter the evening, and by You we live, and by You we die, and to You is the final resurrection.","malayalamTranslation":"അല്ലാഹുവേ, നിന്റെ കാരുണ്യത്താൽ നാം പ്രഭാതത്തിലെത്തി, നിന്റെ അനുഗ്രഹത്താൽ നാം സന്ധ്യയിലെത്തുന്നു, നിന്റെ കൽപ്പനയാൽ നാം ജീവിക്കുന്നു, നിന്റെ വിധിയാൽ നാം മരിക്കുന്നു, നിന്നിലേക്കാണ് പുനരുത്ഥാനം.","target":1,"source":"Abu Dawud 5068 & Tirmidhi 3391 • Shaykh Ibn Uthaymeen #11","virtue":"Entrusts life, death, and resurrection into the divine keeping of Allah at daybreak.","malayalamVirtue":"പ്രഭാതവേളയിൽ ജീവനും മരണവും പുനരുത്ഥാനവും പൂർണ്ണമായും അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന സുന്ദരമായ പ്രാർത്ഥന (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"1 time","type":"adhkar","title":"പ്രഭാതത്തിൽ അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/78.mp3"},{"id":"m-12","category":"morning","uthaymeenNumber":12,"arabic":"اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ","transliteration":"Allahumma ma asbaha bee min ni'matin aw bi-ahadim-min khalqik, faminka wahdaka la shareeka lak, falakal-hamdu wa lakash-shukr.","translation":"O Allah, whatever blessing has reached me or any of Your creation this morning is from You alone, without partner. To You belongs all praise and to You belongs all gratitude.","malayalamTranslation":"അല്ലാഹുവേ, ഈ പ്രഭാതത്തിൽ എനിക്കോ നിന്റെ സൃഷ്ടികളിൽ മറ്റാർക്കെങ്കിലുമോ എന്തെങ്കിലും അനുഗ്രഹം ലഭിച്ചിട്ടുണ്ടെങ്കിൽ അത് നിന്നിൽ നിന്ന് മാത്രമുള്ളതാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. അതിനാൽ സർവ്വസ്തുതിയും നിനക്കാണ്, സർവ്വ നന്ദിയും നിനക്കാണ്.","target":1,"source":"Abu Dawud 5073 & An-Nasa'i • Shaykh Ibn Uthaymeen #12","virtue":"The Prophet (ﷺ) said: \"Whoever recites this in the morning has fulfilled his gratitude for that day, and whoever says it in the evening has fulfilled his gratitude for that night.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"ആരെങ്കിലും പ്രഭാതത്തിൽ ഇത് ചൊല്ലിയാൽ ആ ദിവസത്തെ ശുക്റ് (നന്ദി) അവൻ നിറവേറ്റി; ആരെങ്കിലും വൈകുന്നേരം ഇത് ചൊല്ലിയാൽ ആ രാത്രിയിലെ ശുക്റ് അവൻ നിറവേറ്റി\" (അബൂദാവൂദ്, നസാഈ).","repeatNote":"1 time (Fulfilling Daily Gratitude)","type":"adhkar","title":"പ്രതിദിന ശുക്റ് (നന്ദി) നിർവ്വഹിക്കുന്ന പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/81.mp3"},{"id":"m-13","category":"morning","uthaymeenNumber":13,"arabic":"اللَّهُمَّ إِنِّي أَصْبَحْتُ فِي نِعْمَةٍ وَعَافِيَةٍ وَسِتْرٍ، فَأَتِمَّ نِعْمَتَكَ عَلَيَّ وَعَافِيَتَكَ وَسِتْرَكَ فِي الدُّنْيَا وَالْآخِرَةِ","transliteration":"Allahumma inni asbahtu fee ni'matiw-wa 'afiyatiw-wa sitr, fa'atimma ni'mataka 'alayya wa 'afiyataka wa sitraka fid-dunya wal-akhirah.","translation":"O Allah, I have entered the morning enjoying favor, well-being, and protection from You. Therefore, complete Your favor upon me, Your well-being, and Your protection in this world and the Hereafter.","malayalamTranslation":"അല്ലാഹുവേ, നിന്നിൽ നിന്നുള്ള അനുഗ്രഹത്തിലും സൗഖ്യത്തിലും കാവലിലും ആയാണ് ഞാൻ പ്രഭാതത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നത്. അതിനാൽ ഇഹത്തിലും പരത്തിലും നിന്റെ അനുഗ്രഹവും സൗഖ്യവും കാവലും നീ എനിക്ക് പൂർത്തിയാക്കി തരേണമേ.","target":3,"source":"Ibn as-Sunni 55 & Kitab al-Adhkar • Shaykh Ibn Uthaymeen #13","virtue":"Reciting this 3 times morning and evening guarantees that Allah will complete His bounty, health, and covering of human faults in both worlds.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും ഇത് 3 തവണ ചൊല്ലുന്നയാൾക്ക് ഇഹത്തിലും പരത്തിലും അല്ലാഹു തന്റെ അനുഗ്രഹവും ആരോഗ്യവും പാപങ്ങൾ മറച്ചുവെക്കലും പൂർത്തിയാക്കി നൽകുന്നതാണ് (ഇബ്നുസ്സുന്നി).","repeatNote":"3 times","type":"adhkar","title":"അനുഗ്രഹവും സൗഖ്യവും പൂർത്തിയാക്കാനുള്ള പ്രാർത്ഥന"},{"id":"m-14","category":"morning","uthaymeenNumber":14,"arabic":"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ","transliteration":"Allahumma inni a'oodhu bika minal-hammi wal-hazan, wa a'oodhu bika minal-'ajzi wal-kasal, wa a'oodhu bika minal-jubni wal-bukhl, wa a'oodhu bika min ghalabatid-dayni wa qahrir-rijal.","translation":"O Allah, I seek refuge in You from worry and grief, and I seek refuge in You from incapacity and laziness, and I seek refuge in You from cowardice and stinginess, and I seek refuge in You from being overwhelmed by debt and oppressed by men.","malayalamTranslation":"അല്ലാഹുവേ, ഉത്കണ്ഠയിൽ നിന്നും ദുഃഖത്തിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; കഴിവുകേടിൽ നിന്നും മടിയിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; ഭീരുത്വത്തിൽ നിന്നും പിശുക്കിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു; കടം പെരുകുന്നതിൽ നിന്നും മനുഷ്യരുടെ അടിച്ചമർത്തലിൽ (മേൽക്കോയ്മയിൽ) നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.","target":1,"source":"Sahih al-Bukhari 2893 & Abu Dawud 1555 • Shaykh Ibn Uthaymeen #14","virtue":"The Prophet (ﷺ) taught this supplication to Abu Umamah; reciting it morning and evening relieves anxiety and removes heavy debt.","malayalamVirtue":"നബി (ﷺ) അബൂ ഉമാമ (റ) ക്ക് പഠിപ്പിച്ചുകൊടുത്ത പ്രാർത്ഥനയാണിത്; രാവിലെയും വൈകുന്നേരവും ഇത് ചൊല്ലിയാൽ മനോവിഷമങ്ങളും സങ്കടങ്ങളും നീങ്ങുകയും കടങ്ങൾ വീടുകയും ചെയ്യുന്നതാണ് (ബുഖാരി, അബൂദാവൂദ്).","repeatNote":"1 time (Relief from Anxiety & Debt)","type":"adhkar","title":"മനോവിഷമവും കടബാധ്യതയും നീങ്ങാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/121.mp3"},{"id":"m-15","category":"morning","uthaymeenNumber":15,"arabic":"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي","transliteration":"Allahumma inni as'alukal-'afiyata fid-dunya wal-akhirah, Allahumma inni as'alukal-'afwa wal-'afiyata fee deeni wa dunyaya wa ahli wa mali, Allahummas-tur 'awrati wa amin raw'ati, Allahummah-fazni mim-bayni yadayya wa min khalfi wa 'an yameeni wa 'an shimali wa min fawqi, wa a'oodhu bi'azamatika an ughtala min tahti.","translation":"O Allah, I ask You for well-being in this world and the Hereafter. O Allah, I ask You for pardon and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, protect me from in front of me, from behind me, from my right, from my left, and from above me; and I seek refuge in Your greatness from being assassinated from beneath me.","malayalamTranslation":"അല്ലാഹുവേ, ഇഹത്തിലും പരത്തിലും ഞാൻ നിന്നോട് സൗഖ്യം (ആരോഗ്യവും സമാധാനവും) ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ ദീനിലും ദുനിയാവിലും കുടുംബത്തിലും സമ്പത്തിലും നിന്നോട് ഞാൻ മാപ്പും സൗഖ്യവും ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ കുറവുകൾ നീ മറച്ചുവെക്കേണമേ, എന്റെ ഭയങ്ങളിൽ എനിക്ക് ശാന്തി നൽകേണമേ. അല്ലാഹുവേ, എന്റെ മുന്നിലൂടെയും പിന്നിലൂടെയും വലത്തുഭാഗത്തുനിന്നും ഇടത്തുഭാഗത്തുനിന്നും മുകളിൽ നിന്നും എന്നെ നീ കാത്തുരക്ഷിക്കേണമേ. എന്റെ അടിയിലൂടെ വഞ്ചനാപരമായി ഞാൻ നശിപ്പിക്കപ്പെടുന്നതിൽ നിന്ന് നിന്റെ മഹത്വത്താൽ ഞാൻ കാവൽ തേടുന്നു.","target":1,"source":"Abu Dawud 5074 & Ibn Majah 3871 • Shaykh Ibn Uthaymeen #15","virtue":"The Messenger of Allah (ﷺ) never omitted these words morning and evening, wrapping the reciter in a fortress of divine protection on all six sides.","malayalamVirtue":"നബി (ﷺ) പ്രഭാതത്തിലും സന്ധ്യയിലും ഒരിക്കലും ഒഴിവാക്കാതിരുന്ന പ്രാർത്ഥനയാണിത്. ആറ് ദിശകളിൽ നിന്നും അല്ലാഹുവിന്റെ ശക്തമായ സംരക്ഷണക്കോട്ട ഇത് ചൊല്ലുന്നയാൾക്ക് ലഭിക്കുന്നു (അബൂദാവൂദ്).","repeatNote":"1 time (All-Direction Protection)","type":"adhkar","title":"ഇഹപര സൗഖ്യത്തിനും സർവ്വദിശാ സംരക്ഷണത്തിനുമുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/84.mp3"},{"id":"m-16","category":"morning","uthaymeenNumber":16,"arabic":"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ","transliteration":"Allahumma Anta Rabbi la ilaha illa Ant, khalaqtani wa ana 'abduk, wa ana 'ala 'ahdika wa wa'dika mastata't, a'oodhu bika min sharri ma sana't, abu'u laka bini'matika 'alay, wa abu'u bidhanbi faghfir li fa'innahu la yaghfirudh-dhunooba illa Ant.","translation":"O Allah, You are my Lord, none has the right to be worshipped except You. You created me and I am Your servant, and I abide by Your covenant and promise as much as I am able. I seek refuge in You from the evil of what I have done. I acknowledge Your favor upon me, and I acknowledge my sin, so forgive me, for none can forgive sins except You.","malayalamTranslation":"അല്ലാഹുവേ, നീ എന്റെ രക്ഷിതാവാണ്, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. നീ എന്നെ സൃഷ്ടിച്ചു, ഞാൻ നിന്റെ ദാസനാണ്. എന്റെ കഴിവിനനുസരിച്ച് നിന്നോടുള്ള കരാറിലും വാഗ്ദാനത്തിലും ഞാൻ നിലകൊള്ളുന്നു. ഞാൻ ചെയ്തുപോയ തിന്മകളിൽ നിന്ന് നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എനിക്ക് നീ നൽകിയ അനുഗ്രഹങ്ങൾ ഞാൻ ഏറ്റുപറയുന്നു, എന്റെ പാപങ്ങളും ഞാൻ സമ്മതിക്കുന്നു. അതിനാൽ എനിക്ക് നീ പൊറുത്തുതരേണമേ, തീർച്ചയായും നീയല്ലാതെ പാപങ്ങൾ പൊറുത്തുതരുവാൻ മറ്റാരുമില്ല.","target":1,"source":"Sahih al-Bukhari 6306 (Sayyid al-Istighfar) • Shaykh Ibn Uthaymeen #16","virtue":"The Master Supplication for Forgiveness. Whoever says it with certainty in the morning and dies before evening will be among the people of Paradise.","malayalamVirtue":"സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ). ദൃഢവിശ്വാസത്തോടെ പ്രഭാതത്തിൽ ഇത് ചൊല്ലി അന്ന് വൈകുന്നേരത്തിന് മുമ്പ് മരണപ്പെട്ടാൽ അവൻ സ്വർഗ്ഗാവകാശിയാകും (ബുഖാരി).","repeatNote":"1 time (Chief of Prayers for Forgiveness)","type":"adhkar","title":"സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ)","audioUrl":"https://www.hisnmuslim.com/audio/ar/79.mp3"},{"id":"m-17","category":"morning","uthaymeenNumber":17,"arabic":"اللَّهُمَّ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ","transliteration":"Allahumma Fatiras-samawati wal-ard, 'Alimal-ghaybi wash-shahadah, Rabba kulli shay'iw-wa maleekah, ash-hadu al-la ilaha illa Ant, a'oodhu bika min sharri nafsi wa min sharrish-shaytani wa shirkih, wa an aqtarifa 'ala nafsi soo'an aw ajurrahu ila Muslim.","translation":"O Allah, Creator of the heavens and the earth, Knower of the unseen and seen, Lord of everything and its Sovereign, I testify that none has the right to be worshipped except You. I seek refuge in You from the evil of my soul, from the evil of Satan and his trap of idolatry, and from committing evil against myself or bringing it upon any Muslim.","malayalamTranslation":"ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവായ, അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനായ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളുടെയും തിന്മയിൽ നിന്നും, എന്റെ സ്വന്തത്തിന് എന്തെങ്കിലും ദോഷം ചെയ്യുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് തിന്മ വരുത്തിവെക്കുന്നതിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു.","target":1,"source":"Sunan at-Tirmidhi 3529 & Abu Dawud 5067 • Shaykh Ibn Uthaymeen #17","virtue":"The Prophet (ﷺ) instructed Abu Bakr as-Siddiq to recite this every morning, evening, and before sleep to protect against internal evil and devilish snares.","malayalamVirtue":"മനസ്സിന്റെ തിന്മകളിൽ നിന്നും പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളിൽ നിന്നും കാവൽ ലഭിക്കുന്നതിനായി അബൂബക്കർ സിദ്ദീഖ് (റ) വിന് നബി (ﷺ) പഠിപ്പിച്ചുകൊടുത്ത പ്രാർത്ഥന (തിർമിദി, അബൂദാവൂദ്).","repeatNote":"1 time","type":"adhkar","title":"മനസ്സിന്റെയും പിശാചിന്റെയും തിന്മകളിൽ നിന്നുള്ള കാവൽ","audioUrl":"https://www.hisnmuslim.com/audio/ar/85.mp3"},{"id":"m-18","category":"morning","uthaymeenNumber":18,"arabic":"اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ","transliteration":"Allahumma inni asbahtu ushhiduka wa ushhidu hamalata 'arshika wa mala'ikataka wa jamee'a khalqik, annaka Antallahu la ilaha illa Anta wahdaka la shareeka lak, wa anna Muhammadan 'abduka wa rasooluk.","translation":"O Allah, I have entered the morning calling You to bear witness, and calling the bearers of Your Throne, Your angels, and all of Your creation to bear witness, that You are Allah, none has the right to be worshipped except You alone without partner, and that Muhammad is Your servant and Messenger.","malayalamTranslation":"അല്ലാഹുവേ, ഈ പ്രഭാതത്തിൽ നിന്നെയും, നിന്റെ സിംഹാസനം വഹിക്കുന്ന മലക്കുകളെയും, മറ്റു മലക്കുകളെയും, നിന്റെ സർവ്വ സൃഷ്ടികളെയും ഞാൻ സാക്ഷിനിർത്തുന്നു: തീർച്ചയായും നീ മാത്രമാണ് അല്ലാഹു, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, നീ ഏകനാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. മുഹമ്മദ് നബി (സ്വ) നിന്റെ ദാസനും ദൂതനുമാകുന്നു എന്നും ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു.","target":4,"source":"Abu Dawud 5069 • Shaykh Ibn Uthaymeen #18","virtue":"The Prophet (ﷺ) said: \"Whoever recites this four times in the morning or evening, Allah will emancipate him completely from the Fire of Hell.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"രാവിലെയോ വൈകുന്നേരമോ ആരെങ്കിലും ഇത് നാല് തവണ ചൊല്ലിയാൽ അല്ലാഹു അവനെ നരകാഗ്നിയിൽ നിന്നും പൂർണ്ണമായി മോചിപ്പിക്കുന്നതാണ്\" (അബൂദാവൂദ്).","repeatNote":"4 times (Deliverance from Hellfire)","type":"adhkar","title":"നരകമോചനം ലഭിക്കാനുള്ള സാക്ഷ്യപ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/80.mp3"},{"id":"m-19","category":"morning","uthaymeenNumber":19,"arabic":"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ","transliteration":"La ilaha illallahu wahdahu la shareeka lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in qadeer.","translation":"None has the right to be worshipped except Allah alone, without partner. To Him belongs all sovereignty and praise, and He has power over all things.","malayalamTranslation":"അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. സർവ്വാധിപത്യവും സർവ്വസ്തുതിയും അവന്നാണ്, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്.","target":100,"source":"Sahih al-Bukhari 3293 & Sahih Muslim 2691 • Shaykh Ibn Uthaymeen #19","virtue":"Recited 100 times daily: reward equal to freeing 10 slaves, 100 good deeds credited, 100 sins erased, and serves as an impenetrable shield against Satan all day.","malayalamVirtue":"പ്രതിദിനം 100 തവണ ചൊല്ലിയാൽ: 10 അടിമകളെ മോചിപ്പിച്ച പ്രതിഫലം ലഭിക്കും, 100 നന്മകൾ രേഖപ്പെടുത്തും, 100 തിന്മകൾ മായ്ച്ചു കളയും, ആ ദിവസം മുഴുവൻ പിശാചിൽ നിന്നുള്ള സുരക്ഷിത കാവലുമായിരിക്കും (ബുഖാരി, മുസ്ലിം).","repeatNote":"100 times (or 10 times minimum)","type":"adhkar","title":"തൗഹീദിന്റെ മഹത്തായ ദിക്റ്","audioUrl":"https://www.hisnmuslim.com/audio/ar/92.mp3"},{"id":"m-20","category":"morning","uthaymeenNumber":20,"arabic":"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ","transliteration":"Hasbiyallahu la ilaha illa Huwa, 'alayhi tawakkaltu wa Huwa Rabbul-'Arshil-'Azeem.","translation":"Allah is sufficient for me. None has the right to be worshipped except Him. In Him I put my trust, and He is the Lord of the Mighty Throne.","malayalamTranslation":"എനിക്ക് അല്ലാഹു മതി; അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. അവനിൽ ഞാൻ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, അവൻ മഹത്തായ അർശിന്റെ (സിംഹാസനത്തിന്റെ) നാഥനാകുന്നു.","target":7,"source":"Abu Dawud 5081 (Surah At-Tawbah 9:129) • Shaykh Ibn Uthaymeen #20","virtue":"The Prophet (ﷺ) said: \"Whoever recites this 7 times in the morning and evening, Allah will suffice him in all matters that distress him of this world and the Hereafter.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"രാവിലെയും വൈകുന്നേരവും ഇത് 7 തവണ ചൊല്ലുന്നവന് ഇഹലോകത്തെയും പരലോകത്തെയും സകല മനോവിഷമങ്ങൾക്കും അല്ലാഹു തന്നെ മതിയാകുന്നതാണ്\" (അബൂദാവൂദ്).","repeatNote":"7 times","type":"adhkar","title":"ഇഹപര വിഷമങ്ങൾക്ക് അല്ലാഹു മതിയാകാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/83.mp3"},{"id":"m-21","category":"morning","uthaymeenNumber":21,"arabic":"حَسْبِيَ اللَّهُ وَكَفَى، سَمِعَ اللَّهُ لِمَنْ دَعَا، لَيْسَ وَرَاءَ اللَّهِ مَرْمَى","transliteration":"Hasbiyallahu wa kafa, sami'allahu liman da'a, laysa wara'allahi marma.","translation":"Allah is sufficient for me and He is enough; Allah hears whoever calls upon Him; beyond Allah there is no final aim or refuge.","malayalamTranslation":"എനിക്ക് അല്ലാഹു മതി, അവൻ സർവ്വതിനും മതിയായവനാണ്. പ്രാർത്ഥിച്ചവന്റെ വിളി അല്ലാഹു കേട്ടിരിക്കുന്നു. അല്ലാഹുവിന് അതീതമായി മറ്റൊരു അഭയസ്ഥാനമോ ലക്ഷ്യമോ ഇല്ല.","target":1,"source":"Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya • Shaykh Ibn Uthaymeen #21","virtue":"A deep affirmation of complete reliance on the Almighty, acknowledging that He answers all earnest supplications and that all sanctuary ends with Him.","malayalamVirtue":"അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുകയും, അവൻ പ്രാർത്ഥനകൾക്ക് ഉത്തരം നൽകുന്നവനാണെന്നും അവനല്ലാതെ മറ്റൊരു അഭയകേന്ദ്രമില്ലെന്നും പ്രഖ്യാപിക്കുന്ന ഉന്നത ദിക്റ് (ബൈഹഖി).","repeatNote":"1 time","type":"adhkar","title":"അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുന്ന ദിക്റ്"},{"id":"m-22","category":"morning","uthaymeenNumber":22,"arabic":"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ","transliteration":"Subhanallahi wa bihamdih","translation":"Glory is to Allah and praise is to Him.","malayalamTranslation":"അല്ലാഹു എത്ര പരിശുദ്ധൻ, അവന്ന് സർവ്വസ്തുതിയും.","target":100,"source":"Sahih Muslim 2692 • Shaykh Ibn Uthaymeen #22","virtue":"Whoever recites this 100 times in the morning and evening, his sins will be forgiven even if they were like the foam of the sea, and none will bring better deeds on Judgment Day except one who said more.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും ഇത് 100 തവണ ചൊല്ലുന്നവന്റെ പാപങ്ങൾ കടൽനുരയോളം ഉണ്ടെങ്കിലും പൊറുക്കപ്പെടുന്നതാണ്. അന്ത്യദിനത്തിൽ ഇതിനേക്കാൾ ശ്രേഷ്ഠമായ കർമ്മവുമായി മറ്റാരും വരികയില്ല, ഇത് കൂടുതൽ ചൊല്ലിയവനല്ലാതെ (മുസ്ലിം).","repeatNote":"100 times","type":"adhkar","title":"തസ്ബീഹും തഹ്മീദും (100 തവണ)","audioUrl":"https://www.hisnmuslim.com/audio/ar/91.mp3"},{"id":"m-23","category":"morning","uthaymeenNumber":23,"arabic":"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ","transliteration":"Astaghfirullaha wa atubu ilayh","translation":"I seek the forgiveness of Allah and repent to Him.","malayalamTranslation":"ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുകയും അവനിലേക്ക് പശ്ചാത്തപിച്ചു മടങ്ങുകയും ചെയ്യുന്നു.","target":100,"source":"Sahih al-Bukhari 6307 & Sahih Muslim 2702 • Shaykh Ibn Uthaymeen #23","virtue":"The Prophet (ﷺ) said: \"By Allah, I seek forgiveness of Allah and turn to Him in repentance more than seventy (and one hundred) times in a day.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"അല്ലാഹുവാണെ സത്യം, ഞാൻ ദിവസവും എഴുപതിലധികം (നൂറിലധികം) തവണ അല്ലാഹുവോട് പാപമോചനം തേടുകയും തൗബ ചെയ്ത് മടങ്ങുകയും ചെയ്യാറുണ്ട്\" (ബുഖാരി, മുസ്ലിം).","repeatNote":"100 times","type":"adhkar","title":"ഇസ്തിഗ്ഫാറും തൗബയും (പാപമോചന പ്രാർത്ഥന)","audioUrl":"https://www.hisnmuslim.com/audio/ar/96.mp3"},{"id":"m-24","category":"morning","arabic":"يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ","transliteration":"Ya Hayyu ya Qayyum, birahmatika astagheeth, aslih li sha'ni kullah, wa la takilni ila nafsi tarfata 'ayn","translation":"O Ever-Living, O Sustainer, by Your mercy I seek assistance. Rectify for me all of my affairs and do not leave me to myself even for the blink of an eye.","malayalamTranslation":"എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനേ, സർവ്വലോക പരിപാലകനേ, നിന്റെ കാരുണ്യത്താൽ ഞാൻ നിന്നോട് സഹായം തേടുന്നു. എന്റെ എല്ലാ കാര്യങ്ങളും നീ എനിക്ക് നന്നാക്കിത്തരേണമേ, ഒരു കണ്ണിറുക്കുന്ന നേരത്തേക്ക് പോലും എന്നെ എന്റെ സ്വന്തം കൈകളിലേക്ക് ഏൽപ്പിക്കരുതേ.","target":1,"source":"Al-Hakim 1/545 & Sahih at-Targhib 661","virtue":"A heartfelt plea for total reliance on Allah for every detail and moment of life.","malayalamVirtue":"ജീവിതത്തിലെ ഓരോ നിമിഷവും സകല കാര്യങ്ങളും നേരെയാക്കിത്തരാനും, കണ്ണിറുക്കുന്ന നേരത്തേക്ക് പോലും അല്ലാഹു നമ്മെ കൈവിടരുതെന്നും കേണപേക്ഷിക്കുന്ന മഹത്തായ പ്രാർത്ഥന (ഹാകിം).","repeatNote":"1 time","type":"adhkar","title":"അല്ലാഹുവിന്റെ കാരുണ്യത്താൽ സഹായം തേടുന്ന പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/88.mp3"},{"id":"m-25","category":"morning","arabic":"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ","transliteration":"Allahumma salli wa sallim 'ala Nabiyyina Muhammad","translation":"O Allah, send peace and blessings upon our Prophet Muhammad.","malayalamTranslation":"അല്ലാഹുവേ, ഞങ്ങളുടെ പ്രവാചകൻ മുഹമ്മദ് നബിയുടെ മേൽ നീ അനുഗ്രഹവും ശാന്തിയും വർഷിക്കേണമേ.","target":10,"source":"At-Tabarani & Sahih at-Targhib 656","virtue":"Whoever sends blessings upon the Prophet 10 times in the morning and evening will attain his intercession on the Day of Resurrection.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും നബി (ﷺ) യുടെ മേൽ 10 തവണ സ്വലാത്ത് ചൊല്ലുന്നയാൾക്ക് അന്ത്യദിനത്തിൽ നബിയുടെ ശഫാഅത്ത് (ശുപാർശ) ലഭിക്കുന്നതാണ് (ത്വബ്റാനി).","repeatNote":"10 times","type":"adhkar","title":"തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്","audioUrl":"https://www.hisnmuslim.com/audio/ar/98.mp3"}],"evening":[{"id":"e-1","category":"evening","uthaymeenNumber":1,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالم (١) ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ (٢) الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ (٣) وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ (٤) أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ (٥)","transliteration":"Bismillahir-Rahmanir-Raheem. Alif-Lam-Meem. Dhalikal-Kitabu la rayba feeh, hudal-lil-muttaqeen. Alladheena yu'minoona bil-ghaybi wa yuqeemoonas-Salata wa mimma razaqnahum yunfiqoon. Walladheena yu'minoona bima unzila ilayka wa ma unzila min qablika wa bil-Akhirati hum yooqinoon. Ula'ika 'ala hudam-mir-Rabbihim wa ula'ika humul-muflihoon.","translation":"In the name of Allah, the Entirely Merciful, the Especially Merciful. Alif, Lam, Meem. This is the Book about which there is no doubt, a guidance for those conscious of Allah - Who believe in the unseen, establish prayer, and spend out of what We have provided for them...","malayalamTranslation":"പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. അലിഫ്-ലാം-മീം. ഇത് അല്ലാഹുവിന്റെ വേദഗ്രന്ഥമാകുന്നു; ഇതിൽ യാതൊരു സംശയവുമില്ല, ഭയഭക്തിയുള്ളവർക്ക് (മുത്തഖികൾക്ക്) മാർഗദർശനമാണിത്...","target":1,"source":"Surah Al-Baqarah (2:1-5) • Shaykh Ibn Uthaymeen Collection #1","virtue":"Recited for nighttime steadfastness, guidance, and protection against misguidance.","malayalamVirtue":"രാത്രിയിലെ സന്മാർഗ്ഗദർശനത്തിനും വഴികേടുകളിൽ നിന്നുള്ള സംരക്ഷണത്തിനും ഉറച്ച വിശ്വാസത്തിനുമായി പാരായണം ചെയ്യുന്നു.","repeatNote":"1 time (Surah Al-Baqarah 1-5)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/8.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/9.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/10.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/11.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/12.mp3"]},{"id":"e-2","category":"evening","uthaymeenNumber":2,"arabic":"اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ","transliteration":"Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatuw-wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhitoona bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'ooduhu hifzuhuma, wa Huwal-'Aliyyul-'Azeem.","translation":"Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth... and their preservation tires Him not. And He is the Most High, the Most Great.","malayalamTranslation":"അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്... അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.","target":1,"source":"Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani • Shaykh Ibn Uthaymeen #2","virtue":"Whoever recites Ayat al-Kursi in the evening will be protected from jinn and harm all through the night until dawn.","malayalamVirtue":"സായാഹ്നത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ പ്രഭാതം വരെ ജിന്നുകളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും സകല തിന്മകളിൽ നിന്നും കാത്തുരക്ഷിക്കപ്പെടും (ഹാകിം, ത്വബ്റാനി).","repeatNote":"1 time (Ayat al-Kursi)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrl":"https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3"},{"id":"e-3","category":"evening","uthaymeenNumber":3,"arabic":"آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)","transliteration":"Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon... Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.","translation":"The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers... \"Our Lord, and lay not upon us a burden like that which You laid upon those before us... and pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people.\"","malayalamTranslation":"റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും... ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാൻ കഴിയാത്ത ഭാരം ഞങ്ങളെ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.","target":1,"source":"Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807 • Shaykh Ibn Uthaymeen #3","virtue":"The Prophet (ﷺ) said: \"Whoever recites the last two verses of Surah Al-Baqarah at night, they will suffice him (against every evil).\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"ആരെങ്കിലും രാത്രിയിൽ സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ ഓതിയാൽ, എല്ലാ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകും\" (ബുഖാരി, മുസ്ലിം).","repeatNote":"1 time (Last two verses of Al-Baqarah)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/292.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/293.mp3"]},{"id":"e-4","category":"evening","uthaymeenNumber":4,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nحم (١) تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْعَلِيمِ (٢) غَافِرِ الذَّنبِ وَقَابِلِ التَّوْبِ شَدِيدِ الْعِقَابِ ذِي الطَّوْلِ، لَا إِلَٰهَ إِلَّا هُوَ، إِلَيْهِ الْمَصِيرُ (٣)","transliteration":"Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.","translation":"Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.","malayalamTranslation":"ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.","target":1,"source":"Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879 • Shaykh Ibn Uthaymeen #4","virtue":"Whoever recites Ha-Meem (verses 1-3 of Surah Ghafir) and Ayat al-Kursi in the evening will be guarded by Allah until morning.","malayalamVirtue":"വൈകുന്നേരം ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ ഓതുന്നവനെ പ്രഭാതം വരെ അല്ലാഹു സംരക്ഷിക്കുന്നതാണ് (തിർമിദി).","repeatNote":"1 time (Surah Ghafir 1-3)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/4134.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/4135.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/4136.mp3"]},{"id":"e-5","category":"evening","uthaymeenNumber":5,"arabic":"هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ، عَالِمُ الْغَيْبِ وَالشَّهَادَةِ، هُوَ الرَّحْمَٰنُ الرَّحِيمُ (٢٢) هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ، سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ (٢٣) هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ، لَهُ الْأَسْمَاءُ الْحُسْنَىٰ، يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ، وَهُوَ الْعَزِيزُ الْحَكِيمُ (٢٤)","transliteration":"Huwallahul-ladhi la ilaha illa Huwa, 'Alimul-ghaybi wash-shahadah, Huwar-Rahmanur-Raheem. Huwallahul-ladhi la ilaha illa Huwal-Malikul-Quddoosus-Salamul-Mu'minul-Muhayminul-'Azeezul-Jabbarul-Mutakabbir, Subhanallahi 'amma yushrikoon. Huwallahul-Khaliqul-Bari'ul-Musawwiru lahul-Asma'ul-Husna, yusabbihu lahu ma fis-samawati wal-ard, wa Huwal-'Azeezul-Hakeem.","translation":"He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful... Whatever is in the heavens and earth is exalting Him. And He is the Exalted in Might, the Wise.","malayalamTranslation":"യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അദൃശ്യവും ദൃശ്യവും അറിയുന്നവൻ... സൃഷ്ടികർത്താവും, ശൂന്യതയിൽ നിന്ന് ഉണ്ടാക്കിയവനും, രൂപം നൽകിയവനുമായ അല്ലാഹുവാണ് അവൻ. അവന്നാണ് ഏറ്റവും ഉത്കൃഷ്ടമായ നാമങ്ങളുള്ളത്. അവൻ പ്രതാപശാലിയും യുക്തിമാനുമാകുന്നു.","target":1,"source":"Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922 • Shaykh Ibn Uthaymeen #5","virtue":"Reciting these verses in the evening prompts seventy thousand angels to supplicate for Allah’s mercy and forgiveness upon the reciter until morning.","malayalamVirtue":"സൂറത്തുൽ ഹശ്റിലെ അവസാന ആയത്തുകൾ സായാഹ്നത്തിൽ ഓതുന്നയാൾക്കായി പ്രഭാതം വരെ എഴുപതിനായിരം മലക്കുകൾ പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).","repeatNote":"1 time (Surah Al-Hashr 22-24)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/5148.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/5149.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/5150.mp3"]},{"id":"e-6","category":"evening","uthaymeenNumber":6,"arabic":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)","transliteration":"Qul Huwallahu Ahad. Allahus-Samad. Lam yalid wa lam yoolad. Wa lam yakun lahu kufuwan ahad. / Qul a'oodhu bi-Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-'uqad. Wa min sharri hasidin idha hasad. / Qul a'oodhu bi-Rabbin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fee sudoorin-nas. Minal-jinnati wan-nas.","translation":"Say, \"He is Allah, [who is] One, Allah, the Eternal Refuge. He neither begets nor is born, nor is there to Him any equivalent.\" / Say, \"I seek refuge in the Lord of daybreak from the evil of that which He created and from the evil of darkness when it settles and from the evil of the blowers in knots and from the evil of an envier when he envies.\" / Say, \"I seek refuge in the Lord of mankind, the Sovereign of mankind, the God of mankind, from the evil of the retreating whisperer who whispers into the breasts of mankind - from among the jinn and mankind.\"","malayalamTranslation":"പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ച ജീവികളുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയപ്പെടുന്നവൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, മനുഷ്യരിലും ജിന്നുകളിലും പെട്ടവനായ പിശാചിൽ നിന്നും.","target":3,"source":"Abu Dawud 5082 & Tirmidhi 3575 • Shaykh Ibn Uthaymeen #6","virtue":"Reciting them 3 times in the evening provides complete protection against all harm.","malayalamVirtue":"വൈകുന്നേരം ഈ മൂന്ന് സൂറത്തുകൾ 3 തവണ വീതം ഓതുന്നത് രാത്രിയിലെ സകല ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ കാവലാകുന്നു (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times each (Al-Ikhlas, Al-Falaq, An-Nas)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrls":["https://cdn.islamic.network/quran/audio/128/ar.alafasy/6221.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6222.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6223.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6224.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6225.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6226.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6227.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6228.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6229.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6230.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6231.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6232.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6233.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6234.mp3","https://cdn.islamic.network/quran/audio/128/ar.alafasy/6235.mp3"]},{"id":"e-7","category":"evening","uthaymeenNumber":7,"arabic":"أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ","transliteration":"A'oodhu bi-kalimatillahit-tammati min sharri ma khalaq","translation":"I seek refuge in the perfect words of Allah from the evil of what He has created.","malayalamTranslation":"അല്ലാഹു സൃഷ്ടിച്ച സർവ്വ സൃഷ്ടികളുടെയും ദോഷങ്ങളിൽ നിന്നും അവന്റെ സമ്പൂർണ്ണ വചനങ്ങളെക്കൊണ്ട് ഞാൻ രക്ഷതേടുന്നു.","target":3,"source":"Sahih Muslim 2709 • Shaykh Ibn Uthaymeen #7","virtue":"Whoever recites this 3 times in the evening will not be harmed by any poison, sting, or creature during the night.","malayalamVirtue":"സായാഹ്നത്തിൽ ഇത് 3 തവണ ചൊല്ലുന്നവനെ ആ രാത്രിയിൽ യാതൊരു വിഷജന്തുക്കളുടെ കുത്തോ വിഷബാധയോ ഉപദ്രവിക്കുകയില്ല (മുസ്ലിം).","repeatNote":"3 times","type":"adhkar","title":"വിഷജന്തുക്കളിൽ നിന്നും ഉപദ്രവങ്ങളിൽ നിന്നുമുള്ള കാവൽ","audioUrl":"https://www.hisnmuslim.com/audio/ar/97.mp3"},{"id":"e-8","category":"evening","uthaymeenNumber":8,"arabic":"بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ","transliteration":"Bismillahil-ladhi la yadurru ma'asmihi shay'un fil-ardi wa la fis-sama'i wa Huwas-Samee'ul-'Aleem","translation":"In the name of Allah, with Whose name nothing can cause harm in the earth nor in the heavens, and He is the All-Hearing, the All-Knowing.","malayalamTranslation":"ആരുടെ നാമത്തോടൊപ്പം ഭൂമിയിലോ ആകാശത്തോ ഉള്ള യാതൊരു വസ്തുവും ഉപദ്രവം വരുത്തുകയില്ലയോ, ആ അല്ലാഹുവിന്റെ നാമത്തിൽ. അവൻ എല്ലാം കേൾക്കുന്നവനും അറിയുന്നവനുമാകുന്നു.","target":3,"source":"Abu Dawud 5088 & Tirmidhi 3388 • Shaykh Ibn Uthaymeen #8","virtue":"Recited 3 times in the evening shields against sudden misfortunes until morning.","malayalamVirtue":"വൈകുന്നേരം ഇത് 3 തവണ ചൊല്ലുന്നവന് പ്രഭാതം വരെ പെട്ടെന്നുണ്ടാകുന്ന യാതൊരു അത്യാഹിതമോ വിപത്തോ ഏൽക്കുകയില്ല (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times","type":"adhkar","title":"ആകസ്മിക വിപത്തുകളിൽ നിന്നുള്ള സംരക്ഷണം","audioUrl":"https://www.hisnmuslim.com/audio/ar/86.mp3"},{"id":"e-9","category":"evening","uthaymeenNumber":9,"arabic":"رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا","transliteration":"Radeetu billahi Rabban, wa bil-Islami deenan, wa bi-Muhammadin sallallahu 'alayhi wa sallama Nabiyya","translation":"I am pleased with Allah as my Lord, with Islam as my religion, and with Muhammad (peace and blessings of Allah be upon him) as my Prophet.","malayalamTranslation":"അല്ലാഹുവിനെ രക്ഷിതാവായും, ഇസ്ലാമിനെ ദീനായും, മുഹമ്മദ് നബി (സ്വ) യെ പ്രവാചകനായും ഞാൻ തൃപ്തിപ്പെട്ടിരിക്കുന്നു.","target":3,"source":"Abu Dawud 5072 & Tirmidhi 3389 • Shaykh Ibn Uthaymeen #9","virtue":"Allah has taken upon Himself to please whoever recites this 3 times on the Day of Judgment.","malayalamVirtue":"ഇത് 3 തവണ സായാഹ്നത്തിൽ ചൊല്ലുന്നയാളെ അന്ത്യദിനത്തിൽ സന്തോഷിപ്പിക്കുകയും തൃപ്തിപ്പെടുത്തുകയും ചെയ്യൽ അല്ലാഹു ബാധ്യതയാക്കിയിരിക്കുന്നു (അബൂദാവൂദ്, തിർമിദി).","repeatNote":"3 times","type":"adhkar","title":"അല്ലാഹുവിന്റെ പ്രീതി ലഭിക്കാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/87.mp3"},{"id":"e-10","category":"evening","uthaymeenNumber":10,"arabic":"أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ","transliteration":"Amsayna wa-amsal-mulku lillah, wal-hamdu lillah, la ilaha illallahu wahdahu la shareeka lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in qadeer. Rabbi as'aluka khayra ma fee hadhihil-laylati wa khayra ma ba'daha, wa a'oodhu bika min sharri ma fee hadhihil-laylati wa sharri ma ba'daha, Rabbi a'oodhu bika minal-kasali wa soo'il-kibar, Rabbi a'oodhu bika min 'adhabin fin-nari wa 'adhabin fil-qabr.","translation":"We have reached the evening and at this very time all sovereignty belongs to Allah, and all praise is for Allah. None has the right to be worshipped except Allah alone, without partner. To Him belongs all sovereignty and praise, and He has power over all things. My Lord, I ask You for the good of what is in this night and the good of what follows it, and I seek refuge in You from the evil of what is in this night and the evil of what follows it. My Lord, I seek refuge in You from laziness and the hardships of old age. My Lord, I seek refuge in You from punishment in the Fire and punishment in the grave.","malayalamTranslation":"ഞങ്ങളിതാ സായാഹ്നത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നു; സർവ്വാധിപത്യവും അല്ലാഹുവിന്നുള്ളതായി സന്ധ്യയായിരിക്കുന്നു. സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ്. അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. അവന്നാണ് സർവ്വാധികാരവും സർവ്വസ്തുതിയും, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്. എന്റെ രക്ഷിതാവേ, ഈ രാത്രിയിലുള്ള നന്മയും ഇതിനുശേഷമുള്ള നന്മയും നിന്നോട് ഞാൻ ചോദിക്കുന്നു; ഈ രാത്രിയിലുള്ള തിന്മയിൽ നിന്നും ഇതിനുശേഷമുള്ള തിന്മയിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു. എന്റെ നാഥാ, മടിയിൽ നിന്നും വാർദ്ധക്യത്തിന്റെ അവശതകളിൽ നിന്നും നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എന്റെ നാഥാ, നരകശിക്ഷയിൽ നിന്നും ഖബർ ശിക്ഷയിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു.","target":1,"source":"Sahih Muslim 2723 • Shaykh Ibn Uthaymeen #10","virtue":"Acknowledges Allah’s absolute sovereignty at dusk, seeking the goodness of the night and refuge from all torment.","malayalamVirtue":"സന്ധ്യാവേളയിൽ അല്ലാഹുവിന്റെ സർവ്വാധിപത്യം ഏറ്റുപറയുകയും, രാത്രിയുടെ നന്മകൾ ചോദിക്കുകയും, മടി, വാർദ്ധക്യത്തിന്റെ അവശതകൾ, നരക-ഖബർ ശിക്ഷകൾ എന്നിവയിൽ നിന്ന് കാവൽ തേടുകയും ചെയ്യുന്നു (മുസ്ലിം).","repeatNote":"1 time","type":"adhkar","title":"സായാഹ്നത്തിൽ നന്മ തേടിയുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/77.mp3"},{"id":"e-11","category":"evening","uthaymeenNumber":11,"arabic":"اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ","transliteration":"Allahumma bika amsayna, wa bika asbahna, wa bika nahya, wa bika namootu, wa-ilaykal-maseer.","translation":"O Allah, by You we have entered the evening, and by You we entered the morning, and by You we live, and by You we die, and to You is our ultimate return.","malayalamTranslation":"അല്ലാഹുവേ, നിന്റെ കാരുണ്യത്താൽ നാം സന്ധ്യയിലെത്തി, നിന്റെ കാരുണ്യത്താൽ നാം പ്രഭാതത്തിലെത്തി, നിന്റെ കൽപ്പനയാൽ നാം ജീവിക്കുന്നു, നിന്റെ വിധിയാൽ നാം മരിക്കുന്നു, നിന്നിലേക്കാണ് നമ്മുടെ മടക്കം.","target":1,"source":"Sunan at-Tirmidhi 3391 & Abu Dawud 5068 • Shaykh Ibn Uthaymeen #11","virtue":"Committing every phase of evening, night, life, and death to the Creator.","malayalamVirtue":"രാത്രിയിലേക്കുള്ള പ്രവേശനവും ജീവിതവും മരണവും പുനരുത്ഥാനവും അല്ലാഹുവിൽ സമർപ്പിക്കുന്ന പ്രാർത്ഥന (തിർമിദി, അബൂദാവൂദ്).","repeatNote":"1 time","type":"adhkar","title":"സായാഹ്നത്തിൽ അല്ലാഹുവിൽ ഭരമേൽപ്പിക്കുന്ന പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/78.mp3"},{"id":"e-12","category":"evening","uthaymeenNumber":12,"arabic":"اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ","transliteration":"Allahumma ma amsa bee min ni'matin aw bi-ahadim-min khalqik, faminka wahdaka la shareeka lak, falakal-hamdu wa lakash-shukr.","translation":"O Allah, whatever blessing has reached me or any of Your creation this evening is from You alone, without partner. To You belongs all praise and to You belongs all gratitude.","malayalamTranslation":"അല്ലാഹുവേ, ഈ സന്ധ്യയിൽ എനിക്കോ നിന്റെ സൃഷ്ടികളിൽ മറ്റാർക്കെങ്കിലുമോ എന്തെങ്കിലും അനുഗ്രഹം ലഭിച്ചിട്ടുണ്ടെങ്കിൽ അത് നിന്നിൽ നിന്ന് മാത്രമുള്ളതാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. അതിനാൽ സർവ്വസ്തുതിയും നിനക്കാണ്, സർവ്വ നന്ദിയും നിനക്കാണ്.","target":1,"source":"Abu Dawud 5073 & An-Nasa'i • Shaykh Ibn Uthaymeen #12","virtue":"Whoever recites this in the evening has fulfilled his gratitude for that entire night.","malayalamVirtue":"വൈകുന്നേരം ഇത് ചൊല്ലുന്നവൻ ആ രാത്രിയിലെ അല്ലാഹുവിനോടുള്ള നന്ദി (ശുക്റ്) പൂർണ്ണമായി നിർവ്വഹിച്ചിരിക്കുന്നു (അബൂദാവൂദ്, നസാഈ).","repeatNote":"1 time (Fulfilling Nightly Gratitude)","type":"adhkar","title":"രാത്രിയിലെ ശുക്റ് (നന്ദി) നിർവ്വഹിക്കുന്ന പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/81.mp3"},{"id":"e-13","category":"evening","uthaymeenNumber":13,"arabic":"اللَّهُمَّ إِنِّي أَمْسَيْتُ فِي نِعْمَةٍ وَعَافِيَةٍ وَسِتْرٍ، فَأَتِمَّ نِعْمَتَكَ عَلَيَّ وَعَافِيَتَكَ وَسِتْرَكَ فِي الدُّنْيَا وَالْآخِرَةِ","transliteration":"Allahumma inni amsaytu fee ni'matiw-wa 'afiyatiw-wa sitr, fa'atimma ni'mataka 'alayya wa 'afiyataka wa sitraka fid-dunya wal-akhirah.","translation":"O Allah, I have entered the evening enjoying blessing, well-being, and protection from You. Therefore, complete Your blessing, Your well-being, and Your protection upon me in this world and the Hereafter.","malayalamTranslation":"അല്ലാഹുവേ, നിന്നിൽ നിന്നുള്ള അനുഗ്രഹത്തിലും സൗഖ്യത്തിലും കാവലിലും ആയാണ് ഞാൻ സന്ധ്യയിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നത്. അതിനാൽ ഇഹത്തിലും പരത്തിലും നിന്റെ അനുഗ്രഹവും സൗഖ്യവും കാവലും നീ എനിക്ക് പൂർത്തിയാക്കി തരേണമേ.","target":3,"source":"Ibn as-Sunni 55 & Kitab al-Adhkar • Shaykh Ibn Uthaymeen #13","virtue":"Recited 3 times; Allah fulfills His blessing, health, and covering of human sins and defects.","malayalamVirtue":"3 തവണ ചൊല്ലുക; ഇഹത്തിലും പരത്തിലും അല്ലാഹു തന്റെ അനുഗ്രഹവും സൗഖ്യവും പാപങ്ങൾ മറച്ചുവെക്കലും പൂർത്തിയാക്കി നൽകുന്നു (ഇബ്നുസ്സുന്നി).","repeatNote":"3 times","type":"adhkar","title":"അനുഗ്രഹവും സൗഖ്യവും പൂർത്തിയാക്കാനുള്ള പ്രാർത്ഥന"},{"id":"e-14","category":"evening","uthaymeenNumber":14,"arabic":"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ","transliteration":"Allahumma inni a'oodhu bika minal-hammi wal-hazan, wa a'oodhu bika minal-'ajzi wal-kasal, wa a'oodhu bika minal-jubni wal-bukhl, wa a'oodhu bika min ghalabatid-dayni wa qahrir-rijal.","translation":"O Allah, I seek refuge in You from worry and grief, and I seek refuge in You from incapacity and laziness, and I seek refuge in You from cowardice and miserliness, and I seek refuge in You from being overwhelmed by debt and oppressed by people.","malayalamTranslation":"അല്ലാഹുവേ, ഉത്കണ്ഠയിൽ നിന്നും ദുഃഖത്തിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; കഴിവുകേടിൽ നിന്നും മടിയിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; ഭീരുത്വത്തിൽ നിന്നും പിശുക്കിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു; കടം പെരുകുന്നതിൽ നിന്നും മനുഷ്യരുടെ അടിച്ചമർത്തലിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.","target":1,"source":"Sahih al-Bukhari 2893 & Abu Dawud 1555 • Shaykh Ibn Uthaymeen #14","virtue":"Relieves heart sorrow, discouragement, and burden of debt.","malayalamVirtue":"മനോവേദനകൾ, ദുഃഖം, ഭീരുത്വം, അലസത, കടബാധ്യത എന്നിവയിൽ നിന്നുള്ള മോചനത്തിനായി നബി (ﷺ) പഠിപ്പിച്ച പ്രാർത്ഥന (ബുഖാരി, അബൂദാവൂദ്).","repeatNote":"1 time (Relief from Anxiety & Debt)","type":"adhkar","title":"മനോവിഷമവും കടബാധ്യതയും നീങ്ങാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/121.mp3"},{"id":"e-15","category":"evening","uthaymeenNumber":15,"arabic":"اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي","transliteration":"Allahumma inni as'alukal-'afiyata fid-dunya wal-akhirah, Allahumma inni as'alukal-'afwa wal-'afiyata fee deeni wa dunyaya wa ahli wa mali, Allahummas-tur 'awrati wa amin raw'ati, Allahummah-fazni mim-bayni yadayya wa min khalfi wa 'an yameeni wa 'an shimali wa min fawqi, wa a'oodhu bi'azamatika an ughtala min tahti.","translation":"O Allah, I ask You for well-being in this world and the Hereafter. O Allah, I ask You for pardon and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, protect me from in front of me, from behind me, from my right, from my left, and from above me; and I seek refuge in Your greatness from being assassinated from beneath me.","malayalamTranslation":"അല്ലാഹുവേ, ഇഹത്തിലും പരത്തിലും ഞാൻ നിന്നോട് സൗഖ്യം (ആരോഗ്യവും സമാധാനവും) ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ ദീനിലും ദുനിയാവിലും കുടുംബത്തിലും സമ്പത്തിലും നിന്നോട് ഞാൻ മാപ്പും സൗഖ്യവും ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ കുറവുകൾ നീ മറച്ചുവെക്കേണമേ, എന്റെ ഭയങ്ങളിൽ എനിക്ക് ശാന്തി നൽകേണമേ...","target":1,"source":"Abu Dawud 5074 & Ibn Majah 3871 • Shaykh Ibn Uthaymeen #15","virtue":"Comprehensive all-around protection through the night.","malayalamVirtue":"രാത്രി മുഴുവൻ എല്ലാ ദിശകളിൽ നിന്നുമുള്ള അല്ലാഹുവിന്റെ ദിവ്യസംരക്ഷണവും സൗഖ്യവും ഉറപ്പാക്കുന്ന പ്രാർത്ഥന (അബൂദാവൂദ്, ഇബ്നുമാജ).","repeatNote":"1 time (All-Direction Protection)","type":"adhkar","title":"ഇഹപര സൗഖ്യത്തിനും സർവ്വദിശാ സംരക്ഷണത്തിനുമുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/84.mp3"},{"id":"e-16","category":"evening","uthaymeenNumber":16,"arabic":"اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ","transliteration":"Allahumma Anta Rabbi la ilaha illa Ant, khalaqtani wa ana 'abduk, wa ana 'ala 'ahdika wa wa'dika mastata't, a'oodhu bika min sharri ma sana't, abu'u laka bini'matika 'alay, wa abu'u bidhanbi faghfir li fa'innahu la yaghfirudh-dhunooba illa Ant.","translation":"O Allah, You are my Lord, none has the right to be worshipped except You. You created me and I am Your servant, and I abide by Your covenant and promise as much as I am able. I seek refuge in You from the evil of what I have done. I acknowledge Your favor upon me, and I acknowledge my sin, so forgive me, for none can forgive sins except You.","malayalamTranslation":"അല്ലാഹുവേ, നീ എന്റെ രക്ഷിതാവാണ്, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. നീ എന്നെ സൃഷ്ടിച്ചു, ഞാൻ നിന്റെ ദാസനാണ്. എന്റെ കഴിവിനനുസരിച്ച് നിന്നോടുള്ള കരാറിലും വാഗ്ദാനത്തിലും ഞാൻ നിലകൊള്ളുന്നു. ഞാൻ ചെയ്തുപോയ തിന്മകളിൽ നിന്ന് നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എനിക്ക് നീ നൽകിയ അനുഗ്രഹങ്ങൾ ഞാൻ ഏറ്റുപറയുന്നു, എന്റെ പാപങ്ങളും ഞാൻ സമ്മതിക്കുന്നു. അതിനാൽ എനിക്ക് നീ പൊറുത്തുതരേണമേ, തീർച്ചയായും നീയല്ലാതെ പാപങ്ങൾ പൊറുത്തുതരുവാൻ മറ്റാരുമില്ല.","target":1,"source":"Sahih al-Bukhari 6306 (Sayyid al-Istighfar) • Shaykh Ibn Uthaymeen #16","virtue":"Whoever recites this at night with firm faith and passes away during the night will enter Paradise.","malayalamVirtue":"സയ്യിദുൽ ഇസ്തിഗ്ഫാർ: ദൃഢവിശ്വാസത്തോടെ സന്ധ്യയിൽ ഇത് ചൊല്ലി ആ രാത്രി മരണപ്പെട്ടാൽ അവൻ സ്വർഗ്ഗാവകാശിയാകുന്നതാണ് (ബുഖാരി).","repeatNote":"1 time (Chief of Prayers for Forgiveness)","type":"adhkar","title":"സയ്യിദുൽ ഇസ്തിഗ്ഫാർ (പാപമോചന പ്രാർത്ഥനകളുടെ നായകൻ)","audioUrl":"https://www.hisnmuslim.com/audio/ar/79.mp3"},{"id":"e-17","category":"evening","uthaymeenNumber":17,"arabic":"اللَّهُمَّ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ","transliteration":"Allahumma Fatiras-samawati wal-ard, 'Alimal-ghaybi wash-shahadah, Rabba kulli shay'iw-wa maleekah, ash-hadu al-la ilaha illa Ant, a'oodhu bika min sharri nafsi wa min sharrish-shaytani wa shirkih, wa an aqtarifa 'ala nafsi soo'an aw ajurrahu ila Muslim.","translation":"O Allah, Creator of the heavens and the earth, Knower of the unseen and seen, Lord of everything and its Sovereign, I testify that none has the right to be worshipped except You. I seek refuge in You from the evil of my soul, from the evil of Satan and his trap of idolatry, and from committing evil against myself or bringing it upon any Muslim.","malayalamTranslation":"ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവായ, അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനായ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളുടെയും തിന്മയിൽ നിന്നും, എന്റെ സ്വന്തത്തിന് എന്തെങ്കിലും ദോഷം ചെയ്യുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് തിന്മ വരുത്തിവെക്കുന്നതിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു.","target":1,"source":"Sunan at-Tirmidhi 3529 & Abu Dawud 5067 • Shaykh Ibn Uthaymeen #17","virtue":"Sanctuary against demonic whispers and harmful intentions throughout the night.","malayalamVirtue":"രാത്രിയിൽ പിശാചിന്റെ കുതന്ത്രങ്ങളിൽ നിന്നും തിന്മകളിൽ നിന്നും സ്വന്തം മനസ്സിന്റെ ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ സംരക്ഷണം നൽകുന്നു (തിർമിദി, അബൂദാവൂദ്).","repeatNote":"1 time","type":"adhkar","title":"മനസ്സിന്റെയും പിശാചിന്റെയും തിന്മകളിൽ നിന്നുള്ള കാവൽ","audioUrl":"https://www.hisnmuslim.com/audio/ar/85.mp3"},{"id":"e-18","category":"evening","uthaymeenNumber":18,"arabic":"اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ","transliteration":"Allahumma inni amsaytu ushhiduka wa ushhidu hamalata 'arshika wa mala'ikataka wa jamee'a khalqik, annaka Antallahu la ilaha illa Anta wahdaka la shareeka lak, wa anna Muhammadan 'abduka wa rasooluk.","translation":"O Allah, I have entered the evening calling You to bear witness, and calling the bearers of Your Throne, Your angels, and all of Your creation to bear witness, that You are Allah, none has the right to be worshipped except You alone without partner, and that Muhammad is Your servant and Messenger.","malayalamTranslation":"അല്ലാഹുവേ, ഈ സന്ധ്യയിൽ നിന്നെയും, നിന്റെ സിംഹാസനം വഹിക്കുന്ന മലക്കുകളെയും, മറ്റു മലക്കുകളെയും, നിന്റെ സർവ്വ സൃഷ്ടികളെയും ഞാൻ സാക്ഷിനിർത്തുന്നു: തീർച്ചയായും നീ മാത്രമാണ് അല്ലാഹു, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, നീ ഏകനാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. മുഹമ്മദ് നബി (സ്വ) നിന്റെ ദാസനും ദൂതനുമാകുന്നു എന്നും ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു.","target":4,"source":"Abu Dawud 5069 • Shaykh Ibn Uthaymeen #18","virtue":"Recited 4 times in the evening: Allah frees the servant completely from the Fire of Hell.","malayalamVirtue":"വൈകുന്നേരം 4 തവണ ചൊല്ലിയാൽ അല്ലാഹു ആ ദാസനെ നരകാഗ്നിയിൽ നിന്നും പൂർണ്ണമായി മോചിപ്പിക്കുന്നതാണ് (അബൂദാവൂദ്).","repeatNote":"4 times (Deliverance from Hellfire)","type":"adhkar","title":"നരകമോചനം ലഭിക്കാനുള്ള സാക്ഷ്യപ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/80.mp3"},{"id":"e-19","category":"evening","uthaymeenNumber":19,"arabic":"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ","transliteration":"La ilaha illallahu wahdahu la shareeka lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in qadeer.","translation":"None has the right to be worshipped except Allah alone, without partner. To Him belongs all sovereignty and praise, and He has power over all things.","malayalamTranslation":"അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. സർവ്വാധിപത്യവും സർവ്വസ്തുതിയും അവന്നാണ്, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്.","target":100,"source":"Sahih al-Bukhari 3293 & Sahih Muslim 2691 • Shaykh Ibn Uthaymeen #19","virtue":"Immense reward, sins expiated, and strong protective fortress.","malayalamVirtue":"മഹത്തായ പ്രതിഫലം, പാപമോചനം, രാത്രി മുഴുവൻ പിശാചിൽ നിന്നുള്ള ശക്തമായ സംരക്ഷണക്കോട്ട (ബുഖാരി, മുസ്ലിം).","repeatNote":"100 times (or 10 times minimum)","type":"adhkar","title":"തൗഹീദിന്റെ മഹത്തായ ദിക്റ്","audioUrl":"https://www.hisnmuslim.com/audio/ar/92.mp3"},{"id":"e-20","category":"evening","uthaymeenNumber":20,"arabic":"حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ","transliteration":"Hasbiyallahu la ilaha illa Huwa, 'alayhi tawakkaltu wa Huwa Rabbul-'Arshil-'Azeem.","translation":"Allah is sufficient for me. None has the right to be worshipped except Him. In Him I put my trust, and He is the Lord of the Mighty Throne.","malayalamTranslation":"എനിക്ക് അല്ലാഹു മതി; അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. അവനിൽ ഞാൻ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, അവൻ മഹത്തായ അർശിന്റെ (സിംഹാസനത്തിന്റെ) നാഥനാകുന്നു.","target":7,"source":"Abu Dawud 5081 (Surah At-Tawbah 9:129) • Shaykh Ibn Uthaymeen #20","virtue":"Recited 7 times: Allah suffices the servant for all his worldly and eternal concerns.","malayalamVirtue":"സായാഹ്നത്തിൽ 7 തവണ ചൊല്ലിയാൽ ഇഹപരകാര്യങ്ങളിലെ സകല ഉത്കണ്ഠകൾക്കും അല്ലാഹു പരിഹാരമേകും (അബൂദാവൂദ്).","repeatNote":"7 times","type":"adhkar","title":"ഇഹപര വിഷമങ്ങൾക്ക് അല്ലാഹു മതിയാകാനുള്ള പ്രാർത്ഥന","audioUrl":"https://www.hisnmuslim.com/audio/ar/83.mp3"},{"id":"e-21","category":"evening","uthaymeenNumber":21,"arabic":"حَسْبِيَ اللَّهُ وَكَفَى، سَمِعَ اللَّهُ لِمَنْ دَعَا، لَيْسَ وَرَاءَ اللَّهِ مَرْمَى","transliteration":"Hasbiyallahu wa kafa, sami'allahu liman da'a, laysa wara'allahi marma.","translation":"Allah is sufficient for me and He is enough; Allah hears whoever calls upon Him; beyond Allah there is no final aim or refuge.","malayalamTranslation":"എനിക്ക് അല്ലാഹു മതി, അവൻ സർവ്വതിനും മതിയായവനാണ്. പ്രാർത്ഥിച്ചവന്റെ വിളി അല്ലാഹു കേട്ടിരിക്കുന്നു. അല്ലാഹുവിന് അതീതമായി മറ്റൊരു അഭയസ്ഥാനമോ ലക്ഷ്യമോ ഇല്ല.","target":1,"source":"Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya • Shaykh Ibn Uthaymeen #21","virtue":"Affirmation of peace, complete reliance, and spiritual serenity.","malayalamVirtue":"മനസ്സിന് ശാന്തിയും അല്ലാഹുവിൽ പൂർണ്ണ ഭരമേല്പിക്കലും സമ്മാനിക്കുന്ന സായാഹ്ന ദിക്റ് (ബൈഹഖി).","repeatNote":"1 time","type":"adhkar","title":"അല്ലാഹുവിൽ സമ്പൂർണ്ണമായി ഭരമേൽപ്പിക്കുന്ന ദിക്റ്"},{"id":"e-22","category":"evening","uthaymeenNumber":22,"arabic":"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ","transliteration":"Subhanallahi wa bihamdih","translation":"Glory is to Allah and praise is to Him.","malayalamTranslation":"അല്ലാഹു എത്ര പരിശുദ്ധൻ, അവന്ന് സർവ്വസ്തുതിയും.","target":100,"source":"Sahih Muslim 2692 • Shaykh Ibn Uthaymeen #22","virtue":"Forgiveness of sins even if they were like the foam of the sea, and supreme merit on the Day of Judgment.","malayalamVirtue":"കടൽനുരയോളം പാപങ്ങളുണ്ടെങ്കിലും പൊറുക്കപ്പെടും, പരലോകത്ത് അത്യുന്നത പദവികൾ നേടിത്തരും (മുസ്ലിം).","repeatNote":"100 times","type":"adhkar","title":"തസ്ബീഹും തഹ്മീദും (100 തവണ)","audioUrl":"https://www.hisnmuslim.com/audio/ar/91.mp3"},{"id":"e-23","category":"evening","uthaymeenNumber":23,"arabic":"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ","transliteration":"Astaghfirullaha wa atubu ilayh","translation":"I seek the forgiveness of Allah and repent to Him.","malayalamTranslation":"ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുകയും അവനിലേക്ക് പശ്ചാത്തപിച്ചു മടങ്ങുകയും ചെയ്യുന്നു.","target":100,"source":"Sahih al-Bukhari 6307 & Sahih Muslim 2702 • Shaykh Ibn Uthaymeen #23","virtue":"Continuous purification of heart and following the blessed Sunnah of the Prophet (ﷺ).","malayalamVirtue":"ഹൃദയശുദ്ധീകരണത്തിനും തിരുനബി (ﷺ) യുടെ ചര്യ പിൻപറ്റുന്നതിനുമുള്ള നിരന്തര തൗബയും ഇസ്തിഗ്ഫാറും (ബുഖാരി, മുസ്ലിം).","repeatNote":"100 times","type":"adhkar","title":"ഇസ്തിഗ്ഫാറും തൗബയും (പാപമോചന പ്രാർത്ഥന)","audioUrl":"https://www.hisnmuslim.com/audio/ar/96.mp3"},{"id":"e-24","category":"evening","arabic":"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ","transliteration":"Allahumma salli wa sallim 'ala Nabiyyina Muhammad","translation":"O Allah, send peace and blessings upon our Prophet Muhammad.","malayalamTranslation":"അല്ലാഹുവേ, ഞങ്ങളുടെ പ്രവാചകൻ മുഹമ്മദ് നബിയുടെ മേൽ നീ അനുഗ്രഹവും ശാന്തിയും വർഷിക്കേണമേ.","target":10,"source":"At-Tabarani & Sahih at-Targhib 656","virtue":"Intercession of the Prophet (ﷺ) on the Day of Resurrection.","malayalamVirtue":"രാവിലെയും വൈകുന്നേരവും 10 തവണ സ്വലാത്ത് ചൊല്ലുന്നയാൾക്ക് അന്ത്യദിനത്തിൽ തിരുനബി (ﷺ) യുടെ ശഫാഅത്ത് ലഭിക്കും (ത്വബ്റാനി).","repeatNote":"10 times","type":"adhkar","title":"തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്","audioUrl":"https://www.hisnmuslim.com/audio/ar/98.mp3"}],"prayer":[{"id":"p-1","category":"prayer","type":"adhkar","title":"നമസ്കാര ശേഷമുള്ള ഇസ്തിഗ്ഫാർ (പാപമോചനം തേടൽ)","arabic":"أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ","transliteration":"Astaghfirullah, Astaghfirullah, Astaghfirullah","translation":"I seek forgiveness from Allah (3 times).","malayalamTranslation":"ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുന്നു (3 തവണ).","target":3,"source":"Sahih Muslim 591","virtue":"The Prophet (ﷺ) would seek forgiveness immediately upon concluding obligatory prayer.","malayalamVirtue":"ഫർദ് നമസ്കാരത്തിൽ സംഭവിച്ചുപോയേക്കാവുന്ന ന്യൂനതകൾ പരിഹരിക്കാൻ സലാം വീട്ടിയ ഉടനെ തിരുനബി (ﷺ) 3 തവണ പാപമോചനം തേടിയിരുന്നു (മുസ്ലിം).","repeatNote":"3 times","audioUrl":"https://www.hisnmuslim.com/audio/ar/66.mp3"},{"id":"p-2","category":"prayer","type":"adhkar","title":"സലാം വീട്ടിയ ശേഷമുള്ള പ്രാർത്ഥന","arabic":"اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالإِكْرَامِ","transliteration":"Allahumma Antas-Salamu wa minkas-salam, tabarakta ya Dhal-Jalali wal-Ikram","translation":"O Allah, You are Peace and from You comes peace. Blessed are You, O Owner of majesty and honor.","malayalamTranslation":"അല്ലാഹുവേ, നീ തന്നെയാണ് ശാന്തിയും സമാധാനവും, നിന്നിൽ നിന്നാണ് ശാന്തി വരുന്നത്. പ്രതാപവും ആദരവുമുള്ളവനേ, നീ അനുഗ്രഹപൂർണ്ണനായിരിക്കുന്നു.","target":1,"source":"Sahih Muslim 591","virtue":"Invocation immediately following the salam of prayer.","malayalamVirtue":"സലാം വീട്ടിയ ശേഷമുള്ള പ്രധാന പ്രാർത്ഥന; അല്ലാഹുവിന്റെ ശാന്തിയും അനുഗ്രഹങ്ങളും തേടുന്നു (മുസ്ലിം).","repeatNote":"1 time","audioUrl":"https://www.hisnmuslim.com/audio/ar/66.mp3"},{"id":"p-3","category":"prayer","type":"adhkar","title":"തസ്ബീഹ് (സുബ്ഹാനല്ലാഹ് - 33 തവണ)","arabic":"سُبْحَانَ اللَّهِ","transliteration":"Subhanallah","translation":"Glory is to Allah.","malayalamTranslation":"അല്ലാഹു എത്രയോ പരിശുദ്ധൻ (33 തവണ).","target":33,"source":"Sahih Muslim 597","virtue":"Recited 33 times after each prayer followed by Alhamdulillah and Allahu Akbar.","malayalamVirtue":"നമസ്കാര ശേഷം 33 തവണ ചൊല്ലുന്ന തസ്ബീഹ്; അല്ലാഹുവിന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു (മുസ്ലിം).","repeatNote":"33 times","audioUrl":"https://www.hisnmuslim.com/audio/ar/69.mp3"},{"id":"p-4","category":"prayer","type":"adhkar","title":"തഹ്മീദ് (അൽഹംദുലില്ലാഹ് - 33 തവണ)","arabic":"الْحَمْدُ لِلَّهِ","transliteration":"Alhamdulillah","translation":"Praise be to Allah.","malayalamTranslation":"സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ് (33 തവണ).","target":33,"source":"Sahih Muslim 597","virtue":"Part of the 100 post-prayer tasbih that expiates sins.","malayalamVirtue":"നമസ്കാര ശേഷം 33 തവണ അല്ലാഹുവിന് സ്തുതി അർപ്പിക്കുന്ന തഹ്മീദ് (മുസ്ലിം).","repeatNote":"33 times","audioUrl":"https://www.hisnmuslim.com/audio/ar/69.mp3"},{"id":"p-5","category":"prayer","type":"adhkar","title":"തക്ബീർ (അല്ലാഹു അക്ബർ - 33 തവണ)","arabic":"اللَّهُ أَكْبَرُ","transliteration":"Allahu Akbar","translation":"Allah is the Greatest.","malayalamTranslation":"അല്ലാഹു ഏറ്റവും മഹാനാണ് (33 തവണ).","target":33,"source":"Sahih Muslim 597","virtue":"Concludes the 99 counts before the sealing affirmation.","malayalamVirtue":"33 തവണ തക്ബീർ ചൊല്ലി 99 എണ്ണം പൂർത്തിയാക്കുന്നു (മുസ്ലിം).","repeatNote":"33 times","audioUrl":"https://www.hisnmuslim.com/audio/ar/69.mp3"},{"id":"p-6","category":"prayer","type":"adhkar","title":"നൂറാമത്തെ തഹ്‌ലീൽ ദിക്റ്","arabic":"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ","transliteration":"La ilaha illallahu wahdahu la sharika lah, lahul-mulku wa lahul-hamdu wa Huwa 'ala kulli shay'in qadir","translation":"None has the right to be worshipped except Allah alone, without partner. To Him belongs all sovereignty and praise, and He has power over all things.","malayalamTranslation":"അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് പങ്കുകാരില്ല. സർവ്വാധിപത്യവും സർവ്വസ്തുതിയും അവന്നാണ്. അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്.","target":1,"source":"Sahih Muslim 597","virtue":"Complete the 100th count and one’s sins will be forgiven even if they were like the foam of the sea.","malayalamVirtue":"നൂറാമത്തെതായി ഇത് ചൊല്ലി 100 പൂർത്തിയാക്കുന്നവന്റെ പാപങ്ങൾ കടൽനുരയോളം ഉണ്ടെങ്കിലും പൊറുക്കപ്പെടുന്നതാണ് (മുസ്ലിം).","repeatNote":"1 time (Seals the 100 counts)","audioUrl":"https://www.hisnmuslim.com/audio/ar/68.mp3"},{"id":"p-7","category":"prayer","type":"quran","title":"ആയത്തുൽ കുർസിയ്യ് (നമസ്കാര ശേഷം)","arabic":"اللَّهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ","transliteration":"Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'uduhu hifzuhuma, wa Huwal-'Aliyyul-'Azim","translation":"Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth... and He is the Most High, the Most Great.","malayalamTranslation":"അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്... അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.","target":1,"source":"Surah Al-Baqarah 2:255 & An-Nasa'i in Al-Kubra","virtue":"The Prophet (ﷺ) said: \"Whoever recites Ayat al-Kursi after every obligatory prayer, nothing stands between him and entering Paradise except death.\"","malayalamVirtue":"നബി (ﷺ) അരുളി: \"ആരെങ്കിലും ഓരോ ഫർദ് നമസ്കാര ശേഷവും ആയത്തുൽ കുർസിയ്യ് ഓതിയാൽ അവനും സ്വർഗ്ഗപ്രവേശനത്തിനും ഇടയിൽ മരണം മാത്രമേ തടസ്സമായിട്ടുള്ളൂ\" (നസാഈ, ഇബ്നു ഹിബ്ബാൻ).","repeatNote":"1 time (Ayat al-Kursi)","isQuranic":true,"reciter":"Sheikh Mishary Rashid Alafasy","audioClipType":"tajweed","audioUrl":"https://cdn.islamic.network/quran/audio/128/ar.alafasy/262.mp3"}],"sleep":[{"id":"sleep-1","category":"sleep","type":"adhkar","title":"ഉറങ്ങാൻ നേരമുള്ള പ്രാർത്ഥന","arabic":"بِاسْمِكَ رَبِّـي وَضَعْـتُ جَنْـبي ، وَبِكَ أَرْفَعُـهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ","transliteration":"Bismika Rabbi wada'tu janbi, wa bika arfa'uh, fa'in amsakta nafsi farhamha, wa'in arsaltaha fahfazha bima tahfazu bihi 'ibadakas-salihin","translation":"In Your name my Lord, I lay down my side and in Your name I raise it up. If You take my soul, have mercy upon it, and if You return it, protect it as You protect Your righteous servants.","malayalam":"എന്റെ രക്ഷിതാവേ, നിന്റെ നാമത്തിൽ ഞാൻ എന്റെ പാർശ്വം വെച്ചു, നിന്റെ സഹായത്താൽ ഞാൻ അതിനെ ഉയർത്തുകയും ചെയ്യുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.","malayalamTranslation":"എന്റെ രക്ഷിതാവേ, നിന്റെ നാമത്തിൽ ഞാൻ എന്റെ പാർശ്വം വെച്ചു, നിന്റെ സഹായത്താൽ ഞാൻ അതിനെ ഉയർത്തുകയും ചെയ്യുന്നു. നീ എന്റെ ആത്മാവിനെ പിടിച്ചുവെക്കുകയാണെങ്കിൽ അതിനോട് കരുണ കാണിക്കേണമേ. നീ അതിനെ വിട്ടയക്കുകയാണെങ്കിൽ സജ്ജനങ്ങളായ നിന്റെ ദാസന്മാരെ സംരക്ഷിക്കുന്നതുപോലെ അതിനെയും കാത്തുരക്ഷിക്കേണമേ.","target":1,"source":"Sahih al-Bukhari 6320 & Muslim 2714","virtue":"Comprehensive surrender of body and soul to Allah before sleeping.","malayalamVirtue":"ഉറങ്ങുന്നതിന് മുമ്പ് ശരീരവും ആത്മാവും അല്ലാഹുവിന്റെ കാരുണ്യത്തിലും സംരക്ഷണത്തിലും സമ്പൂർണ്ണമായി സമർപ്പിക്കുന്നു (ബുഖാരി, മുസ്ലിം).","repeatNote":"1 time","audioUrl":"https://www.hisnmuslim.com/audio/ar/28.mp3"},{"id":"s-2","category":"sleep","type":"adhkar","title":"ഉറങ്ങാൻ നേരമുള്ള തസ്ബീഹ് (തസ്ബീഹ് ഫാത്വിമി)","arabic":"سُبْحَانَ اللَّهِ (٣٣)، وَالْحَمْدُ لِلَّهِ (٣٣)، وَاللَّهُ أَكْبَرُ (٣٤)","transliteration":"Subhanallah (33x), Alhamdulillah (33x), Allahu Akbar (34x)","translation":"Glory be to Allah (33x), Praise be to Allah (33x), Allah is the Greatest (34x).","malayalamTranslation":"സുബ്ഹാനല്ലാഹ് (33 തവണ), അൽഹംദുലില്ലാഹ് (33 തവണ), അല്ലാഹു അക്ബർ (34 തവണ).","target":1,"source":"Sahih al-Bukhari 3705 (Taught by the Prophet to Fatima and Ali)","virtue":"The Prophet (ﷺ) said this is better for you than having a servant or helper for daily labor.","malayalamVirtue":"ഒരു വേലക്കാരനെ വെച്ച് ജോലി ചെയ്യിക്കുന്നതിനേക്കാൾ ശരീരത്തിനും മനസ്സിനും കരുത്തും ഉന്മേഷവും നൽകുന്നതാണ് ഇതെന്ന് തിരുനബി (ﷺ) ഫാത്വിമ (റ) യോടും അലി (റ) യോടും പറഞ്ഞു (ബുഖാരി).","repeatNote":"1 sequence (100 total)","audioUrl":"https://www.hisnmuslim.com/audio/ar/106.mp3"},{"id":"s-3","category":"sleep","type":"adhkar","title":"പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്നുള്ള കാവൽ പ്രാർത്ഥന","arabic":"اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ","transliteration":"Allahumma qini 'adhabaka yawma tab'athu 'ibadak","translation":"O Allah, protect me from Your punishment on the Day You resurrect Your servants.","malayalamTranslation":"അല്ലാഹുവേ, നിന്റെ ദാസന്മാരെ നീ പുനരുജ്ജീവിപ്പിക്കുന്ന ആ വിചാരണ നാളിൽ നിന്റെ ശിക്ഷയിൽ നിന്ന് എന്നെ കാത്തുരക്ഷിക്കേണമേ.","target":3,"source":"Abu Dawud 5045","virtue":"Recited with right hand placed under the right cheek while facing Qiblah.","malayalamVirtue":"വലതു കൈ കവിളിനടിയിൽ വെച്ച് ഖിബ്‌ലക്ക് അഭിമുഖമായി കിടന്ന് പുനരുത്ഥാന നാളിലെ ശിക്ഷയിൽ നിന്ന് കാവൽ തേടുന്നു (അബൂദാവൂദ്).","repeatNote":"3 times","audioUrl":"https://www.hisnmuslim.com/audio/ar/104.mp3"}],"categories":[{"key":"morning","label":"Morning","arabicLabel":"أذكار الصباح","malayalamLabel":"പ്രഭാത ദിക്റുകൾ","icon":"Sun","color":"amber","timeHint":"Between Fajr & Sunrise / Noon"},{"key":"evening","label":"Evening","arabicLabel":"أذكار المساء","malayalamLabel":"സായാഹ്ന ദിക്റുകൾ","icon":"Moon","color":"indigo","timeHint":"Between Asr & Sunset / Night"},{"key":"prayer","label":"After Prayer","arabicLabel":"بعد الصلاة","malayalamLabel":"നമസ്കാര ശേഷം","icon":"Sparkles","color":"emerald","timeHint":"After obligatory fard prayers"},{"key":"sleep","label":"Night & Sleep","arabicLabel":"أذكار النوم","malayalamLabel":"ഉറക്കത്തിനു മുൻപ്","icon":"BedDouble","color":"purple","timeHint":"Before sleeping at night"},{"key":"favorites","label":"Favorites","arabicLabel":"الأذكار المفضلة","malayalamLabel":"പ്രിയപ്പെട്ടവ","icon":"Star","color":"amber","timeHint":"Your starred supplications for quick access"},{"key":"tasbih","label":"Digital Tasbih","arabicLabel":"المسبحة الإلكترونية","malayalamLabel":"ഡിജിറ്റൽ തസ്ബീഹ്","icon":"CircleDot","color":"teal","timeHint":"Custom target or free remembrance"},{"key":"tasks","label":"Daily Tasks","arabicLabel":"مهام اليوم","malayalamLabel":"പ്രതിദിന കർമ്മങ്ങൾ","icon":"CheckSquare","color":"emerald","timeHint":"Daily Sunnah, prayers & virtuous deeds checklist"}],"tasbihPresets":[{"id":"subhanallah","arabic":"سُبْحَانَ اللَّهِ","transliteration":"Subhanallah","translation":"Glory be to Allah","malayalamTranslation":"അല്ലാഹു എത്ര പരിശുദ്ധൻ","target":33},{"id":"alhamdulillah","arabic":"الْحَمْدُ لِلَّهِ","transliteration":"Alhamdulillah","translation":"Praise be to Allah","malayalamTranslation":"സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ്","target":33},{"id":"allahuakbar","arabic":"اللَّهُ أَكْبَرُ","transliteration":"Allahu Akbar","translation":"Allah is the Greatest","malayalamTranslation":"അല്ലാഹു ഏറ്റവും മഹാനാണ്","target":34},{"id":"lailahaillallah","arabic":"لَا إِلَهَ إِلَّا اللَّهُ","transliteration":"La ilaha illallah","translation":"None has the right to be worshipped except Allah","malayalamTranslation":"അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല","target":100},{"id":"astaghfirullah","arabic":"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ","transliteration":"Astaghfirullaha wa atubu ilayh","translation":"I seek forgiveness from Allah and repent to Him","malayalamTranslation":"ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുകയും പശ്ചാത്തപിക്കുകയും ചെയ്യുന്നു","target":100},{"id":"salawat","arabic":"اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ","transliteration":"Allahumma salli 'ala Muhammad wa 'ala ali Muhammad","translation":"O Allah, bestow blessings upon Muhammad and his family","malayalamTranslation":"അല്ലാഹുവേ, മുഹമ്മദ് നബിയുടെയും കുടുംബത്തിന്റെയും മേൽ നീ അനുഗ്രഹങ്ങൾ ചൊരിയേണമേ","target":10},{"id":"hawqala","arabic":"لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ","transliteration":"La hawla wa la quwwata illa billah","translation":"There is no power nor strength except with Allah","malayalamTranslation":"അല്ലാഹുവിനെക്കൊണ്ടല്ലാതെ യാതൊരു ശക്തിയും കഴിവുമില്ല","target":100}]};
+  </script>
+
+  <!-- APP CLIENT SCRIPT -->
+  <script>
+    (function() {
+      // 1. Audio Synthesizer (Zero External Audio Files Required)
+      let audioCtx = null;
+      function getAudioContext() {
+        if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function playTapBeep() {
+        if (!state.settings.soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(750, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+          gain.gain.setValueAtTime(0.15, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.04);
+        } catch (e) {}
+      }
+
+      function playCompletionChime() {
+        if (!state.settings.soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 major triad
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.07);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.07 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + idx * 0.07);
+            osc.stop(ctx.currentTime + idx * 0.07 + 0.35);
+          });
+        } catch (e) {}
+      }
+
+      function triggerVibration(duration = 20) {
+        if (!state.settings.vibrateEnabled) return;
+        try {
+          if ('vibrate' in navigator) {
+            navigator.vibrate(duration);
+          }
+        } catch (e) {}
+      }
+
+      // 2. State & Storage
+      const DEFAULT_SETTINGS = {
+        arabicFontSize: 'large',
+        showTransliteration: true,
+        showTranslation: true,
+        translationLanguage: 'both',
+        showVirtues: true,
+        soundEnabled: true,
+        vibrateEnabled: true,
+        theme: 'emerald',
+        cardTapToCount: false,
+        remindersEnabled: false,
+        morningReminderTime: '06:00',
+        eveningReminderTime: '17:30',
+        goalReminderEnabled: false,
+        dailyGoalReminderTime: '20:00',
+      };
+
+      function getTodayString() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+
+      const state = {
+        activeTab: 'morning',
+        searchQuery: '',
+        filterMode: 'all',
+        counts: {},
+        favorites: [],
+        streak: { currentStreak: 0, bestStreak: 0, lastCompletedDate: null },
+        settings: { ...DEFAULT_SETTINGS },
+        playingId: null,
+        playbackStatus: 'idle',
+        tasbih: {
+          currentDhikrId: 'subhanallah',
+          count: 0,
+          target: 33
+        }
+      };
+
+      // Load from LocalStorage
+      try {
+        const savedSettings = localStorage.getItem('adhkar_settings');
+        if (savedSettings) state.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
+
+        const savedFavs = localStorage.getItem('adhkar_favorites');
+        if (savedFavs) state.favorites = JSON.parse(savedFavs);
+
+        const savedStreak = localStorage.getItem('adhkar_streak_data');
+        if (savedStreak) state.streak = JSON.parse(savedStreak);
+
+        const today = getTodayString();
+        const savedDate = localStorage.getItem('adhkar_last_date');
+        const savedCounts = localStorage.getItem('adhkar_counts');
+        if (savedDate !== today) {
+          state.counts = {};
+          localStorage.setItem('adhkar_last_date', today);
+          localStorage.setItem('adhkar_counts', '{}');
+        } else if (savedCounts) {
+          state.counts = JSON.parse(savedCounts);
+        }
+      } catch (e) {}
+
+      // Save Helpers
+      function saveState() {
+        try {
+          localStorage.setItem('adhkar_counts', JSON.stringify(state.counts));
+          localStorage.setItem('adhkar_settings', JSON.stringify(state.settings));
+          localStorage.setItem('adhkar_favorites', JSON.stringify(state.favorites));
+          localStorage.setItem('adhkar_streak_data', JSON.stringify(state.streak));
+        } catch (e) {}
+      }
+
+      // Elements
+      const els = {
+        appBody: document.getElementById('appBody'),
+        streakBtn: document.getElementById('streakBtn'),
+        streakCount: document.getElementById('streakCount'),
+        headerCategoryLabel: document.getElementById('headerCategoryLabel'),
+        headerCategoryArabic: document.getElementById('headerCategoryArabic'),
+        headerProgressContainer: document.getElementById('headerProgressContainer'),
+        progressStatusText: document.getElementById('progressStatusText'),
+        progressPercentText: document.getElementById('progressPercentText'),
+        progressBarFill: document.getElementById('progressBarFill'),
+        headerTimeHint: document.getElementById('headerTimeHint'),
+        soundToggleBtn: document.getElementById('soundToggleBtn'),
+        soundIcon: document.getElementById('soundIcon'),
+        themeToggleBtn: document.getElementById('themeToggleBtn'),
+        themeIcon: document.getElementById('themeIcon'),
+        resetCategoryBtn: document.getElementById('resetCategoryBtn'),
+        openSettingsBtn: document.getElementById('openSettingsBtn'),
+        downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+        completionBanner: document.getElementById('completionBanner'),
+        closeBannerBtn: document.getElementById('closeBannerBtn'),
+        searchFilterSection: document.getElementById('searchFilterSection'),
+        searchInput: document.getElementById('searchInput'),
+        clearSearchBtn: document.getElementById('clearSearchBtn'),
+        adhkarList: document.getElementById('adhkarList'),
+        tasbihView: document.getElementById('tasbihView'),
+        emptyState: document.getElementById('emptyState'),
+        emptyStateMsg: document.getElementById('emptyStateMsg'),
+        // Modals
+        settingsModal: document.getElementById('settingsModal'),
+        closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+        modalDownloadBtn: document.getElementById('modalDownloadBtn'),
+        streakModal: document.getElementById('streakModal'),
+        closeStreakModalBtn: document.getElementById('closeStreakModalBtn'),
+        modalCurrentStreak: document.getElementById('modalCurrentStreak'),
+        modalBestStreak: document.getElementById('modalBestStreak'),
+        // Toggles in settings
+        toggleTranslit: document.getElementById('toggleTranslit'),
+        toggleTrans: document.getElementById('toggleTrans'),
+        toggleVirtues: document.getElementById('toggleVirtues'),
+        toggleSoundSetting: document.getElementById('toggleSoundSetting'),
+        toggleVibrate: document.getElementById('toggleVibrate'),
+        toggleCardTap: document.getElementById('toggleCardTap'),
+        // Tasbih elements
+        tasbihArabic: document.getElementById('tasbihArabic'),
+        tasbihTranslit: document.getElementById('tasbihTranslit'),
+        tasbihTrans: document.getElementById('tasbihTrans'),
+        tasbihCurrentCount: document.getElementById('tasbihCurrentCount'),
+        tasbihTargetDisplay: document.getElementById('tasbihTargetDisplay'),
+        tasbihRingCircle: document.getElementById('tasbihRingCircle'),
+        tasbihLargeBtn: document.getElementById('tasbihLargeBtn'),
+        tasbihMinusBtn: document.getElementById('tasbihMinusBtn'),
+        tasbihResetBtn: document.getElementById('tasbihResetBtn'),
+        tasbihChangeTargetBtn: document.getElementById('tasbihChangeTargetBtn')
+      };
+
+      // 3. Tab Routing by Time of Day
+      const hour = new Date().getHours();
+      if (hour >= 4 && hour < 12) {
+        state.activeTab = 'morning';
+      } else if (hour >= 12 && hour < 20) {
+        state.activeTab = 'evening';
+      } else {
+        state.activeTab = 'sleep';
+      }
+
+      // 4. Renderers
+      function getActiveItems() {
+        if (state.activeTab === 'morning') return window.ADHKAR_DATA.morning;
+        if (state.activeTab === 'evening') return window.ADHKAR_DATA.evening;
+        if (state.activeTab === 'prayer') return window.ADHKAR_DATA.prayer;
+        if (state.activeTab === 'sleep') return window.ADHKAR_DATA.sleep;
+        if (state.activeTab === 'favorites') {
+          const all = [
+            ...window.ADHKAR_DATA.morning,
+            ...window.ADHKAR_DATA.evening,
+            ...window.ADHKAR_DATA.prayer,
+            ...window.ADHKAR_DATA.sleep,
+          ];
+          return all.filter(item => state.favorites.includes(item.id));
+        }
+        return [];
+      }
+
+      function updateCategoryProgress() {
+        const items = getActiveItems();
+        if (state.activeTab === 'tasbih' || items.length === 0) {
+          els.headerProgressContainer.classList.add('hidden');
+          return;
+        }
+        els.headerProgressContainer.classList.remove('hidden');
+
+        let completed = 0;
+        items.forEach(item => {
+          if ((state.counts[item.id] || 0) >= item.target) completed++;
+        });
+
+        const total = items.length;
+        const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+        const isAllDone = total > 0 && completed === total;
+
+        els.progressStatusText.textContent = isAllDone
+          ? 'Completed All Today! • പൂർത്തിയായി! 🔥'
+          : 'Progress: ' + completed + ' of ' + total + ' Completed';
+        els.progressPercentText.textContent = percent + '%';
+        els.progressBarFill.style.width = percent + '%';
+        els.progressBarFill.className = 'h-full rounded-full transition-all duration-300 ' + 
+          (isAllDone ? 'bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400/50' : 'bg-amber-300');
+
+        if (isAllDone && total > 0) {
+          updateStreakOnCategoryDone();
+        }
+      }
+
+      function updateStreakOnCategoryDone() {
+        const today = getTodayString();
+        if (state.streak.lastCompletedDate === today) return;
+
+        let nextStreak = 1;
+        if (state.streak.lastCompletedDate) {
+          const lastDate = new Date(state.streak.lastCompletedDate);
+          const currDate = new Date(today);
+          const diffDays = Math.round((currDate - lastDate) / (1000 * 60 * 60 * 24));
+          if (diffDays === 1) {
+            nextStreak = (state.streak.currentStreak || 0) + 1;
+          }
+        }
+        state.streak.currentStreak = nextStreak;
+        state.streak.bestStreak = Math.max(nextStreak, state.streak.bestStreak || 0);
+        state.streak.lastCompletedDate = today;
+        saveState();
+        renderStreakBadge();
+        els.completionBanner.classList.remove('hidden');
+        playCompletionChime();
+        triggerVibration(100);
+      }
+
+      function renderStreakBadge() {
+        const today = getTodayString();
+        const doneToday = state.streak.lastCompletedDate === today;
+        els.streakCount.textContent = (state.streak.currentStreak || 0) + 'd';
+        if (doneToday) {
+          els.streakBtn.className = 'ml-1 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 bg-amber-400 text-teal-950 border-amber-300 shadow-sm';
+        } else {
+          els.streakBtn.className = 'ml-1 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold transition-all border cursor-pointer active:scale-95 bg-teal-900/90 text-amber-300 border-teal-700/80 hover:bg-teal-950';
+        }
+      }
+
+      function updateTheme(theme) {
+        state.settings.theme = theme;
+        saveState();
+        document.documentElement.className = theme === 'midnight' ? 'theme-midnight dark' : (theme === 'dark' ? 'theme-dark dark' : 'theme-emerald');
+        els.themeIcon.textContent = theme === 'emerald' ? '🌙' : '☀️';
+        
+        document.querySelectorAll('.theme-choice').forEach(b => {
+          if (b.dataset.theme === theme) {
+            b.className = 'theme-choice py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold text-xs ring-2 ring-teal-600/20';
+          } else {
+            b.className = 'theme-choice py-2 px-3 rounded-xl border border-slate-200 text-xs';
+          }
+        });
+      }
+
+      function updateTabsUI() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+          const t = tab.dataset.tab;
+          if (t === state.activeTab) {
+            tab.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer bg-teal-600 text-white shadow-sm';
+          } else {
+            tab.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white hover:bg-teal-800/60';
+          }
+        });
+
+        const mItems = window.ADHKAR_DATA.morning;
+        let mDone = mItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
+        document.querySelector('[data-tab="morning"] .tab-badge').textContent = (mDone === mItems.length && mItems.length > 0 ? '🔥 ' : '') + mDone + '/' + mItems.length + (mDone === mItems.length && mItems.length > 0 ? ' പൂർത്തിയായി!' : '');
+
+        const eItems = window.ADHKAR_DATA.evening;
+        let eDone = eItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
+        document.querySelector('[data-tab="evening"] .tab-badge').textContent = (eDone === eItems.length && eItems.length > 0 ? '🔥 ' : '') + eDone + '/' + eItems.length + (eDone === eItems.length && eItems.length > 0 ? ' പൂർത്തിയായി!' : '');
+
+        const pItems = window.ADHKAR_DATA.prayer;
+        let pDone = pItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
+        document.querySelector('[data-tab="prayer"] .tab-badge').textContent = (pDone === pItems.length && pItems.length > 0 ? '🔥 ' : '') + pDone + '/' + pItems.length + (pDone === pItems.length && pItems.length > 0 ? ' പൂർത്തിയായി!' : '');
+
+        const sItems = window.ADHKAR_DATA.sleep;
+        let sDone = sItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
+        document.querySelector('[data-tab="sleep"] .tab-badge').textContent = (sDone === sItems.length && sItems.length > 0 ? '🔥 ' : '') + sDone + '/' + sItems.length + (sDone === sItems.length && sItems.length > 0 ? ' പൂർത്തിയായി!' : '');
+
+        document.querySelector('[data-tab="favorites"] .tab-badge').textContent = state.favorites.length;
+
+        const catConfig = window.ADHKAR_DATA.categories.find(c => c.key === state.activeTab);
+        if (catConfig) {
+          els.headerCategoryLabel.textContent = catConfig.label;
+          els.headerCategoryArabic.textContent = catConfig.arabicLabel;
+          els.headerTimeHint.textContent = catConfig.timeHint;
+        } else if (state.activeTab === 'favorites') {
+          els.headerCategoryLabel.textContent = 'Favorites';
+          els.headerCategoryArabic.textContent = 'الأذكار المفضلة';
+          els.headerTimeHint.textContent = 'Your starred supplications for quick access';
+        }
+      }
+
+      function renderCards() {
+        if (state.activeTab === 'tasbih') {
+          els.adhkarList.classList.add('hidden');
+          els.searchFilterSection.classList.add('hidden');
+          els.tasbihView.classList.remove('hidden');
+          els.emptyState.classList.add('hidden');
+          renderTasbihView();
+          return;
+        }
+
+        els.adhkarList.classList.remove('hidden');
+        els.searchFilterSection.classList.remove('hidden');
+        els.tasbihView.classList.add('hidden');
+
+        const items = getActiveItems();
+        const query = state.searchQuery.trim().toLowerCase();
+
+        const filtered = items.filter(item => {
+          const currentCount = state.counts[item.id] || 0;
+          const isDone = currentCount >= item.target;
+
+          if (state.filterMode === 'incomplete' && isDone) return false;
+          if (state.filterMode === 'completed' && !isDone) return false;
+
+          if (!query) return true;
+          return (
+            (item.title && item.title.toLowerCase().includes(query)) ||
+            (item.arabic && item.arabic.toLowerCase().includes(query)) ||
+            (item.transliteration && item.transliteration.toLowerCase().includes(query)) ||
+            (item.translation && item.translation.toLowerCase().includes(query)) ||
+            (item.malayalam && item.malayalam.toLowerCase().includes(query)) ||
+            (item.malayalamTranslation && item.malayalamTranslation.toLowerCase().includes(query)) ||
+            (item.virtue && item.virtue.toLowerCase().includes(query)) ||
+            (item.malayalamVirtue && item.malayalamVirtue.toLowerCase().includes(query)) ||
+            (item.source && item.source.toLowerCase().includes(query))
+          );
+        });
+
+        if (filtered.length === 0) {
+          els.adhkarList.innerHTML = '';
+          els.emptyState.classList.remove('hidden');
+          els.emptyStateMsg.textContent = state.activeTab === 'favorites' && state.favorites.length === 0
+            ? 'You have not starred any adhkar yet. Tap the star icon on any dhikr card to save it here for fast daily access.'
+            : 'No remembrances match your search terms or filter. Try clearing the search query.';
+          return;
+        }
+
+        els.emptyState.classList.add('hidden');
+
+        const fontClass = state.settings.arabicFontSize === 'xlarge'
+          ? 'text-2xl sm:text-3xl leading-loose'
+          : (state.settings.arabicFontSize === 'medium' ? 'text-lg sm:text-xl leading-relaxed' : 'text-xl sm:text-2xl leading-relaxed');
+
+        const showML = state.settings.translationLanguage === 'ml' || state.settings.translationLanguage === 'both';
+        const showEN = state.settings.translationLanguage === 'en' || state.settings.translationLanguage === 'both';
+
+        els.adhkarList.innerHTML = filtered.map((item, index) => {
+          const currentCount = state.counts[item.id] || 0;
+          const isDone = currentCount >= item.target;
+          const isFav = state.favorites.includes(item.id);
+          const mlText = item.malayalamTranslation || item.malayalam;
+
+          return `
+            <article class="adhkar-card bg-white dark:bg-slate-900 rounded-3xl p-5 border transition-all duration-200 shadow-xs space-y-4 card-surface ${
+              isDone ? 'border-emerald-500 dark:border-emerald-800/80 bg-emerald-50/60' : 'border-slate-300 dark:border-slate-800'
+            }" data-id="${item.id}">
+              
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-teal-100 dark:bg-teal-950/60 text-black dark:text-teal-300 font-black text-xs flex items-center justify-center border border-teal-400 dark:border-teal-800">
+                    ${item.uthaymeenNumber ? item.uthaymeenNumber : index + 1}
+                  </span>
+                  <span class="text-xs font-extrabold text-black dark:text-teal-400">
+                    ${item.repeatNote || (item.target + ' time' + (item.target > 1 ? 's' : ''))}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <button class="fav-btn p-1.5 rounded-full text-slate-800 dark:text-slate-400 hover:text-amber-600 transition-colors" data-id="${item.id}" title="Toggle Favorite">
+                    ${isFav ? '<span class="text-amber-500 text-base">★</span>' : '<span class="text-slate-800 dark:text-slate-400 text-base font-bold">☆</span>'}
+                  </button>
+
+                  <button class="copy-btn p-1.5 rounded-full text-slate-800 dark:text-slate-400 hover:text-teal-800 transition-colors" data-id="${item.id}" title="Copy Dhikr">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                  </button>
+
+                  <button class="count-btn px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-90 ${
+                    isDone 
+                      ? 'bg-emerald-700 text-white shadow-xs' 
+                      : 'bg-teal-800 hover:bg-teal-900 text-white shadow-xs'
+                  }" data-id="${item.id}">
+                    <span>${isDone ? '✓ Done' : currentCount + ' / ' + item.target}</span>
+                  </button>
+                </div>
+              </div>
+
+              ${item.title ? `<h3 class="font-malayalam text-sm sm:text-base font-extrabold text-black dark:text-teal-200 tracking-tight">${item.title}</h3>` : ''}
+
+              <!-- Audio Pronunciation Bar (Segregated Voice Styles & Synced Play/Pause) -->
+              <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl ${
+                state.playingId === item.id && state.playbackStatus === 'playing'
+                  ? 'bg-emerald-100 dark:bg-emerald-950/70 border-emerald-600 ring-1 ring-emerald-600/50'
+                  : 'bg-teal-50 dark:bg-slate-800/70 border-teal-400 dark:border-slate-700/80'
+              } border my-2 transition-all">
+                <button type="button" class="pronounce-btn px-3 py-1.5 rounded-lg ${
+                  state.playingId === item.id && state.playbackStatus === 'playing'
+                    ? 'bg-emerald-700 hover:bg-emerald-800'
+                    : 'bg-teal-900 hover:bg-teal-800'
+                } text-white font-extrabold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95" data-id="${item.id}">
+                  <span>${state.playingId === item.id && state.playbackStatus === 'playing' ? '⏸ Pause' : '▶ Play'}</span>
+                  <span class="font-arabic text-[11px] opacity-95">${state.playingId === item.id && state.playbackStatus === 'playing' ? 'إيقاف' : 'استمع'}</span>
+                </button>
+                <span class="text-[11px] text-black dark:text-teal-300 font-extrabold truncate" title="${
+                  item.isQuranic
+                    ? 'Traditional melodic, contemplative, and rhythmic Quranic recitation (Tajweed/Murattal style) by a native male reciter (Qari)'
+                    : 'Natural, humble, calm, and conversational native Arabic male voice with a steady, reverent spiritual tone for private remembrance (Dua)'
+                }">
+                  ${item.isQuranic ? '🎵 Tajweed / Murattal • Qari (ആയത്തുകൾ)' : '🎙️ Calm Natural Dua Voice (ദിക്റുകൾ)'}
+                </span>
+              </div>
+
+              <div class="text-right py-1">
+                <p class="font-arabic font-black text-black dark:text-white ${fontClass} tracking-wide select-text" dir="rtl">
+                  ${item.arabic}
+                </p>
+              </div>
+
+              ${state.settings.showTransliteration && item.transliteration ? `
+                <div class="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/30 border border-teal-400 dark:border-teal-900/40 text-xs sm:text-sm text-teal-950 dark:text-teal-200 font-extrabold italic leading-relaxed select-text">
+                  ${item.transliteration}
+                </div>
+              ` : ''}
+
+              ${state.settings.showTranslation ? `
+                <div class="space-y-2 text-xs sm:text-sm">
+                  ${showML && mlText ? `
+                    <div class="font-malayalam bg-emerald-50/90 dark:bg-teal-950/30 border border-emerald-500 dark:border-teal-800/40 text-black dark:text-teal-100 p-2.5 rounded-xl leading-relaxed select-text font-bold">
+                      <span class="inline-block font-black text-[10px] px-2 py-0.5 rounded bg-emerald-900 text-white mr-1.5 mb-1">മലയാളം</span>
+                      <div>${mlText}</div>
+                    </div>
+                  ` : ''}
+                  ${showEN && item.translation ? `
+                    <div class="text-black dark:text-slate-200 font-bold leading-relaxed select-text px-1">
+                      <span class="font-black text-teal-950 dark:text-teal-400 mr-1.5 text-xs">EN:</span>
+                      ${item.translation}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
+
+              ${state.settings.showVirtues && (item.virtue || item.source) ? `
+                <details class="group text-xs border-t border-slate-300 dark:border-slate-800 pt-2">
+                  <summary class="font-extrabold text-black dark:text-teal-400 cursor-pointer flex items-center justify-between py-1 hover:text-teal-900">
+                    <span class="flex items-center gap-1">
+                      <span>📖</span>
+                      <span>Source & Virtues: ${item.source || ''}</span>
+                    </span>
+                    <span class="text-black dark:text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                  </summary>
+                  <div class="pt-2 pb-1 space-y-1.5 text-black dark:text-slate-300 font-bold select-text">
+                    ${item.source ? `<div class="font-extrabold text-teal-950 dark:text-teal-300">${item.source}</div>` : ''}
+                    ${item.virtue && showEN ? `<div>${item.virtue}</div>` : ''}
+                    ${item.malayalamVirtue && showML ? `<div class="font-malayalam font-bold text-black dark:text-emerald-300">${item.malayalamVirtue}</div>` : ''}
+                  </div>
+                </details>
+              ` : ''}
+
+            </article>
+          `;
+        }).join('');
+
+        updateCategoryProgress();
+      }
+
+      // Single global currentAudio player instance (prevents overlapping playback)
+      let currentAudio = null;
+      window.currentAudio = null;
+      let currentUtterance = null;
+      let audioPlaybackToken = 0;
+
+      function stopAndUnloadCurrentAudio() {
+        audioPlaybackToken++;
+        if (currentAudio) {
+          try {
+            currentAudio.onplay = null;
+            currentAudio.onpause = null;
+            currentAudio.onended = null;
+            currentAudio.onerror = null;
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio.removeAttribute('src');
+            currentAudio.load();
+          } catch (err) {}
+          currentAudio = null;
+          window.currentAudio = null;
+        }
+        if (currentUtterance) {
+          try {
+            currentUtterance.onstart = null;
+            currentUtterance.onend = null;
+            currentUtterance.onerror = null;
+          } catch (err) {}
+          currentUtterance = null;
+        }
+        if ('speechSynthesis' in window) {
+          try {
+            window.speechSynthesis.cancel();
+          } catch (err) {}
+        }
+        state.playingId = null;
+        state.playbackStatus = 'idle';
+        syncAudioButtonsUI();
+      }
+
+      function syncAudioButtonsUI() {
+        document.querySelectorAll('.pronounce-btn').forEach(btn => {
+          const btnId = btn.dataset.id;
+          const isPlayingThis = state.playingId === btnId && state.playbackStatus === 'playing';
+          if (isPlayingThis) {
+            btn.className = 'pronounce-btn px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95';
+            btn.innerHTML = '<span>⏸ Pause</span><span class="font-arabic text-[11px] opacity-90">إيقاف</span>';
+          } else {
+            btn.className = 'pronounce-btn px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-700 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95';
+            btn.innerHTML = '<span>▶ Play</span><span class="font-arabic text-[11px] opacity-90">استمع</span>';
+          }
+        });
+      }
+
+      function playItemAudio(item) {
+        if (!item) return;
+
+        // If clicking Play/Pause on the currently playing item, stop/pause it immediately
+        if (state.playingId === item.id && state.playbackStatus === 'playing') {
+          stopAndUnloadCurrentAudio();
+          return;
+        }
+
+        // Force stop, reset to 0, and unload any previously playing track
+        stopAndUnloadCurrentAudio();
+
+        const token = ++audioPlaybackToken;
+        state.playingId = item.id;
+        state.playbackStatus = 'playing';
+        syncAudioButtonsUI();
+
+        const cleanText = item.arabic.replace(/\s*\([٠-٩\d]+\)\s*/g, ' ').replace(/\n+/g, ' ').trim();
+        const isQuranic = !!item.isQuranic;
+
+        // Segregate voice styles:
+        // 1. Quranic Verses (ആയത്തുകൾ): Melodic, contemplative, rhythmic Tajweed/Murattal recitation by native Qari
+        // 2. Regular Adhkar (ദിക്റുകൾ): Natural, humble, calm, conversational native Arabic male voice (Dua)
+        const playlist = [];
+        if (item.audioUrls && item.audioUrls.length > 0) {
+          playlist.push(...item.audioUrls);
+        } else if (item.audioUrl) {
+          playlist.push(item.audioUrl);
+        }
+
+        function speakWithSegregatedVoiceStyle() {
+          if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+          if (!('speechSynthesis' in window)) {
+            stopAndUnloadCurrentAudio();
+            return;
+          }
+          try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'ar-SA';
+            if (isQuranic) {
+              // Contemplative Murattal pacing
+              utterance.rate = 0.88;
+              utterance.pitch = 0.98;
+              utterance.volume = 1.0;
+            } else {
+              // Natural, humble, calm, conversational native Arabic male voice for private Dua
+              utterance.rate = 0.95;
+              utterance.pitch = 1.0;
+              utterance.volume = 0.92;
+            }
+            const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+            const arVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('ar'));
+            if (arVoices.length > 0) {
+              const maleKeywords = ['maged', 'tariq', 'naayf', 'hamed', 'fahed', 'fahad', 'salman', 'omar', 'male', 'ar-sa', 'natural'];
+              const preferred = arVoices.find(v => maleKeywords.some(k => (v.name || '').toLowerCase().includes(k))) || arVoices[0];
+              if (preferred) utterance.voice = preferred;
+            }
+            utterance.onend = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                stopAndUnloadCurrentAudio();
+              }
+            };
+            utterance.onerror = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                stopAndUnloadCurrentAudio();
+              }
+            };
+            currentUtterance = utterance;
+            window.speechSynthesis.speak(utterance);
+          } catch (err) {
+            stopAndUnloadCurrentAudio();
+          }
+        }
+
+        if (playlist.length > 0) {
+          let idx = 0;
+          function playNextSegment() {
+            if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+            if (idx >= playlist.length) {
+              stopAndUnloadCurrentAudio();
+              return;
+            }
+            if (currentAudio) {
+              try {
+                currentAudio.onplay = null;
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                currentAudio.removeAttribute('src');
+                currentAudio.load();
+              } catch (e) {}
+            }
+            const audio = new Audio();
+            audio.preload = 'auto';
+            audio.src = playlist[idx];
+            audio.currentTime = 0;
+            currentAudio = audio;
+            window.currentAudio = audio;
+
+            let fellBack = false;
+            function fallbackOnce() {
+              if (fellBack) return;
+              if (audioPlaybackToken !== token || state.playingId !== item.id) return;
+              fellBack = true;
+              speakWithSegregatedVoiceStyle();
+            }
+
+            audio.onended = () => {
+              if (audioPlaybackToken === token && state.playingId === item.id) {
+                idx++;
+                playNextSegment();
+              }
+            };
+            audio.onerror = fallbackOnce;
+            const p = audio.play();
+            if (p && p.catch) p.catch(fallbackOnce);
+          }
+          playNextSegment();
+        } else {
+          speakWithSegregatedVoiceStyle();
+        }
+      }
+
+      function renderTasbihView() {
+        const preset = window.ADHKAR_DATA.tasbihPresets.find(p => p.id === state.tasbih.currentDhikrId) || window.ADHKAR_DATA.tasbihPresets[0];
+        els.tasbihArabic.textContent = preset.arabic;
+        els.tasbihTranslit.textContent = preset.transliteration;
+        els.tasbihTrans.textContent = preset.translation + ' • ' + preset.malayalamTranslation;
+
+        els.tasbihCurrentCount.textContent = state.tasbih.count;
+        els.tasbihTargetDisplay.textContent = 'Target: ' + state.tasbih.target;
+
+        const radius = 44;
+        const circumference = 2 * Math.PI * radius;
+        const progress = Math.min(state.tasbih.count / state.tasbih.target, 1);
+        const offset = circumference - (progress * circumference);
+        els.tasbihRingCircle.style.strokeDashoffset = offset;
+      }
+
+      function handleCount(id) {
+        const all = [
+          ...window.ADHKAR_DATA.morning,
+          ...window.ADHKAR_DATA.evening,
+          ...window.ADHKAR_DATA.prayer,
+          ...window.ADHKAR_DATA.sleep
+        ];
+        const item = all.find(i => i.id === id);
+        if (!item) return;
+
+        const current = state.counts[id] || 0;
+        if (current >= item.target) {
+          state.counts[id] = 0;
+        } else {
+          state.counts[id] = current + 1;
+          if (state.counts[id] === item.target) {
+            playCompletionChime();
+            triggerVibration(50);
+          } else {
+            playTapBeep();
+            triggerVibration(15);
+          }
+        }
+        saveState();
+        renderCards();
+        updateTabsUI();
+      }
+
+      document.addEventListener('click', function(e) {
+        const tabBtn = e.target.closest('.tab-btn');
+        if (tabBtn) {
+          stopAndUnloadCurrentAudio();
+          state.activeTab = tabBtn.dataset.tab;
+          updateTabsUI();
+          renderCards();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        const countBtn = e.target.closest('.count-btn');
+        if (countBtn) {
+          e.stopPropagation();
+          handleCount(countBtn.dataset.id);
+          return;
+        }
+
+        if (state.settings.cardTapToCount) {
+          const card = e.target.closest('.adhkar-card');
+          if (card && !e.target.closest('button') && !e.target.closest('summary') && !e.target.closest('details')) {
+            handleCount(card.dataset.id);
+            return;
+          }
+        }
+
+        const favBtn = e.target.closest('.fav-btn');
+        if (favBtn) {
+          e.stopPropagation();
+          const id = favBtn.dataset.id;
+          if (state.favorites.includes(id)) {
+            state.favorites = state.favorites.filter(f => f !== id);
+          } else {
+            state.favorites.push(id);
+          }
+          saveState();
+          renderCards();
+          updateTabsUI();
+          return;
+        }
+
+        const copyBtn = e.target.closest('.copy-btn');
+        if (copyBtn) {
+          e.stopPropagation();
+          const id = copyBtn.dataset.id;
+          const all = [
+            ...window.ADHKAR_DATA.morning,
+            ...window.ADHKAR_DATA.evening,
+            ...window.ADHKAR_DATA.prayer,
+            ...window.ADHKAR_DATA.sleep
+          ];
+          const item = all.find(i => i.id === id);
+          if (item) {
+            const textToCopy = item.arabic + '\n\n' + (item.transliteration ? item.transliteration + '\n\n' : '') + item.translation + '\n\n' + (item.malayalamTranslation || '') + '\n\n' + (item.source || '');
+            navigator.clipboard.writeText(textToCopy);
+            copyBtn.innerHTML = '<span class="text-xs text-emerald-600 font-bold">Copied!</span>';
+            setTimeout(() => { renderCards(); }, 1500);
+          }
+          return;
+        }
+
+        const pronounceBtn = e.target.closest('.pronounce-btn');
+        if (pronounceBtn) {
+          e.stopPropagation();
+          const id = pronounceBtn.dataset.id;
+          const all = [
+            ...window.ADHKAR_DATA.morning,
+            ...window.ADHKAR_DATA.evening,
+            ...window.ADHKAR_DATA.prayer,
+            ...window.ADHKAR_DATA.sleep
+          ];
+          const item = all.find(i => i.id === id);
+          if (item) {
+            playItemAudio(item);
+          }
+          return;
+        }
+
+        const filterBtn = e.target.closest('.filter-btn');
+        if (filterBtn) {
+          state.filterMode = filterBtn.dataset.filter;
+          document.querySelectorAll('.filter-btn').forEach(b => {
+            if (b.dataset.filter === state.filterMode) {
+              b.className = 'filter-btn px-2.5 py-1 rounded-md font-semibold bg-teal-800 text-white';
+            } else {
+              b.className = 'filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:bg-slate-200/70';
+            }
+          });
+          renderCards();
+          return;
+        }
+
+        const chip = e.target.closest('.tasbih-chip');
+        if (chip) {
+          const id = chip.dataset.tasbihPreset;
+          state.tasbih.currentDhikrId = id;
+          const preset = window.ADHKAR_DATA.tasbihPresets.find(p => p.id === id);
+          if (preset) {
+            state.tasbih.target = preset.target;
+            state.tasbih.count = 0;
+          }
+          document.querySelectorAll('.tasbih-chip').forEach(c => {
+            if (c.dataset.tasbihPreset === id) {
+              c.className = 'tasbih-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-teal-700 text-white border border-teal-600 shadow-xs cursor-pointer';
+            } else {
+              c.className = 'tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer';
+            }
+          });
+          renderTasbihView();
+          return;
+        }
+
+        const fontOpt = e.target.closest('.font-size-opt');
+        if (fontOpt) {
+          state.settings.arabicFontSize = fontOpt.dataset.fontsize;
+          saveState();
+          document.querySelectorAll('.font-size-opt').forEach(f => {
+            if (f.dataset.fontsize === state.settings.arabicFontSize) {
+              f.className = 'font-size-opt py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold ring-2 ring-teal-600/20 text-center text-xs';
+            } else {
+              f.className = 'font-size-opt py-2 px-3 rounded-xl border border-slate-200 text-center text-xs';
+            }
+          });
+          renderCards();
+          return;
+        }
+
+        const langOpt = e.target.closest('.lang-opt');
+        if (langOpt) {
+          state.settings.translationLanguage = langOpt.dataset.lang;
+          saveState();
+          document.querySelectorAll('.lang-opt').forEach(l => {
+            if (l.dataset.lang === state.settings.translationLanguage) {
+              l.className = 'lang-opt py-2 px-3 rounded-xl border border-teal-600 bg-teal-50 text-teal-900 font-semibold ring-2 ring-teal-600/20 text-xs';
+            } else {
+              l.className = 'lang-opt py-2 px-3 rounded-xl border border-slate-200 text-xs';
+            }
+          });
+          renderCards();
+          return;
+        }
+
+        const themeChoice = e.target.closest('.theme-choice');
+        if (themeChoice) {
+          updateTheme(themeChoice.dataset.theme);
+          return;
+        }
+      });
+
+      els.tasbihLargeBtn.addEventListener('click', function() {
+        state.tasbih.count++;
+        if (state.tasbih.count === state.tasbih.target) {
+          playCompletionChime();
+          triggerVibration(60);
+        } else {
+          playTapBeep();
+          triggerVibration(15);
+        }
+        renderTasbihView();
+      });
+
+      els.tasbihMinusBtn.addEventListener('click', function() {
+        if (state.tasbih.count > 0) state.tasbih.count--;
+        renderTasbihView();
+      });
+
+      els.tasbihResetBtn.addEventListener('click', function() {
+        state.tasbih.count = 0;
+        renderTasbihView();
+      });
+
+      els.tasbihChangeTargetBtn.addEventListener('click', function() {
+        const val = prompt('Enter custom target count:', String(state.tasbih.target));
+        const num = parseInt(val, 10);
+        if (!isNaN(num) && num > 0) {
+          state.tasbih.target = num;
+          renderTasbihView();
+        }
+      });
+
+      els.soundToggleBtn.addEventListener('click', function() {
+        state.settings.soundEnabled = !state.settings.soundEnabled;
+        saveState();
+        els.soundIcon.textContent = state.settings.soundEnabled ? '🔊' : '🔇';
+        els.toggleSoundSetting.checked = state.settings.soundEnabled;
+      });
+
+      els.themeToggleBtn.addEventListener('click', function() {
+        const nextTheme = state.settings.theme === 'emerald' ? 'dark' : (state.settings.theme === 'dark' ? 'midnight' : 'emerald');
+        updateTheme(nextTheme);
+      });
+
+      els.resetCategoryBtn.addEventListener('click', function() {
+        if (confirm('Reset counters for all items in ' + state.activeTab + '?')) {
+          const items = getActiveItems();
+          items.forEach(i => { state.counts[i.id] = 0; });
+          saveState();
+          renderCards();
+          updateTabsUI();
+        }
+      });
+
+      els.openSettingsBtn.addEventListener('click', function() {
+        els.toggleTranslit.checked = state.settings.showTransliteration;
+        els.toggleTrans.checked = state.settings.showTranslation;
+        els.toggleVirtues.checked = state.settings.showVirtues;
+        els.toggleSoundSetting.checked = state.settings.soundEnabled;
+        els.toggleVibrate.checked = state.settings.vibrateEnabled;
+        els.toggleCardTap.checked = state.settings.cardTapToCount;
+        els.settingsModal.classList.remove('hidden');
+      });
+
+      els.closeSettingsBtn.addEventListener('click', function() {
+        els.settingsModal.classList.add('hidden');
+      });
+
+      els.settingsModal.addEventListener('click', function(e) {
+        if (e.target === els.settingsModal) els.settingsModal.classList.add('hidden');
+      });
+
+      els.streakBtn.addEventListener('click', function() {
+        els.modalCurrentStreak.textContent = (state.streak.currentStreak || 0) + ' Days';
+        els.modalBestStreak.textContent = (state.streak.bestStreak || 0) + ' Days';
+        els.streakModal.classList.remove('hidden');
+      });
+
+      els.closeStreakModalBtn.addEventListener('click', function() {
+        els.streakModal.classList.add('hidden');
+      });
+
+      els.streakModal.addEventListener('click', function(e) {
+        if (e.target === els.streakModal) els.streakModal.classList.add('hidden');
+      });
+
+      els.closeBannerBtn.addEventListener('click', function() {
+        els.completionBanner.classList.add('hidden');
+      });
+
+      els.searchInput.addEventListener('input', function() {
+        state.searchQuery = this.value;
+        els.clearSearchBtn.classList.toggle('hidden', !this.value);
+        renderCards();
+      });
+
+      els.clearSearchBtn.addEventListener('click', function() {
+        els.searchInput.value = '';
+        state.searchQuery = '';
+        els.clearSearchBtn.classList.add('hidden');
+        renderCards();
+      });
+
+      els.toggleTranslit.addEventListener('change', function() {
+        state.settings.showTransliteration = this.checked;
+        saveState();
+        renderCards();
+      });
+      els.toggleTrans.addEventListener('change', function() {
+        state.settings.showTranslation = this.checked;
+        saveState();
+        renderCards();
+      });
+      els.toggleVirtues.addEventListener('change', function() {
+        state.settings.showVirtues = this.checked;
+        saveState();
+        renderCards();
+      });
+      els.toggleSoundSetting.addEventListener('change', function() {
+        state.settings.soundEnabled = this.checked;
+        saveState();
+        els.soundIcon.textContent = this.checked ? '🔊' : '🔇';
+      });
+      els.toggleVibrate.addEventListener('change', function() {
+        state.settings.vibrateEnabled = this.checked;
+        saveState();
+      });
+      els.toggleCardTap.addEventListener('change', function() {
+        state.settings.cardTapToCount = this.checked;
+        saveState();
+      });
+
+      function downloadCurrentSingleFile() {
+        const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'daily-adhkar-single-file.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      els.downloadHtmlBtn.addEventListener('click', downloadCurrentSingleFile);
+      els.modalDownloadBtn.addEventListener('click', downloadCurrentSingleFile);
+
+      updateTheme(state.settings.theme);
+      renderStreakBadge();
+      updateTabsUI();
+      renderCards();
+
+    })();
+  </script>
+
+</body>
+</html>
