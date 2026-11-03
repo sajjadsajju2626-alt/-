@@ -22,6 +22,22 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.app-arabic-title {
+  font-family: 'Scheherazade New', 'Amiri', 'Aref Ruqaa', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  text-align: center;
+  color: #ffffff;
+  line-height: 1.45;
+  padding-top: 0.1em;
+  letter-spacing: 0;
+  text-shadow: 0 2px 6px rgba(4, 47, 46, 0.35);
+  margin: 0;
+  direction: rtl;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
 .font-malayalam {
   font-family: 'Noto Sans Malayalam', 'Manjari', 'Gayathri', system-ui, -apple-system, sans-serif;
   text-rendering: optimizeLegibility;
@@ -53,5 +69,63 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(15, 118, 110, 0.4);
+}
+
+@keyframes streakFreezeShiver {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+  }
+  20% {
+    transform: translateX(-1px) rotate(-1deg);
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.72);
+  }
+  40% {
+    transform: translateX(1px) rotate(1deg);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.55);
+  }
+  60% {
+    transform: translateX(-1px) rotate(-1deg);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.78);
+  }
+  80% {
+    transform: translateX(1px) rotate(1deg);
+    box-shadow: 0 0 11px rgba(0, 229, 255, 0.52);
+  }
+}
+
+.streak-freeze-badge {
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+  animation: streakFreezeShiver 2.2s ease-in-out infinite;
+}
+
+@keyframes streakFlamePulse {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 18px rgba(255, 122, 0, 0.55));
+  }
+  50% {
+    transform: scale(1.06) translateY(-3px);
+    filter: drop-shadow(0 0 26px rgba(255, 160, 0, 0.85));
+  }
+}
+
+@keyframes streakParticleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translateY(-6px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+.streak-flame-svg {
+  animation: streakFlamePulse 2.4s ease-in-out infinite;
+}
+
+.streak-particle {
+  animation: streakParticleFloat 2s ease-in-out infinite;
 }
 

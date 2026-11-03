@@ -10,6 +10,7 @@ import {
   AppSettings,
   ProgressSummary,
   TranslationLanguage,
+  DhikrItem,
 } from './types/adhkar.ts';
 import {
   MORNING_ADHKAR,
@@ -26,6 +27,7 @@ import {
   getTodayDateString,
   shouldResetDaily,
   filterDhikrItems,
+  searchAdhkarWithCategories,
 } from './utils/adhkar-utils.ts';
 import { playTapSound, playCompletionSound, playReminderChime, triggerHaptic } from './utils/audio.ts';
 import { Header } from './components/Header.tsx';
@@ -44,7 +46,7 @@ import { PWAInstallBanner } from './components/PWAInstallBanner.tsx';
 import { ShareModal } from './components/ShareModal.tsx';
 import { MobileReminderBanner } from './components/MobileReminderBanner.tsx';
 import { usePWAInstall } from './utils/usePWAInstall.ts';
-import { Search, RotateCcw, CheckCheck, Star, Sun, Moon, Languages, Headphones } from 'lucide-react';
+import { Search, RotateCcw, CheckCheck, Star, Sun, Moon, Languages, Headphones, X, Home, Settings as SettingsIcon } from 'lucide-react';
 import {
   evaluateMissedAdhkarCatchUp,
   syncScheduleWithServiceWorker,
@@ -81,6 +83,9 @@ import {
   addCustomTask,
   completeAllTasks,
   upsertTaskHistoryForDate,
+  normalizeDailyTasks,
+  toggleTask,
+  toggleSubtask,
 } from './utils/tasks-utils.ts';
 import {
   SectionCompletionFireOverlay,
@@ -97,7 +102,7 @@ import {
 
 const DEFAULT_SETTINGS: AppSettings = {
   arabicFontSize: 'large',
-  showTransliteration: true,
+  showTransliteration: false,
   showTranslation: true,
   translationLanguage: 'both',
   showVirtues: true,
@@ -105,6 +110,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   vibrateEnabled: true,
   theme: 'emerald',
   cardTapToCount: false,
+  showFocusTimer: false,
   autoScrollNext: true,
   remindersEnabled: false,
   morningReminderTime: '05:30',
@@ -128,11 +134,29 @@ export default function App() {
     return getRecommendedTabByHour(currentHour).tab;
   });
 
+  const [isCategoryOpen, setIsCategoryOpen] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab') as TabKey | null;
+      if (tabParam && ['morning', 'evening', 'prayer', 'sleep', 'tasbih', 'favorites', 'tasks', 'progress'].includes(tabParam)) {
+        return true;
+      }
+    }
+    return false;
+  });
+
   // Settings
   const [settings, setSettings] = useState<AppSettings>(() => {
     try {
       const saved = localStorage.getItem('adhkar_settings');
-      return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+      const parsed = saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : { ...DEFAULT_SETTINGS };
+      const savedFocusTimer = localStorage.getItem('adhkar_show_focus_timer');
+      if (savedFocusTimer !== null) {
+        parsed.showFocusTimer = savedFocusTimer === 'true';
+      } else {
+        parsed.showFocusTimer = Boolean(parsed.showFocusTimer);
+      }
+      return parsed;
     } catch {
       return DEFAULT_SETTINGS;
     }
@@ -247,6 +271,7 @@ export default function App() {
   useEffect(() => {
     try {
       localStorage.setItem('adhkar_settings', JSON.stringify(settings));
+      localStorage.setItem('adhkar_show_focus_timer', String(Boolean(settings.showFocusTimer)));
       localStorage.setItem('morning_time', settings.morningReminderTime || '05:30');
       localStorage.setItem('evening_time', settings.eveningReminderTime || '17:30');
       localStorage.setItem('sleep_time', settings.sleepReminderTime || '22:00');
@@ -261,7 +286,9 @@ export default function App() {
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('adhkar_favorites');
-      return saved ? JSON.parse(saved) : ['m-1', 'm-3', 'm-7'];
+      if (!saved) return ['m-1', 'm-3', 'm-7'];
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : ['m-1', 'm-3', 'm-7'];
     } catch {
       return ['m-1', 'm-3', 'm-7'];
     }
@@ -285,16 +312,28 @@ export default function App() {
   const [tasks, setTasks] = useState<DailyTask[]>(() => {
     try {
       const today = getTodayDateString(new Date());
-      const savedDate = localStorage.getItem('adhkar_tasks_date');
+      let savedDate = localStorage.getItem('adhkar_tasks_date');
       const savedTasks = localStorage.getItem('adhkar_daily_tasks');
+      const parsedRaw = savedTasks ? JSON.parse(savedTasks) : null;
+      if (
+        !savedDate &&
+        parsedRaw &&
+        typeof parsedRaw === 'object' &&
+        !Array.isArray(parsedRaw) &&
+        typeof (parsedRaw as { date?: unknown }).date === 'string'
+      ) {
+        savedDate = (parsedRaw as { date: string }).date;
+      }
+
+      const normalizedSaved = normalizeDailyTasks(parsedRaw, DEFAULT_DAILY_TASKS);
+
       if (shouldResetTasksDate(savedDate, today)) {
         // Archive previous day's task completions into adhkar_tasks_history before resetting
-        if (savedDate && savedTasks) {
+        if (savedDate && normalizedSaved.length > 0) {
           try {
-            const parsedPrevTasks = JSON.parse(savedTasks) as DailyTask[];
             const existingHistoryRaw = localStorage.getItem('adhkar_tasks_history');
             const existingHistory = existingHistoryRaw ? JSON.parse(existingHistoryRaw) : {};
-            const archived = upsertTaskHistoryForDate(existingHistory, savedDate, parsedPrevTasks);
+            const archived = upsertTaskHistoryForDate(existingHistory, savedDate, normalizedSaved);
             localStorage.setItem('adhkar_tasks_history', JSON.stringify(archived));
           } catch {
             // ignore archive error
@@ -303,7 +342,7 @@ export default function App() {
         localStorage.setItem('adhkar_tasks_date', today);
         return DEFAULT_DAILY_TASKS;
       }
-      return savedTasks ? JSON.parse(savedTasks) : DEFAULT_DAILY_TASKS;
+      return normalizedSaved.length > 0 ? normalizedSaved : DEFAULT_DAILY_TASKS;
     } catch {
       return DEFAULT_DAILY_TASKS;
     }
@@ -311,8 +350,14 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('adhkar_daily_tasks', JSON.stringify(tasks));
-      localStorage.setItem('adhkar_tasks_date', getTodayDateString(new Date()));
+      const today = getTodayDateString(new Date());
+      const safeTasks = normalizeDailyTasks(tasks, DEFAULT_DAILY_TASKS);
+      localStorage.setItem('adhkar_daily_tasks', JSON.stringify(safeTasks));
+      localStorage.setItem('adhkar_tasks_date', today);
+      const rawHistory = localStorage.getItem('adhkar_tasks_history');
+      const parsedHistory = rawHistory ? JSON.parse(rawHistory) : {};
+      const syncedHistory = upsertTaskHistoryForDate(parsedHistory, today, safeTasks);
+      localStorage.setItem('adhkar_tasks_history', JSON.stringify(syncedHistory));
     } catch {
       // ignore
     }
@@ -321,41 +366,14 @@ export default function App() {
   const taskStats = useMemo(() => calculateTasksProgress(tasks), [tasks]);
 
   const handleToggleTask = (taskId: string) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId) return t;
-        const willComplete = !t.completed;
-        const updatedSubtasks = t.subtasks?.map((st) => ({
-          ...st,
-          completed: willComplete,
-        }));
-        return {
-          ...t,
-          completed: willComplete,
-          subtasks: updatedSubtasks,
-          completedAt: willComplete ? new Date().toISOString() : undefined,
-        };
-      })
-    );
+    setTasks((prev) => toggleTask(normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS), taskId));
     if (settings.soundEnabled) playTapSound();
     if (settings.vibrateEnabled) triggerHaptic('tap');
   };
 
   const handleToggleSubtask = (taskId: string, subtaskId: string) => {
     setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== taskId || !t.subtasks) return t;
-        const newSubtasks = t.subtasks.map((st) =>
-          st.id === subtaskId ? { ...st, completed: !st.completed } : st
-        );
-        const allDone = newSubtasks.every((st) => st.completed);
-        return {
-          ...t,
-          subtasks: newSubtasks,
-          completed: allDone,
-          completedAt: allDone ? new Date().toISOString() : undefined,
-        };
-      })
+      toggleSubtask(normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS), taskId, subtaskId)
     );
     if (settings.soundEnabled) playTapSound();
     if (settings.vibrateEnabled) triggerHaptic('tap');
@@ -368,16 +386,16 @@ export default function App() {
     arabicTitle?: string;
     malayalamTitle?: string;
   }) => {
-    setTasks((prev) => addCustomTask(prev, data));
+    setTasks((prev) => addCustomTask(normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS), data));
   };
 
   const handleDeleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setTasks((prev) => normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS).filter((t) => t.id !== taskId));
   };
 
   const handleResetTasks = () => {
     setTasks((prev) =>
-      prev.map((t) => ({
+      normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS).map((t) => ({
         ...t,
         completed: false,
         subtasks: t.subtasks?.map((st) => ({ ...st, completed: false })),
@@ -387,9 +405,13 @@ export default function App() {
   };
 
   const handleCompleteAllTasks = () => {
-    setTasks((prev) => completeAllTasks(prev));
-    if (settings.soundEnabled) playCompletionSound();
-    if (settings.vibrateEnabled) triggerHaptic('complete');
+    setTasks((prev) => completeAllTasks(normalizeDailyTasks(prev, DEFAULT_DAILY_TASKS)));
+    setSectionFireEvent({
+      sectionKey: 'tasks',
+      sectionLabel: 'Daily Sunnah Tasks',
+      completedCount: tasks.length,
+      totalCount: tasks.length,
+    });
   };
 
   // Get active items list based on active tab
@@ -410,10 +432,17 @@ export default function App() {
     }
   }, [currentTab, favorites]);
 
-  // Filtered items
+  // Filtered items (searches across all categories when searchQuery is active)
   const filteredItems = useMemo(() => {
-    return filterDhikrItems(activeItems, counts, searchQuery, filterMode);
-  }, [activeItems, counts, searchQuery, filterMode]);
+    return searchAdhkarWithCategories(
+      activeItems,
+      ALL_ADHKAR_ITEMS,
+      counts,
+      searchQuery,
+      filterMode,
+      currentTab
+    );
+  }, [activeItems, counts, searchQuery, filterMode, currentTab]);
 
   // Calculate progress for each category
   const morningProgress = useMemo(
@@ -1075,10 +1104,23 @@ export default function App() {
       setSectionFireEvent(newlyCompletedSection);
     }
 
-    // Check 'All Completed' Massive Fireworks Celebration when all 4 daily Adhkar tabs reach 100%
+    // Check 4-Pillar Daily Streak Qualification & Auto Milestone Trigger when all 4 daily Adhkar tabs reach 100%
     const allFourDone = isAllFourAdhkarCompleted(categoryProgressMap);
     const allCelebratedKey = `adhkar_all_celebrated_${todayDateStr}`;
     const alreadyAllCelebrated = localStorage.getItem(allCelebratedKey) === 'true';
+
+    if (allFourDone) {
+      try {
+        const rawTs = localStorage.getItem('adhkar_completion_timestamps');
+        const tsMap = rawTs ? JSON.parse(rawTs) || {} : {};
+        if (!tsMap[todayDateStr]) {
+          tsMap[todayDateStr] = Date.now();
+          localStorage.setItem('adhkar_completion_timestamps', JSON.stringify(tsMap));
+        }
+      } catch {
+        // ignore
+      }
+    }
 
     if (allFourDone && !alreadyAllCelebrated) {
       try {
@@ -1086,7 +1128,8 @@ export default function App() {
       } catch {
         // ignore
       }
-      setIsAllCompletedFireworksOpen(true);
+      if (settings.soundEnabled) playCompletionSound();
+      if (settings.vibrateEnabled) triggerHaptic('complete');
     } else if (!allFourDone && alreadyAllCelebrated) {
       try {
         localStorage.removeItem(allCelebratedKey);
@@ -1206,7 +1249,7 @@ export default function App() {
     }
   }, [playbackState.playingId, isAutoplayActive, activeItems, autoplayIndex]);
 
-  // Stop autoplay if changing tabs
+  // Stop autoplay if changing tabs and open the category view
   const handleSelectTab = (tab: TabKey) => {
     if (isAutoplayActive) {
       stopAutoplay();
@@ -1214,28 +1257,75 @@ export default function App() {
       PronunciationManager.stop();
     }
     setCurrentTab(tab);
+    setIsCategoryOpen(true);
     setSearchQuery('');
+    try {
+      window.history.pushState({ view: 'category', id: tab }, '');
+    } catch {
+      // ignore history API errors in restricted environments
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Start Autoplay All recitation
+  const handleCloseCategory = () => {
+    if (isAutoplayActive) {
+      stopAutoplay();
+    } else {
+      PronunciationManager.stop();
+    }
+    setIsCategoryOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      if (window.history.state && window.history.state.view === 'category') {
+        window.history.back();
+      }
+    } catch {
+      // ignore history API errors
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      PronunciationManager.stop();
+      if (event.state && event.state.view === 'category' && event.state.id) {
+        setCurrentTab(event.state.id as TabKey);
+        setIsCategoryOpen(true);
+      } else {
+        setIsCategoryOpen(false);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const [lastSelectedCardId, setLastSelectedCardId] = useState<string | null>(null);
+
+  // Start Autoplay All recitation (starts sequentially from the current/active card or item #1)
   const startAutoplayAll = () => {
     if (activeItems.length === 0) return;
     clearAutoplayTimer();
+    const currentId = PronunciationManager.getState().playingId || lastSelectedCardId;
+    const foundIdx = currentId ? activeItems.findIndex((it) => it.id === currentId) : -1;
+    const startIdx = foundIdx >= 0 ? foundIdx : 0;
+
     setIsAutoplayActive(true);
-    setAutoplayIndex(0);
+    setAutoplayIndex(startIdx);
     setIsAutoplayWaitingPause(false);
 
-    const firstItem = activeItems[0];
+    const startItem = activeItems[startIdx];
     PronunciationManager.play({
-      id: firstItem.id,
-      arabicText: firstItem.arabic,
-      isQuranic: !!firstItem.isQuranic,
-      audioUrl: firstItem.audioUrl,
-      audioUrls: firstItem.audioUrls,
-      reciterTitle: firstItem.reciter,
+      id: startItem.id,
+      arabicText: startItem.arabic,
+      isQuranic: !!startItem.isQuranic,
+      audioUrl: startItem.audioUrl,
+      audioUrls: startItem.audioUrls,
+      audioStartTime: startItem.audioStartTime,
+      audioEndTime: startItem.audioEndTime,
+      reciterTitle: startItem.reciter,
     });
 
-    const el = document.getElementById(`adhkar-card-${firstItem.id}`);
+    const el = document.getElementById(`adhkar-card-${startItem.id}`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
@@ -1263,6 +1353,8 @@ export default function App() {
         isQuranic: !!currentAutoplayItem.isQuranic,
         audioUrl: currentAutoplayItem.audioUrl,
         audioUrls: currentAutoplayItem.audioUrls,
+        audioStartTime: currentAutoplayItem.audioStartTime,
+        audioEndTime: currentAutoplayItem.audioEndTime,
         reciterTitle: currentAutoplayItem.reciter,
       });
     }
@@ -1282,6 +1374,8 @@ export default function App() {
         isQuranic: !!nextItem.isQuranic,
         audioUrl: nextItem.audioUrl,
         audioUrls: nextItem.audioUrls,
+        audioStartTime: nextItem.audioStartTime,
+        audioEndTime: nextItem.audioEndTime,
         reciterTitle: nextItem.reciter,
       });
       const el = document.getElementById(`adhkar-card-${nextItem.id}`);
@@ -1305,6 +1399,8 @@ export default function App() {
         isQuranic: !!prevItem.isQuranic,
         audioUrl: prevItem.audioUrl,
         audioUrls: prevItem.audioUrls,
+        audioStartTime: prevItem.audioStartTime,
+        audioEndTime: prevItem.audioEndTime,
         reciterTitle: prevItem.reciter,
       });
       const el = document.getElementById(`adhkar-card-${prevItem.id}`);
@@ -1343,6 +1439,8 @@ export default function App() {
             isQuranic: !!nextItem.isQuranic,
             audioUrl: nextItem.audioUrl,
             audioUrls: nextItem.audioUrls,
+            audioStartTime: nextItem.audioStartTime,
+            audioEndTime: nextItem.audioEndTime,
             reciterTitle: nextItem.reciter,
           });
           const el = document.getElementById(`adhkar-card-${nextItem.id}`);
@@ -1361,7 +1459,7 @@ export default function App() {
 
   // Handler: Increment count for a dhikr (with gentle haptic and one-tap auto-advance)
   const handleIncrement = (id: string) => {
-    const item = activeItems.find((it) => it.id === id);
+    const item = ALL_ADHKAR_ITEMS.find((it) => it.id === id) || activeItems.find((it) => it.id === id);
     if (!item) return;
 
     const currentCount = counts[id] || 0;
@@ -1445,8 +1543,12 @@ export default function App() {
       });
       return next;
     });
-    if (settings.soundEnabled) playCompletionSound();
-    if (settings.vibrateEnabled) triggerHaptic('complete');
+    setSectionFireEvent({
+      sectionKey: currentTab,
+      sectionLabel: activeCategoryConfig.label,
+      completedCount: activeItems.length,
+      totalCount: activeItems.length,
+    });
   };
 
   const isDark = settings.theme === 'dark' || settings.theme === 'midnight';
@@ -1458,12 +1560,12 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+      className={`min-h-screen flex flex-col font-sans pb-10 transition-colors duration-200 ${
         settings.theme === 'midnight'
           ? 'dark bg-black text-slate-100'
           : settings.theme === 'dark'
           ? 'dark bg-slate-950 text-slate-100'
-          : 'daylight-mode bg-slate-100 text-black'
+          : 'daylight-mode bg-[#f4f9f6] text-black'
       }`}
     >
       {/* Unblockable Mobile Reminder Banner + Audio Chime Alert */}
@@ -1514,15 +1616,33 @@ export default function App() {
         onOpenShare={() => setIsShareModalOpen(true)}
       />
 
-      {/* Navigation Tab Bar */}
-      <TabBar
-        activeTab={currentTab}
-        onTabChange={handleSelectTab}
-        categoryProgress={categoryProgressMap}
-        favoritesCount={favorites.length}
-        favoritesCompletedCount={favoritesProgress.completed}
-        tasksProgress={{ completed: taskStats.completed, total: taskStats.total }}
-      />
+      {/* Home Category Dashboard (Displayed when no category is opened) */}
+      {!isCategoryOpen && (
+        <div className="max-w-xl w-full mx-auto">
+          <div className="px-4 pt-4">
+            <TimeRecommendationBanner
+              currentTab={currentTab}
+              onSelectTab={handleSelectTab}
+              categoryProgress={categoryProgressMap}
+              overallProgressPercent={overallDailyProgress}
+              onStartAutoplayAll={() => {
+                const rec = getRecommendedTabByHour(new Date().getHours()).tab;
+                handleSelectTab(rec);
+              }}
+              isAutoplayActive={isAutoplayActive}
+              theme={settings.theme}
+            />
+          </div>
+          <TabBar
+            activeTab={currentTab}
+            onTabChange={handleSelectTab}
+            categoryProgress={categoryProgressMap}
+            favoritesCount={favorites.length}
+            favoritesCompletedCount={favoritesProgress.completed}
+            tasksProgress={{ completed: taskStats.completed, total: taskStats.total }}
+          />
+        </div>
+      )}
 
       {/* Section Completion Fire Overlay (🔥 പൂർത്തിയായി!) */}
       <SectionCompletionFireOverlay
@@ -1532,23 +1652,32 @@ export default function App() {
         vibrateEnabled={settings.vibrateEnabled}
       />
 
-      {/* Main Content Area */}
-      <main className="container flex-1 max-w-xl mx-auto px-4 py-4 w-full">
-        {currentTab === 'progress' ? (
-          <ProgressAnalyticsSection
-            history={progressHistory}
-            isDark={isDark}
-            todayStr={todayDateStr}
-            currentStreak={streakStatus.effectiveStreak}
-            bestStreak={streakData.bestStreak}
-          />
-        ) : currentTab === 'tasbih' ? (
-          <div className="space-y-6">
-            <TasbihCounter
-              soundEnabled={settings.soundEnabled}
-              vibrateEnabled={settings.vibrateEnabled}
-              theme={settings.theme}
-            />
+      {/* Opened Category Full View */}
+      {isCategoryOpen && (
+        <main className="container flex-1 max-w-xl mx-auto px-4 py-4 w-full space-y-4">
+          {/* Top Navigation Bar inside Opened Category */}
+          <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-900 rounded-2xl p-3 border border-emerald-500/30 dark:border-slate-800 shadow-xs">
+            <button
+              type="button"
+              id="backToCategoriesBtn"
+              data-testid="back-to-categories-btn"
+              onClick={handleCloseCategory}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0d5c3a] hover:bg-[#064e3b] text-white text-xs sm:text-sm font-extrabold transition-all cursor-pointer active:scale-95 shadow-xs"
+            >
+              <span className="font-malayalam">← തിരികെ (Back)</span>
+              <span className="hidden sm:inline text-emerald-100">• Back to Categories</span>
+            </button>
+            <div className="text-right min-w-0">
+              <div className="text-xs sm:text-sm font-extrabold text-[#064e3b] dark:text-emerald-300 truncate">
+                {activeCategoryConfig.label}
+              </div>
+              <div className="text-[11px] font-arabic font-bold text-emerald-700 dark:text-emerald-400 truncate" dir="rtl">
+                {activeCategoryConfig.arabicLabel}
+              </div>
+            </div>
+          </div>
+
+          {currentTab === 'progress' ? (
             <ProgressAnalyticsSection
               history={progressHistory}
               isDark={isDark}
@@ -1556,59 +1685,33 @@ export default function App() {
               currentStreak={streakStatus.effectiveStreak}
               bestStreak={streakData.bestStreak}
             />
-          </div>
-        ) : currentTab === 'tasks' ? (
-          <div className="space-y-6">
-            <DailyTasksTracker
-              tasks={tasks}
-              onToggleTask={handleToggleTask}
-              onToggleSubtask={handleToggleSubtask}
-              onAddTask={handleAddTask}
-              onDeleteTask={handleDeleteTask}
-              onResetTasks={handleResetTasks}
-              onCompleteAllTasks={handleCompleteAllTasks}
-              soundEnabled={settings.soundEnabled}
-              vibrateEnabled={settings.vibrateEnabled}
-              theme={settings.theme}
-            />
-          </div>
-        ) : (
-          <div>
-            {/* Time-Based Recommended Adhkar Banner with 0-100% Visual Progress Bar */}
-            <TimeRecommendationBanner
-              currentTab={currentTab}
-              onSelectTab={handleSelectTab}
-              categoryProgress={categoryProgressMap}
-              overallProgressPercent={overallDailyProgress}
-              onStartAutoplayAll={
-                activeItems.length > 0 ? (isAutoplayActive ? stopAutoplay : startAutoplayAll) : undefined
-              }
-              isAutoplayActive={isAutoplayActive}
-              theme={settings.theme}
-            />
+          ) : currentTab === 'tasbih' ? (
+            <div className="space-y-6">
+              <TasbihCounter
+                soundEnabled={settings.soundEnabled}
+                vibrateEnabled={settings.vibrateEnabled}
+                theme={settings.theme}
+              />
+            </div>
+          ) : currentTab === 'tasks' ? (
+            <div className="space-y-6">
+              <DailyTasksTracker
+                tasks={tasks}
+                onToggleTask={handleToggleTask}
+                onToggleSubtask={handleToggleSubtask}
+                onUpdateTasks={(nextTasks) => setTasks(nextTasks)}
+                onAddTask={handleAddTask}
+                onDeleteTask={handleDeleteTask}
+                onResetTasks={handleResetTasks}
+                onCompleteAllTasks={handleCompleteAllTasks}
+                soundEnabled={settings.soundEnabled}
+                vibrateEnabled={settings.vibrateEnabled}
+                theme={settings.theme}
+              />
+            </div>
+          ) : (
+            <div>
 
-            {/* Shaykh Ibn Uthaymeen Booklet Reference Banner */}
-            {(currentTab === 'morning' || currentTab === 'evening') && (
-              <div
-                className={`mb-3 px-3 py-2 rounded-xl text-xs flex items-center justify-between border shadow-xs ${
-                  isDark
-                    ? 'bg-amber-950/30 border-amber-900/50 text-amber-200'
-                    : 'bg-amber-100 border-amber-500 text-black'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-black text-[10px] tracking-wider uppercase px-2 py-0.5 rounded bg-amber-900 text-white shadow-xs">
-                    Authentic Booklet
-                  </span>
-                  <span className={`text-[11px] sm:text-xs font-extrabold ${isDark ? 'text-amber-200' : 'text-black'}`}>
-                    All 23 Duas from Shaykh Ibn Uthaymeen (Arabic, Malayalam &amp; English)
-                  </span>
-                </div>
-                <span className={`text-xs font-black hidden sm:inline font-arabic ${isDark ? 'text-amber-200' : 'text-black'}`}>
-                  الأذكار صباحاً ومساءً
-                </span>
-              </div>
-            )}
 
             {/* Hisn al-Muslim Sleep Adhkar Reference Banner */}
             {currentTab === 'sleep' && (
@@ -1645,12 +1748,27 @@ export default function App() {
                     placeholder="Search in Arabic, English, or മലയാളം..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full pl-9 pr-3 py-2 rounded-xl text-xs sm:text-sm border focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors ${
+                    className={`w-full pl-9 pr-8 py-2 rounded-xl text-xs sm:text-sm border focus:outline-none focus:ring-2 focus:ring-teal-600 transition-colors ${
                       isDark
                         ? 'bg-slate-900 border-slate-800 text-white placeholder-slate-500 font-medium'
                         : 'bg-white border-slate-400 text-black placeholder-slate-700 font-bold shadow-xs'
                     }`}
                   />
+                  {searchQuery.trim().length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Clear search query"
+                      title="Clear search"
+                      className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors cursor-pointer ${
+                        isDark
+                          ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                          : 'text-slate-700 hover:text-black hover:bg-slate-200'
+                      }`}
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Autoplay All Recite-Along Mode Trigger */}
@@ -1765,32 +1883,42 @@ export default function App() {
               </div>
             </div>
 
-            {/* Completion Banner if all completed in this category */}
-            {activeProgress.isAllDone && activeProgress.total > 0 && (
-              <CompletionBanner
-                categoryLabel={activeCategoryConfig.label}
-                onGoToNextTab={(next) => handleSelectTab(next)}
-                nextTabLabel={
-                  currentTab === 'morning'
-                    ? 'Evening Adhkar'
-                    : currentTab === 'evening'
-                    ? 'After Prayer Adhkar'
-                    : 'Digital Tasbih'
-                }
-                nextTabKey={
-                  currentTab === 'morning'
-                    ? 'evening'
-                    : currentTab === 'evening'
-                    ? 'prayer'
-                    : 'tasbih'
-                }
-                onShare={() => setIsShareModalOpen(true)}
-              />
+            {/* Active Search Results Info Bar */}
+            {searchQuery.trim().length > 0 && (
+              <div
+                data-testid="search-results-summary"
+                className={`mb-3 px-3.5 py-2.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-2 border ${
+                  isDark
+                    ? 'bg-teal-950/40 border-teal-800/70 text-teal-200'
+                    : 'bg-teal-50 border-teal-600 text-black shadow-2xs'
+                }`}
+              >
+                <div className="flex items-center gap-2 flex-wrap font-extrabold">
+                  <Search className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                  <span>
+                    Found {filteredItems.length} matching {filteredItems.length === 1 ? 'Zikr' : 'Adhkar'} for &ldquo;{searchQuery.trim()}&rdquo;
+                  </span>
+                  <span className={`text-[11px] font-bold ${isDark ? 'text-teal-300/90' : 'text-teal-950'}`}>
+                    • Category location shown below each result
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-colors cursor-pointer border ${
+                    isDark
+                      ? 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-slate-700'
+                      : 'bg-white hover:bg-slate-100 text-black border-slate-400'
+                  }`}
+                >
+                  Clear Search
+                </button>
+              </div>
             )}
 
             {/* Adhkar List Container (id="list" matching prototype) */}
             <div id="list">
-              {currentTab === 'favorites' && favorites.length === 0 ? (
+              {currentTab === 'favorites' && favorites.length === 0 && searchQuery.trim().length === 0 ? (
                 <div
                   className={`text-center py-12 px-6 rounded-3xl border ${
                     isDark
@@ -1846,7 +1974,25 @@ export default function App() {
                     isFavorite={isItemFavorite(favorites, item.id)}
                     onToggleFavorite={handleToggleFavorite}
                     showCategoryBadge={currentTab === 'favorites'}
+                    isSearchResult={searchQuery.trim().length > 0}
+                    onSelectCategory={(cat, itemId) => {
+                      setSearchQuery('');
+                      setFilterMode('all');
+                      handleSelectTab(cat);
+                      setTimeout(() => {
+                        const el = document.getElementById(`adhkar-card-${itemId}`);
+                        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 120);
+                    }}
                     isAutoplayCurrentItem={isAutoplayActive && currentAutoplayItem?.id === item.id}
+                    onIndividualPlay={(id) => {
+                      setLastSelectedCardId(id);
+                      if (isAutoplayActive) {
+                        clearAutoplayTimer();
+                        setIsAutoplayActive(false);
+                        setIsAutoplayWaitingPause(false);
+                      }
+                    }}
                     settings={settings}
                     theme={settings.theme}
                   />
@@ -1881,20 +2027,10 @@ export default function App() {
                 Complete All ({activeCategoryConfig.label})
               </button>
             </div>
-
-            {/* Dedicated Weekly and Monthly Progress Tracking Section on Dashboard */}
-            <div className="mt-6">
-              <ProgressAnalyticsSection
-                history={progressHistory}
-                isDark={isDark}
-                todayStr={todayDateStr}
-                currentStreak={streakStatus.effectiveStreak}
-                bestStreak={streakData.bestStreak}
-              />
-            </div>
           </div>
         )}
-      </main>
+        </main>
+      )}
 
       {/* Hands-Free Audio Recite-Along Floating / Sticky Control Bar */}
       <HandsFreeAutoplayBar
@@ -1931,11 +2067,17 @@ export default function App() {
         onClose={() => setIsStreakModalOpen(false)}
         currentStreak={streakStatus.effectiveStreak}
         bestStreak={streakData.bestStreak}
-        completedToday={streakStatus.completedToday}
+        completedToday={isAllFourAdhkarCompleted(categoryProgressMap)}
         categoryProgress={categoryProgressMap}
+        progressHistory={progressHistory}
+        usedFreezeDates={streakData.usedFreezeDates}
         freezeTokens={streakData.freezeTokens}
         canUseFreeze={streakStatus.canUseFreeze}
         onUseFreeze={handleUseStreakFreeze}
+        onSelectCategory={(cat) => {
+          setCurrentTab(cat);
+          setIsCategoryOpen(true);
+        }}
       />
 
       {/* Animated Daily Streak Completion Modal (only show if full-screen All Completed Fireworks isn't active) */}

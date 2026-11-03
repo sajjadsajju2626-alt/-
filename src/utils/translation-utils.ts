@@ -109,10 +109,14 @@ function normalizeMalayalamStem(text: string): string {
 }
 
 /**
- * Multi-lingual query matcher supporting Malayalam, English, Arabic, and Transliteration.
+ * Multi-lingual query matcher supporting Malayalam, English, Arabic, Transliteration, and Category names.
  */
 export function matchesQuery(
   item: {
+    id?: string;
+    category?: string;
+    itemNumber?: number;
+    hisnNumber?: number;
     title?: string;
     arabic: string;
     transliteration: string;
@@ -135,7 +139,7 @@ export function matchesQuery(
     if (stemQuery.length >= 3 && titleLower.includes(stemQuery)) return true;
   }
 
-  if (item.arabic.includes(query)) return true;
+  if (item.arabic.toLowerCase().includes(query)) return true;
   if (item.transliteration.toLowerCase().includes(query)) return true;
   if (item.translation.toLowerCase().includes(query)) return true;
 
@@ -161,5 +165,23 @@ export function matchesQuery(
 
   if (item.source && item.source.toLowerCase().includes(query)) return true;
 
+  if (item.itemNumber && (`#${item.itemNumber}` === query || String(item.itemNumber) === query)) {
+    return true;
+  }
+
+  if (item.hisnNumber && (`hisn #${item.hisnNumber}`.includes(query) || `#${item.hisnNumber}` === query)) {
+    return true;
+  }
+
+  if (item.category) {
+    const cat = item.category.toLowerCase();
+    if (cat.includes(query)) return true;
+    if (cat === 'morning' && ('morning adhkar പ്രഭാത ദിക്റുകൾ രാവിലെ أذكار الصباح'.includes(query))) return true;
+    if (cat === 'evening' && ('evening adhkar വൈകുന്നേരത്തെ ദിക്റുകൾ أذكار المساء'.includes(query))) return true;
+    if (cat === 'prayer' && ('after prayer adhkar salah നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ أذكار بعد الصلاة'.includes(query))) return true;
+    if (cat === 'sleep' && ('before sleep adhkar bedtime ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ أذكار النوم'.includes(query))) return true;
+  }
+
   return false;
 }
+

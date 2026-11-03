@@ -23,15 +23,81 @@ test('generateSingleFileHtml produces valid self-contained HTML5 file', () => {
   assert.ok(html.includes('playTapBeep'), 'Must have tap sound logic');
   assert.ok(html.includes('playCompletionChime'), 'Must have completion chime logic');
 
-  // Must embed full Ibn Uthaymeen Adhkar dataset
+  // Must embed full authentic Adhkar dataset without Uthaymeen or Authentic Booklet mentions
   assert.ok(html.includes('window.ADHKAR_DATA'), 'Must contain embedded window.ADHKAR_DATA');
   assert.ok(html.includes('Surah Al-Baqarah'), 'Must contain Quranic references');
   assert.ok(html.includes('അല്ലാഹു'), 'Must contain Malayalam translations');
   assert.ok(html.includes('سُبْحَانَ اللَّهِ'), 'Must contain Arabic dhikr text');
+  assert.equal(/uthaymeen/i.test(html), false, 'Must not contain any mention of Ibn Uthaymeen');
+  assert.equal(/authentic booklet/i.test(html), false, 'Must not contain Authentic Booklet banner');
 
-  // Must contain single file download handlers
+  // Must contain single file download handlers (accessible via Settings modal)
   assert.ok(html.includes('downloadCurrentSingleFile'), 'Must contain offline file download helper');
   assert.ok(html.includes('daily-adhkar-single-file.html'), 'Must specify download file name');
+
+  // Header must contain ONLY the 3 action buttons (soundToggleBtn, themeToggleBtn, openSettingsBtn)
+  assert.ok(html.includes('id="soundToggleBtn"'), 'Header must contain Sound toggle button');
+  assert.ok(html.includes('id="themeToggleBtn"'), 'Header must contain Day/Night theme toggle button');
+  assert.ok(html.includes('id="openSettingsBtn"'), 'Header must contain Settings button');
+  assert.equal(html.includes('id="resetCategoryBtn"'), false, 'Header must not contain Reset button');
+  assert.equal(html.includes('id="downloadHtmlBtn"'), false, 'Header must not contain Download button');
+  assert.equal(html.includes('id="shareAppBtn"'), false, 'Header must not contain Share button');
+
+  // Must contain Share as Image (Fadheelath Card) button and 9:16 canvas generator
+  assert.ok(
+    html.includes('ചിത്രമായി പങ്കുവെക്കുക (Share Image)'),
+    'Must contain Share Image button label'
+  );
+  assert.ok(html.includes('#0d2818'), 'Must include deep emerald green background #0d2818');
+  assert.ok(html.includes('#e0b96b'), 'Must include gold accent color #e0b96b');
+  assert.ok(
+    html.includes('മുദാവമ (Mudaawama) • Daily Adhkar'),
+    'Must include top title on Fadheelath card'
+  );
+  assert.ok(
+    html.includes('أذكار الصباح والمساء'),
+    'Must include Arabic header on Fadheelath card'
+  );
+  assert.ok(
+    html.includes('📲 ഈ ആപ്പ് ഫോണിൽ ലഭിക്കാൻ താഴെ കാണുന്ന ലിങ്കിൽ ക്ലിക്ക് ചെയ്യുക'),
+    'Must include visual bottom CTA label on Fadheelath card'
+  );
+  assert.ok(
+    html.includes('https://ais-pre-vnltcvivdjsnkrcxvjxrzx-323150098264.asia-east1.run.app/'),
+    'Must include https://ais-pre-vnltcvivdjsnkrcxvjxrzx-323150098264.asia-east1.run.app/'
+  );
+  assert.equal(
+    html.includes('https://sajjadsajju2626-alt.github.io/-/'),
+    false,
+    'Must not contain old GitHub Pages link'
+  );
+  assert.ok(html.includes('navigator.share'), 'Must integrate Web Share API navigator.share');
+  assert.ok(
+    html.includes('const shareUrl = "https://ais-pre-vnltcvivdjsnkrcxvjxrzx-323150098264.asia-east1.run.app/";'),
+    'Must define shareUrl with the exact URL'
+  );
+  assert.ok(
+    html.includes('if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] }))'),
+    'Must check navigator.share and navigator.canShare({ files: [file] })'
+  );
+  assert.ok(
+    html.includes('files: [file],\n                text: shareUrl,\n                url: shareUrl'),
+    'Must pass files: [file], text: shareUrl, url: shareUrl without title in navigator.share()'
+  );
+  assert.ok(
+    html.includes('navigator.clipboard.writeText("https://ais-pre-vnltcvivdjsnkrcxvjxrzx-323150098264.asia-east1.run.app/");'),
+    'Clipboard fallback must write only the exact URL string'
+  );
+
+  // Verify every inline <script> block in the generated HTML has valid JavaScript syntax
+  const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  assert.ok(scriptMatches.length >= 2, 'Must have embedded data and client app script blocks');
+  for (const [, scriptBody] of scriptMatches) {
+    assert.doesNotThrow(
+      () => new Function(scriptBody),
+      'Inline script in single-file HTML must be syntactically valid JavaScript'
+    );
+  }
 
   // Size check
   assert.ok(html.length > 100000, `File should be substantial (>100KB), got ${html.length} chars`);
@@ -42,4 +108,270 @@ test('public/adhkar-standalone.html exists on disk and is ready for serving and 
   assert.ok(fs.existsSync(filePath), 'public/adhkar-standalone.html must exist on disk');
   const stats = fs.statSync(filePath);
   assert.ok(stats.size > 100000, `File size should be > 100KB, got ${stats.size} bytes`);
+});
+
+test('generateSingleFileHtml uses emerald green palette, opens category view with Back to Categories button, removes bottom nav, shows Time-Based Recommendation once, and includes View Translation toggle', () => {
+  const html = generateSingleFileHtml();
+  assert.ok(
+    html.includes('#0d5c3a') && html.includes('#115e59') && html.includes('#064e3b'),
+    'Must include Islamic emerald green palette (#0d5c3a, #115e59, #064e3b)'
+  );
+  assert.ok(
+    !html.includes('#1565C0') && !html.includes('#1976D2') && !html.includes('#1E88E5'),
+    'Must not include old blue theme colors (#1565C0, #1976D2, #1E88E5)'
+  );
+  assert.ok(html.includes('grid-cols-2'), 'Must include 2-column category card grid');
+  for (const num of ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧']) {
+    assert.ok(html.includes(num), `Must include circled number tag ${num}`);
+  }
+  assert.ok(
+    html.includes('id="backToCategoriesBtn"') &&
+      html.includes('← തിരികെ (Back)') &&
+      html.includes('Back to Categories'),
+    'Must include Back to Categories navigation button for opened category view'
+  );
+  assert.ok(
+    !html.includes('data-bottom-nav='),
+    'Must completely remove the bottom navigation bar'
+  );
+  assert.ok(
+    html.includes('data-testid="time-based-recommendation-card"'),
+    'Must include single Time-Based Recommendation card on home overview'
+  );
+  assert.ok(
+    html.includes('View Translation / അർത്ഥം കാണുക') && html.includes('data-toggle-translation='),
+    'Must include View Translation / അർത്ഥം കാണുക toggle button for adhkar cards'
+  );
+  assert.ok(
+    html.includes('data-tab="progress"') &&
+      html.includes('id="progressView"') &&
+      html.includes('പുരോഗതി വിലയിരുത്തൽ • Progress Tracker'),
+    'Must isolate Progress Tracker inside dedicated #progressView (data-tab="progress")'
+  );
+  assert.ok(
+    html.includes('window.history.pushState') &&
+      html.includes('window.history.back()') &&
+      html.includes("window.addEventListener('popstate'"),
+    'Must integrate History API pushState, back(), and popstate listener for native phone back button'
+  );
+  assert.ok(
+    html.includes('showTransliteration: false'),
+    'Must set showTransliteration to false by default in DEFAULT_SETTINGS'
+  );
+  assert.ok(
+    html.includes('<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,700&family=Aref+Ruqaa:wght@700&display=swap" rel="stylesheet">'),
+    'Must include Google Fonts calligraphy stylesheet for Amiri and Aref Ruqaa'
+  );
+  assert.ok(
+    html.includes('<h1 class="app-arabic-title" dir="rtl">مُدَاوَمَةٌ</h1>'),
+    'Must render top centered header title <h1 class="app-arabic-title" dir="rtl">مُدَاوَمَةٌ</h1>'
+  );
+  assert.ok(
+    html.includes("font-family: 'Scheherazade New', 'Amiri', 'Aref Ruqaa', serif;"),
+    'Must style .app-arabic-title with Scheherazade New and Amiri calligraphy font family'
+  );
+  assert.ok(
+    html.includes('Daily Adhkar • പ്രതിദിന ദിക്റുകൾ'),
+    'Must display secondary subtitle "Daily Adhkar • പ്രതിദിന ദിക്റുകൾ" beneath the Arabic title'
+  );
+  assert.ok(
+    html.includes('showFocusTimer: false'),
+    'Must set showFocusTimer to false by default in DEFAULT_SETTINGS'
+  );
+  assert.ok(
+    html.includes('adhkar_show_focus_timer'),
+    'Must persist Focus Timer setting in localStorage under adhkar_show_focus_timer'
+  );
+  assert.ok(
+    html.includes('Focus Timer (ശ്രദ്ധ കേന്ദ്രീകരിക്കാൻ ടൈമർ)') &&
+      html.includes('Show countdown timer on adhkar cards / ദിക്റുകൾക്ക് ടൈമർ കാണിക്കുക') &&
+      html.includes('data-testid="toggle-focus-timer-switch"'),
+    'Must include Focus Timer toggle row and subtitle in Settings modal'
+  );
+  assert.ok(
+    html.includes('Morning / പ്രഭാതം') &&
+      html.includes('Evening / പ്രദോഷം') &&
+      html.includes('Sleep / ഉറക്കം') &&
+      html.includes('Daily Goal Completion Reminder') &&
+      html.includes('Send Test Notification / ടെസ്റ്റ് ചെയ്യുക') &&
+      html.includes('Test Catch-Up'),
+    'Must include clean, consumer-ready Notification settings UI'
+  );
+  assert.equal(
+    html.includes('Dual-Trigger Notification Engine'),
+    false,
+    'Must not contain technical debug box "Dual-Trigger Notification Engine"'
+  );
+  assert.equal(
+    html.includes('Test Dual-Trigger Notification'),
+    false,
+    'Must not contain technical label "Test Dual-Trigger Notification"'
+  );
+  assert.equal(
+    html.includes('Exact :00s Timer Armed'),
+    false,
+    'Must not contain debug status badge "Exact :00s Timer Armed"'
+  );
+  assert.ok(
+    html.includes('«سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ»'),
+    'Must include Hadith of Juwayriyah Arabic dhikr text'
+  );
+  assert.ok(
+    html.includes("Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih"),
+    'Must include Hadith of Juwayriyah transliteration'
+  );
+  assert.ok(
+    html.includes('3 Times (3 തവണ / 3 مرات)'),
+    'Must include 3 Times (3 തവണ / 3 مرات) repeatNote'
+  );
+  assert.ok(
+    html.includes('صحيح مسلم (2726)، أبو داود، والنسائي'),
+    'Must include Hadith reference صحيح مسلم (2726)، أبو داود، والنسائي'
+  );
+  assert.ok(
+    html.includes('عن جويرية أم المؤمنين رضي الله عنها: أن النبي ﷺ خرج من عندها بُكرةً'),
+    'Must include full Arabic Hadith text of Juwayriyah'
+  );
+  assert.ok(
+    html.includes('ജുവൈരിയ്യ (റ) വിൽ നിന്ന് നിവേദനം: നബി ﷺ സുബ്ഹ് നമസ്കാര ശേഷം അവരുടെ അടുത്തുനിന്ന് പുറത്തുപോയി'),
+    'Must include Malayalam Hadith virtue of Juwayriyah'
+  );
+  assert.ok(
+    html.includes('Hadith Ref &amp; Virtue / ഹദീസിൻ്റെ ശ്രേഷ്ഠത'),
+    'Must include Hadith Ref & Virtue / ഹദീസിൻ്റെ ശ്രേഷ്ഠത dropdown accordion'
+  );
+
+  // Duolingo-style Streak Modal assertions
+  assert.ok(
+    html.includes('@keyframes streakFreezeShiver') &&
+      html.includes('transform: translateX(-1px) rotate(-1deg)') &&
+      html.includes('transform: translateX(1px) rotate(1deg)') &&
+      html.includes('box-shadow: 0 0 10px rgba(0, 229, 255, 0.45)'),
+    'Must include @keyframes streakFreezeShiver with horizontal vibration and cyan glow box-shadow'
+  );
+  assert.ok(
+    html.includes('day streak / തുടർച്ചയായ ദിവസങ്ങൾ'),
+    'Must include Streak Modal subtitle "day streak / തുടർച്ചയായ ദിവസങ്ങൾ"'
+  );
+  assert.ok(
+    html.includes('തുടരുക / Continue'),
+    'Must include emerald green "തുടരുക / Continue" button'
+  );
+  assert.ok(
+    html.includes('❄️ Streak Freeze / വിട്ടുപോയ ദിവസം സംരക്ഷിച്ചു'),
+    'Must include icy Streak Freeze info banner "❄️ Streak Freeze / വിട്ടുപോയ ദിവസം സംരക്ഷിച്ചു"'
+  );
+  assert.ok(
+    html.includes("['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']"),
+    'Must include 7-day week row labels (Su, Mo, Tu, We, Th, Fr, Sa)'
+  );
+  for (const pillarLabel of [
+    'Morning • പ്രഭാതം',
+    'Evening • പ്രദോഷം',
+    'After Prayer • നമസ്കാരം',
+    'Sleep • ഉറക്കം',
+    'പ്രഭാത ദിക്റുകൾ',
+    'പ്രദോഷ ദിക്റുകൾ',
+    'നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ',
+    'ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ',
+  ]) {
+    assert.ok(
+      html.includes(pillarLabel),
+      `Must include 4-pillar qualification label "${pillarLabel}"`
+    );
+  }
+  assert.ok(
+    html.includes('adhkar_completion_timestamps') &&
+      html.includes('recalculateDynamicStreak') &&
+      html.includes('getFourPillarsStatus'),
+    'Must dynamically calculate streaks from localStorage completion timestamps and 4-pillar qualification'
+  );
+
+  // Boxless Free-Float Category Completion Celebration Overlay assertions
+  assert.equal(
+    html.includes('id="completionBanner"'),
+    false,
+    'Must remove the old boxed #completionBanner card container'
+  );
+  assert.equal(
+    html.includes('openStreakModal(true)'),
+    false,
+    'Must not interruptively auto-pop the boxed streak modal on completion'
+  );
+  assert.ok(
+    html.includes('id="completionOverlay"') &&
+      html.includes('data-testid="completion-free-overlay"'),
+    'Must include boxless #completionOverlay element'
+  );
+  assert.ok(
+    html.includes('backdrop-filter: blur(5px) brightness(0.6)'),
+    'Must include backdrop-filter: blur(5px) brightness(0.6) on completion overlay'
+  );
+  assert.ok(
+    html.includes('مَا شَاءَ اللَّه'),
+    'Must include glowing golden Arabic calligraphy "مَا شَاءَ اللَّه" below the flame'
+  );
+  assert.ok(
+    html.includes('വിഭാഗം പൂർത്തിയായി! • Category Completed!') &&
+      html.includes('പ്രഭാത ദിക്റുകൾ പൂർത്തിയായി!') &&
+      html.includes('പ്രദോഷ ദിക്റുകൾ പൂർത്തിയായി!') &&
+      html.includes('നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ പൂർത്തിയായി!') &&
+      html.includes('ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ പൂർത്തിയായി!'),
+    'Must include "വിഭാഗം പൂർത്തിയായി! • Category Completed!" and dynamic Malayalam category completion titles'
+  );
+  assert.ok(
+    html.includes('text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5)'),
+    'Must include soft dark shadow/glow text-shadow: 0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5)'
+  );
+  assert.ok(
+    html.includes('triggerVibration([60, 40, 60])'),
+    'Must trigger haptic vibration [60, 40, 60] upon category completion'
+  );
+  assert.ok(
+    html.includes('!wasCategoryAllDone && isCategoryNowAllDone') &&
+      html.includes('triggerCompletionOverlay(targetCatKey)') &&
+      html.includes('dismissCompletionOverlay') &&
+      html.includes('2000'),
+    'Must trigger completion overlay strictly when an entire category transitions to completed (or Complete All) and auto-dismiss after 2 seconds (2000ms)'
+  );
+});
+
+test('After Prayer Adhkar cards have distinct itemNumbers, unique audio segment bounds, and isolated single-item play vs Autoplay All', async () => {
+  const { PRAYER_ADHKAR, MORNING_ADHKAR, EVENING_ADHKAR, SLEEP_ADHKAR } = await import('../data/adhkarData.ts');
+  assert.equal(PRAYER_ADHKAR.length, 7, 'PRAYER_ADHKAR must have 7 items');
+
+  // Every After Prayer item must have its explicit itemNumber (1..7) so filtering never resets numbering to 1
+  PRAYER_ADHKAR.forEach((item, idx) => {
+    assert.equal(item.itemNumber, idx + 1, `Prayer item ${item.id} must have itemNumber ${idx + 1}`);
+    assert.ok(item.audioUrl, `Prayer item ${item.id} must have an audioUrl`);
+  });
+
+  // All 7 After Prayer audio URLs must be distinct (no two cards share an unsegmented 0:00 URL)
+  const uniqueUrls = new Set(PRAYER_ADHKAR.map((i) => i.audioUrl));
+  assert.equal(uniqueUrls.size, PRAYER_ADHKAR.length, 'Every After Prayer card must have a unique audioUrl / media fragment');
+
+  // Card #4 (p-4: Alhamdulillah) must have exact segment bounds (2.80s to 4.30s) on 69.mp3
+  const card4 = PRAYER_ADHKAR.find((i) => i.id === 'p-4');
+  assert.ok(card4, 'Card #4 (p-4) must exist in PRAYER_ADHKAR');
+  assert.equal(card4.itemNumber, 4);
+  assert.equal(card4.audioUrl, 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=2.80,4.30');
+  assert.equal(card4.audioStartTime, 2.8);
+  assert.equal(card4.audioEndTime, 4.3);
+
+  // Preserve Morning, Evening, and Sleep audio paths
+  assert.ok(MORNING_ADHKAR.filter((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Morning Adhkar audio paths preserved');
+  assert.ok(EVENING_ADHKAR.filter((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Evening Adhkar audio paths preserved');
+  assert.ok(SLEEP_ADHKAR.every((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)), 'Sleep Adhkar audio paths preserved');
+
+  // Verify standalone HTML includes segment seeking, playItem(cardId), playDhikrAudio(indexOrId), and Autoplay All vs single-item separation
+  const html = generateSingleFileHtml();
+  assert.ok(html.includes('function parseAudioBounds('), 'Must include parseAudioBounds helper');
+  assert.ok(html.includes('/#t=([\\d.]+)(?:,([\\d.]+))?/i'), 'Must include properly escaped media fragment regex in generated HTML');
+  assert.ok(html.includes('function playItem(cardId)'), 'Must include playItem(cardId) function');
+  assert.ok(html.includes('function playDhikrAudio(indexOrId)'), 'Must include playDhikrAudio(indexOrId) function');
+  assert.ok(html.includes('function startAutoplayAll()'), 'Must include startAutoplayAll() function');
+  assert.ok(html.includes('function stopAutoplayAll()'), 'Must include stopAutoplayAll() function');
+  assert.ok(html.includes('audio.dataset.itemId = item.id'), 'Must tag audio instance with item.id');
+  assert.ok(html.includes('audio.dataset.startTime = String(startTime)'), 'Must tag audio instance with startTime');
+  assert.ok(html.includes('audio.dataset.endTime = String(endTime)'), 'Must tag audio instance with endTime');
 });

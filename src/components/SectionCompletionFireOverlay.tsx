@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Flame, CheckCircle2, Sparkles, X } from 'lucide-react';
 import { triggerHaptic, playCompletionSound } from '../utils/audio.ts';
 
 export interface SectionCompletionEvent {
@@ -17,18 +16,39 @@ interface SectionCompletionFireOverlayProps {
   vibrateEnabled: boolean;
 }
 
+const GOLD_STAR_PARTICLES = [
+  { char: '✨', tx: '-74px', ty: '-66px', rot: '-35deg', delay: '0.02s', size: 'text-2xl text-amber-300' },
+  { char: '★', tx: '76px', ty: '-60px', rot: '40deg', delay: '0.05s', size: 'text-xl text-yellow-300' },
+  { char: '✦', tx: '-92px', ty: '-10px', rot: '-60deg', delay: '0.09s', size: 'text-lg text-amber-200' },
+  { char: '✨', tx: '94px', ty: '-14px', rot: '55deg', delay: '0.07s', size: 'text-2xl text-yellow-400' },
+  { char: '★', tx: '-58px', ty: '50px', rot: '-25deg', delay: '0.11s', size: 'text-base text-amber-300' },
+  { char: '✦', tx: '62px', ty: '46px', rot: '30deg', delay: '0.13s', size: 'text-lg text-yellow-200' },
+  { char: '✨', tx: '0px', ty: '-92px', rot: '15deg', delay: '0.04s', size: 'text-xl text-amber-400' },
+  { char: '●', tx: '-36px', ty: '-82px', rot: '-20deg', delay: '0.08s', size: 'text-sm text-yellow-300' },
+  { char: '●', tx: '40px', ty: '-80px', rot: '20deg', delay: '0.10s', size: 'text-sm text-amber-300' },
+];
+
+const CATEGORY_MALAYALAM_TITLES: Record<string, string> = {
+  morning: 'പ്രഭാത ദിക്റുകൾ പൂർത്തിയായി!',
+  evening: 'പ്രദോഷ ദിക്റുകൾ പൂർത്തിയായി!',
+  prayer: 'നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ പൂർത്തിയായി!',
+  sleep: 'ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ പൂർത്തിയായി!',
+  tasks: 'പ്രതിദിന കർമ്മങ്ങൾ പൂർത്തിയായി!',
+  favorites: 'പ്രിയപ്പെട്ട ദിക്റുകൾ പൂർത്തിയായി!',
+};
+
 export const SectionCompletionFireOverlay: React.FC<SectionCompletionFireOverlayProps> = ({
   event,
   onDismiss,
   soundEnabled,
   vibrateEnabled,
 }) => {
-  const [stage, setStage] = useState<'enter' | 'active' | 'exit'>('enter');
+  const [fadingOut, setFadingOut] = useState(false);
 
   useEffect(() => {
     if (!event) return;
 
-    setStage('enter');
+    setFadingOut(false);
 
     if (soundEnabled) {
       playCompletionSound();
@@ -37,33 +57,31 @@ export const SectionCompletionFireOverlay: React.FC<SectionCompletionFireOverlay
       triggerHaptic('complete');
       try {
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-          navigator.vibrate([40, 50, 90]);
+          navigator.vibrate([60, 40, 60]);
         }
       } catch {
         // ignore
       }
     }
 
-    const enterTimer = setTimeout(() => {
-      setStage('active');
-    }, 50);
-
-    const exitTimer = setTimeout(() => {
-      setStage('exit');
-    }, 3200);
+    const fadeTimer = setTimeout(() => {
+      setFadingOut(true);
+    }, 1700);
 
     const removeTimer = setTimeout(() => {
       onDismiss();
-    }, 3600);
+    }, 2000);
 
     return () => {
-      clearTimeout(enterTimer);
-      clearTimeout(exitTimer);
+      clearTimeout(fadeTimer);
       clearTimeout(removeTimer);
     };
   }, [event, soundEnabled, vibrateEnabled]);
 
   if (!event) return null;
+
+  const dynamicMalayalamTitle =
+    CATEGORY_MALAYALAM_TITLES[event.sectionKey] || 'പ്രഭാത ദിക്റുകൾ പൂർത്തിയായി!';
 
   return (
     <div
@@ -71,64 +89,113 @@ export const SectionCompletionFireOverlay: React.FC<SectionCompletionFireOverlay
       aria-live="polite"
       data-testid="section-completion-fire-overlay"
       onClick={onDismiss}
-      className={`fixed inset-x-0 top-44 sm:top-48 z-40 flex justify-center px-4 pointer-events-none transition-all duration-300 ${
-        stage === 'enter'
-          ? 'opacity-0 -translate-y-4 scale-90'
-          : stage === 'exit'
-          ? 'opacity-0 -translate-y-6 scale-95'
-          : 'opacity-100 translate-y-0 scale-100'
+      style={{
+        backdropFilter: 'blur(5px) brightness(0.6)',
+        WebkitBackdropFilter: 'blur(5px) brightness(0.6)',
+        background: 'rgba(0, 0, 0, 0.28)',
+      }}
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center px-4 select-none cursor-pointer transition-opacity duration-300 ${
+        fadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="pointer-events-auto relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-teal-950 to-slate-950 text-white border-2 border-amber-400/80 shadow-2xl shadow-orange-500/30 px-5 py-4 max-w-md w-full flex items-center gap-4"
-      >
-        {/* Warm vibrant background glow */}
-        <div className="absolute -left-6 -top-6 w-28 h-28 rounded-full bg-amber-500/30 blur-2xl pointer-events-none animate-pulse" />
-        <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-emerald-500/25 blur-2xl pointer-events-none animate-pulse" />
+      <style>{`
+        @keyframes reactFreeFlameIgniteBounce {
+          0% {
+            transform: scale(0.35) translateY(24px);
+            opacity: 0;
+            filter: drop-shadow(0 0 12px rgba(255, 165, 0, 0.6));
+          }
+          45% {
+            transform: scale(1.18) translateY(-10px);
+            opacity: 1;
+            filter: drop-shadow(0 0 32px rgba(255, 215, 0, 0.95)) drop-shadow(0 0 60px rgba(255, 120, 0, 0.75));
+          }
+          70% {
+            transform: scale(0.96) translateY(2px);
+            filter: drop-shadow(0 0 24px rgba(255, 200, 0, 0.85));
+          }
+          100% {
+            transform: scale(1.04) translateY(-4px);
+            opacity: 1;
+            filter: drop-shadow(0 0 28px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 48px rgba(255, 140, 0, 0.65));
+          }
+        }
+        @keyframes reactFreeGoldStarScatter {
+          0% {
+            transform: translate(0, 0) scale(0.2) rotate(0deg);
+            opacity: 0;
+          }
+          25% {
+            opacity: 1;
+          }
+          100% {
+            transform: translate(var(--tx, 0px), var(--ty, -60px)) scale(1.15) rotate(var(--rot, 45deg));
+            opacity: 0;
+          }
+        }
+      `}</style>
 
-        {/* Localized Animated Flame Icon with Warm Glow */}
-        <div className="relative flex-shrink-0 flex items-center justify-center">
-          <div className="absolute w-16 h-16 rounded-full bg-gradient-to-tr from-orange-500/50 to-amber-300/40 blur-md animate-ping" />
-          <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-600 via-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-orange-500/50 ring-2 ring-amber-200 animate-bounce">
-            <Flame className="w-8 h-8 text-slate-950 fill-white drop-shadow" />
-          </div>
-          <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center shadow-md">
-            <CheckCircle2 className="w-4 h-4 text-white stroke-[3]" />
+      {/* Free-floating Bouncing/Igniting Fire & Scattering Gold Stars/Particles (NO card or box) */}
+      <div className="relative flex items-center justify-center mb-3 pointer-events-none">
+        {GOLD_STAR_PARTICLES.map((p, idx) => (
+          <span
+            key={idx}
+            className={`absolute pointer-events-none ${p.size}`}
+            style={{
+              ['--tx' as string]: p.tx,
+              ['--ty' as string]: p.ty,
+              ['--rot' as string]: p.rot,
+              animation: `reactFreeGoldStarScatter 1.55s cubic-bezier(0.16, 1, 0.3, 1) ${p.delay} forwards`,
+              textShadow: '0 0 12px rgba(255, 215, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.8)',
+            }}
+          >
+            {p.char}
           </span>
-        </div>
+        ))}
 
-        {/* Completion Copy & Malayalam Badge */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-malayalam text-xs sm:text-sm font-black tracking-wide px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 shadow-sm shadow-emerald-500/50 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 fill-slate-950" />
-              <span>പൂർത്തിയായി!</span>
-            </span>
-            <span className="text-xs font-mono font-black text-amber-300">
-              {event.completedCount}/{event.totalCount} (100%)
-            </span>
-          </div>
-
-          <h4 className="text-sm sm:text-base font-extrabold text-white mt-1 truncate">
-            🔥 {event.sectionLabel} Completed!
-          </h4>
-
-          <p className="text-[11px] text-amber-200/95 font-medium mt-0.5">
-            Alhamdulillah • Section 100% complete
-          </p>
-        </div>
-
-        {/* Dismiss button */}
-        <button
-          type="button"
-          onClick={onDismiss}
-          aria-label="Close section completion notification"
-          className="p-1.5 rounded-full text-slate-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer self-start"
+        <div
+          className="text-7xl sm:text-8xl leading-none select-none"
+          style={{
+            animation: 'reactFreeFlameIgniteBounce 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+            textShadow: '0 4px 15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 165, 0, 0.85)',
+          }}
         >
-          <X className="w-4 h-4" />
-        </button>
+          🔥
+        </div>
+      </div>
+
+      {/* Glowing Large Golden Arabic Calligraphy Centered Directly Below Fire */}
+      <div
+        dir="rtl"
+        className="pointer-events-none font-arabic text-4xl sm:text-5xl font-bold text-amber-300 text-center tracking-wide mb-2"
+        style={{
+          textShadow: '0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5)',
+        }}
+      >
+        مَا شَاءَ اللَّه
+      </div>
+
+      {/* Celebratory Category Completion Text in Bold Glowing White and Gold */}
+      <div className="pointer-events-none text-center space-y-1.5">
+        <div
+          className="font-malayalam text-xl sm:text-2xl font-extrabold text-white tracking-tight"
+          style={{
+            textShadow: '0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5)',
+          }}
+        >
+          {dynamicMalayalamTitle}
+        </div>
+        <div
+          className="font-malayalam text-sm sm:text-base font-extrabold text-amber-300 tracking-wide"
+          style={{
+            textShadow: '0 4px 15px rgba(0, 0, 0, 0.9), 0 0 10px rgba(255, 215, 0, 0.5)',
+          }}
+        >
+          വിഭാഗം പൂർത്തിയായി! • Category Completed!
+        </div>
       </div>
     </div>
   );
 };
+
+

@@ -7,6 +7,8 @@ import {
   getTodayDateString,
   shouldResetDaily,
   filterDhikrItems,
+  getAdhkarCategoryLocation,
+  searchAdhkarWithCategories,
 } from './adhkar-utils.ts';
 import { DhikrItem } from '../types/adhkar.ts';
 
@@ -122,25 +124,27 @@ test('filterDhikrItems filters by search text and status', () => {
   assert.equal(incompleteOnly.length, 2);
 });
 
-test('Shaykh Ibn Uthaymeen 23 Adhkar items are complete with English, Malayalam, and references', async () => {
+test('All 23 numbered Morning and Evening Adhkar items are complete with English, Malayalam, and clean Hadith references', async () => {
   const { MORNING_ADHKAR, EVENING_ADHKAR } = await import('../data/adhkarData.ts');
 
   // Verify morning has all 23 numbered items
   for (let num = 1; num <= 23; num++) {
-    const morningItem = MORNING_ADHKAR.find((it) => it.uthaymeenNumber === num);
+    const morningItem = MORNING_ADHKAR.find((it) => it.itemNumber === num);
     assert.ok(morningItem, `Morning item #${num} must exist`);
     assert.ok(morningItem.arabic && morningItem.arabic.length > 0, `Morning item #${num} missing Arabic`);
     assert.ok(morningItem.translation && morningItem.translation.length > 0, `Morning item #${num} missing English`);
     assert.ok(morningItem.malayalamTranslation && morningItem.malayalamTranslation.length > 0, `Morning item #${num} missing Malayalam`);
     assert.ok(morningItem.source && morningItem.source.length > 0, `Morning item #${num} missing source reference`);
+    assert.equal(/uthaymeen/i.test(morningItem.source), false, `Morning item #${num} source must not mention Uthaymeen`);
     assert.ok(morningItem.malayalamVirtue && morningItem.malayalamVirtue.length > 0, `Morning item #${num} missing Malayalam virtue`);
 
-    const eveningItem = EVENING_ADHKAR.find((it) => it.uthaymeenNumber === num);
+    const eveningItem = EVENING_ADHKAR.find((it) => it.itemNumber === num);
     assert.ok(eveningItem, `Evening item #${num} must exist`);
     assert.ok(eveningItem.arabic && eveningItem.arabic.length > 0, `Evening item #${num} missing Arabic`);
     assert.ok(eveningItem.translation && eveningItem.translation.length > 0, `Evening item #${num} missing English`);
     assert.ok(eveningItem.malayalamTranslation && eveningItem.malayalamTranslation.length > 0, `Evening item #${num} missing Malayalam`);
     assert.ok(eveningItem.source && eveningItem.source.length > 0, `Evening item #${num} missing source reference`);
+    assert.equal(/uthaymeen/i.test(eveningItem.source), false, `Evening item #${num} source must not mention Uthaymeen`);
     assert.ok(eveningItem.malayalamVirtue && eveningItem.malayalamVirtue.length > 0, `Evening item #${num} missing Malayalam virtue`);
   }
 });
@@ -204,5 +208,57 @@ test('SLEEP_ADHKAR contains comprehensive authentic Hisn al-Muslim Chapter 28 be
     );
   }
 });
+
+test('getAdhkarCategoryLocation returns accurate category labels and item positions for Morning, Evening, Prayer, and Sleep', async () => {
+  const { ALL_ADHKAR_ITEMS, MORNING_ADHKAR, EVENING_ADHKAR, PRAYER_ADHKAR, SLEEP_ADHKAR } = await import('../data/adhkarData.ts');
+
+  const m2 = MORNING_ADHKAR[1];
+  const mLoc = getAdhkarCategoryLocation(m2, ALL_ADHKAR_ITEMS);
+  assert.equal(mLoc.category, 'morning');
+  assert.equal(mLoc.label, 'Morning Adhkar');
+  assert.equal(mLoc.malayalamLabel, 'പ്രഭാത ദിക്റുകൾ');
+  assert.equal(mLoc.arabicLabel, 'أذكار الصباح');
+  assert.equal(mLoc.itemPosition, m2.itemNumber || 2);
+  assert.equal(mLoc.totalInCategory, MORNING_ADHKAR.length);
+
+  const e1 = EVENING_ADHKAR[0];
+  const eLoc = getAdhkarCategoryLocation(e1, ALL_ADHKAR_ITEMS);
+  assert.equal(eLoc.category, 'evening');
+  assert.equal(eLoc.label, 'Evening Adhkar');
+  assert.equal(eLoc.malayalamLabel, 'വൈകുന്നേരത്തെ ദിക്റുകൾ');
+  assert.equal(eLoc.totalInCategory, EVENING_ADHKAR.length);
+
+  const p1 = PRAYER_ADHKAR[0];
+  const pLoc = getAdhkarCategoryLocation(p1, ALL_ADHKAR_ITEMS);
+  assert.equal(pLoc.category, 'prayer');
+  assert.equal(pLoc.label, 'After Prayer Adhkar');
+  assert.equal(pLoc.malayalamLabel, 'നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ');
+  assert.equal(pLoc.totalInCategory, PRAYER_ADHKAR.length);
+
+  const s1 = SLEEP_ADHKAR[0];
+  const sLoc = getAdhkarCategoryLocation(s1, ALL_ADHKAR_ITEMS);
+  assert.equal(sLoc.category, 'sleep');
+  assert.equal(sLoc.label, 'Before Sleep Adhkar');
+  assert.equal(sLoc.malayalamLabel, 'ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ');
+  assert.equal(sLoc.totalInCategory, SLEEP_ADHKAR.length);
+});
+
+test('searchAdhkarWithCategories searches across all Adhkar categories and prioritizes active tab matches', async () => {
+  const { ALL_ADHKAR_ITEMS, MORNING_ADHKAR } = await import('../data/adhkarData.ts');
+
+  // Empty query returns only activeItems
+  const defaultList = searchAdhkarWithCategories(MORNING_ADHKAR, ALL_ADHKAR_ITEMS, {}, '', 'all', 'morning');
+  assert.equal(defaultList.length, MORNING_ADHKAR.length);
+
+  // Query for Ayatul Kursi matches across Morning, Evening, After Prayer, and Sleep
+  const kursiResults = searchAdhkarWithCategories(MORNING_ADHKAR, ALL_ADHKAR_ITEMS, {}, 'Ayat al-Kursi', 'all', 'morning');
+  assert.ok(kursiResults.length >= 2, 'Should find Ayat al-Kursi across multiple categories');
+  assert.equal(kursiResults[0].category, 'morning', 'Active tab (morning) result should appear first');
+
+  const categoriesFound = new Set(kursiResults.map((it) => it.category));
+  assert.ok(categoriesFound.has('morning'), 'Should include Morning match');
+  assert.ok(categoriesFound.has('evening'), 'Should include Evening match');
+});
+
 
 

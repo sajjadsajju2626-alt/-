@@ -49,7 +49,7 @@ export const DEFAULT_DAILY_TASKS: DailyTask[] = [
     category: 'sunnah',
     description: 'Pray 2 to 8 rak\'ahs after sunrise has elevated until before Dhuhr.',
     malayalamDescription: 'സൂര്യനുദിച്ച് അല്പം ഉയർന്നത് മുതൽ ദ്വുഹ്റിന് മുൻപ് വരെയുള്ള സമയത്ത് 2 മുതൽ 8 വരെ റക്അത്തുകൾ.',
-    virtue: 'The Prophet (ﷺ) said: "In the morning, charity is due for every joint in your body... and two rak\'ahs of Duha suffice for all of that."',
+    virtue: 'The Prophet (ﷺ) said: "In the morning, charity is due for every joint in your body; every SubhanAllah is charity, every Alhamdulillah is charity, every La ilaha illallah is charity, every Allahu Akbar is charity, enjoining good is charity, forbidding evil is charity, and two rak\'ahs of Duha suffice for all of that."',
     malayalamVirtue: 'ശരീരത്തിലെ 360 സന്ധികൾക്കും ദിവസേന ചെയ്യേണ്ട ധർമ്മത്തിന് ദ്വുഹായിലെ 2 റക്അത്ത് മതിയാകുന്നതാണ് (മുസ്ലിം).',
     source: 'Sahih Muslim 720',
     completed: false,
@@ -77,7 +77,7 @@ export const DEFAULT_DAILY_TASKS: DailyTask[] = [
     malayalamDescription: 'ഫജ്റിന് ശേഷം പ്രഭാത ദിക്റുകൾ പൂർണ്ണമായി പാരായണം ചെയ്യുക.',
     virtue: 'Divine protection, abundance in sustenance, peace of heart, and spiritual sanctuary until evening.',
     malayalamVirtue: 'പ്രഭാതം മുതൽ വൈകുന്നേരം വരെ അല്ലാഹുവിന്റെ കാവലും സംരക്ഷണവും മാനസിക സ്വസ്ഥതയും ലഭിക്കുന്നു.',
-    source: 'Shaykh Ibn Uthaymeen Collection',
+    source: 'Hisn al-Muslim & Authentic Sunnah',
     completed: false,
   },
   {
@@ -90,7 +90,7 @@ export const DEFAULT_DAILY_TASKS: DailyTask[] = [
     malayalamDescription: 'അസ്വർ മുതൽ രാത്രി വരെയുള്ള സമയത്ത് സായാഹ്ന ദിക്റുകൾ ഓതുക.',
     virtue: 'Comprehensive shield against all evil, black magic, devils, venomous harm, and distress throughout the night.',
     malayalamVirtue: 'രാത്രിയിലെ സകല തിന്മകളിൽ നിന്നും ഭയങ്ങളിൽ നിന്നും സംരക്ഷണം നൽകുന്ന ഉറച്ച കോട്ട.',
-    source: 'Shaykh Ibn Uthaymeen Collection',
+    source: 'Hisn al-Muslim & Authentic Sunnah',
     completed: false,
   },
   {

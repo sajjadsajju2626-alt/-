@@ -95,11 +95,11 @@ export const ExportSingleFileModal: React.FC<ExportSingleFileModalProps> = ({
             <span>Everything included in one portable .html file:</span>
           </div>
           <ul className="space-y-1 list-disc list-inside text-slate-700 dark:text-slate-300">
-            <li>All 23 Morning & 23 Evening Adhkar (Shaykh Ibn Uthaymeen)</li>
-            <li>Full Arabic, English transliteration & English translation</li>
-            <li>Complete authentic Malayalam translations (മലയാളം തർജ്ജമ)</li>
-            <li>Built-in Web Audio synthesizer & haptics (no audio files needed)</li>
-            <li>Interactive tasbih counter, streaks, favorites & search</li>
+            <li>All 23 Morning &amp; 23 Evening Adhkar, After-Prayer &amp; 13 Sleep Adhkar (Hisn al-Muslim)</li>
+            <li>100% unabridged Arabic, English &amp; Malayalam translations (മലയാളം അർത്ഥം പൂർണ്ണരൂപത്തിൽ)</li>
+            <li>Complete &quot;Tasks&quot; tab (11 Daily Tasks) with Weekly (X/7) &amp; Monthly (X/30) Task Audit (ടാസ്ക് പുരോഗതി)</li>
+            <li>Quick filter chips: All (എല്ലാം), Completed (പൂർത്തിയായവ) &amp; Missed (നഷ്ടപ്പെട്ടവ) + status dots</li>
+            <li>Built-in Web Audio synthesizer, haptics, Tasbih counter, streaks &amp; favorites</li>
           </ul>
         </div>
 

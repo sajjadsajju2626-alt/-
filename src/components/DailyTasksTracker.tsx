@@ -21,6 +21,10 @@ import {
   calculateTasksProgress,
   loadAndSyncTaskHistory,
   buildTaskAuditReport,
+  normalizeDailyTasks,
+  toggleTaskAuditDay,
+  isTaskEffectivelyCompleted,
+  getTaskPortionStats,
   TaskAuditPeriod,
   TaskAuditFilter,
 } from '../utils/tasks-utils.ts';
@@ -31,6 +35,7 @@ interface DailyTasksTrackerProps {
   tasks: DailyTask[];
   onToggleTask: (taskId: string) => void;
   onToggleSubtask: (taskId: string, subtaskId: string) => void;
+  onUpdateTasks?: (nextTasks: DailyTask[]) => void;
   onAddTask: (data: {
     title: string;
     category: TaskCategory;
@@ -60,6 +65,7 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
   tasks,
   onToggleTask,
   onToggleSubtask,
+  onUpdateTasks,
   onAddTask,
   onDeleteTask,
   onResetTasks,
@@ -78,15 +84,29 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
   // Weekly & Monthly Task Audit (ടാസ്ക് പുരോഗതി) state
   const [auditPeriod, setAuditPeriod] = useState<TaskAuditPeriod>('week');
   const [auditFilter, setAuditFilter] = useState<TaskAuditFilter>('all');
+  const [historyVersion, setHistoryVersion] = useState(0);
 
-  const stats = calculateTasksProgress(tasks);
+  const safeTasks = useMemo(() => normalizeDailyTasks(tasks), [tasks]);
+  const stats = calculateTasksProgress(safeTasks);
   const todayStr = getTodayDateString(new Date());
 
   // Dynamically pull and sync task completion history from localStorage
   const auditReport = useMemo(() => {
-    const historyMap = loadAndSyncTaskHistory(todayStr, tasks);
-    return buildTaskAuditReport(tasks, historyMap, auditPeriod, auditFilter, todayStr);
-  }, [tasks, auditPeriod, auditFilter, todayStr]);
+    void historyVersion;
+    const historyMap = loadAndSyncTaskHistory(todayStr, safeTasks);
+    return buildTaskAuditReport(safeTasks, historyMap, auditPeriod, auditFilter, todayStr);
+  }, [safeTasks, auditPeriod, auditFilter, todayStr, historyVersion]);
+
+  const handleToggleAuditDay = (taskId: string, dateStr: string) => {
+    const currentHistory = loadAndSyncTaskHistory(todayStr, safeTasks);
+    const { nextTasks } = toggleTaskAuditDay(currentHistory, safeTasks, taskId, dateStr, todayStr);
+    if (dateStr === todayStr && onUpdateTasks) {
+      onUpdateTasks(nextTasks);
+    }
+    setHistoryVersion((v) => v + 1);
+    if (soundEnabled) playCompletionSound();
+    if (vibrateEnabled) triggerHaptic('tap');
+  };
 
   const toggleVirtue = (id: string) => {
     setExpandedVirtueIds((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -105,9 +125,10 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
   };
 
   // Filter tasks
-  const filteredTasks = tasks.filter((t) => {
-    if (filterStatus === 'incomplete' && t.completed) return false;
-    if (filterStatus === 'completed' && !t.completed) return false;
+  const filteredTasks = safeTasks.filter((t) => {
+    const effectiveCompleted = isTaskEffectivelyCompleted(t);
+    if (filterStatus === 'incomplete' && effectiveCompleted) return false;
+    if (filterStatus === 'completed' && !effectiveCompleted) return false;
     if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
 
     if (searchQuery.trim()) {
@@ -252,7 +273,7 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                   : 'text-black hover:bg-slate-200'
               }`}
             >
-              All ({tasks.length})
+              All ({safeTasks.length})
             </button>
             <button
               onClick={() => setFilterStatus('incomplete')}
@@ -264,7 +285,7 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                   : 'text-black hover:bg-slate-200'
               }`}
             >
-              Remaining ({tasks.filter((t) => !t.completed).length})
+              Remaining ({safeTasks.filter((t) => !t.completed).length})
             </button>
             <button
               onClick={() => setFilterStatus('completed')}
@@ -276,7 +297,7 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                   : 'text-black hover:bg-slate-200'
               }`}
             >
-              Done ({tasks.filter((t) => t.completed).length})
+              Done ({safeTasks.filter((t) => t.completed).length})
             </button>
           </div>
 
@@ -326,15 +347,20 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
             const completedSubtasksCount =
               task.subtasks?.filter((s) => s.completed).length || 0;
             const isVirtueExpanded = !!expandedVirtueIds[task.id];
+            const portionStats = getTaskPortionStats(task);
 
             return (
               <div
                 key={task.id}
                 className={`rounded-2xl border p-4 transition-all ${
-                  task.completed
+                  portionStats.isComplete
                     ? isDark
                       ? 'bg-slate-900/40 border-teal-800/40 opacity-90'
                       : 'bg-emerald-50/70 border-emerald-400'
+                    : portionStats.isPartial
+                    ? isDark
+                      ? 'bg-amber-950/20 border-amber-800/50'
+                      : 'bg-amber-50/60 border-amber-300'
                     : isDark
                     ? 'bg-slate-900 border-slate-800 hover:border-slate-700'
                     : 'bg-white border-slate-300 hover:border-slate-400 shadow-xs'
@@ -348,20 +374,26 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                     data-testid={`task-toggle-${task.id}`}
                     onClick={() => handleTaskCheck(task.id)}
                     aria-label={`Mark ${task.title} as ${
-                      task.completed ? 'incomplete' : 'completed'
+                      portionStats.isComplete ? 'incomplete' : 'completed'
                     }`}
                     className={`mt-0.5 p-1 rounded-lg transition-transform active:scale-95 cursor-pointer ${
-                      task.completed
+                      portionStats.isComplete
                         ? isDark
                           ? 'text-teal-400'
                           : 'text-teal-800'
+                        : portionStats.isPartial
+                        ? 'text-amber-600 dark:text-amber-400'
                         : isDark
                         ? 'text-slate-600 hover:text-slate-400'
                         : 'text-slate-700 hover:text-black'
                     }`}
                   >
-                    {task.completed ? (
+                    {portionStats.isComplete ? (
                       <CheckCircle2 className="w-6 h-6 fill-teal-700 text-white dark:fill-teal-500 dark:text-slate-900" />
+                    ) : portionStats.isPartial ? (
+                      <span className="w-6 h-6 rounded-md bg-amber-500/20 border-2 border-amber-500 text-amber-800 dark:text-amber-300 font-mono text-[9px] font-black flex items-center justify-center">
+                        {portionStats.percent}%
+                      </span>
                     ) : (
                       <Square className="w-6 h-6 stroke-[2.2]" />
                     )}
@@ -390,6 +422,20 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                           {task.category}
                         </span>
 
+                        {portionStats.hasPortions && (
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold border ${
+                              portionStats.isComplete
+                                ? 'bg-emerald-200 text-black border-emerald-500 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-700'
+                                : portionStats.isPartial
+                                ? 'bg-amber-200 text-black border-amber-500 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700'
+                                : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+                            }`}
+                          >
+                            {portionStats.percent}% ({portionStats.completedPortions}/{portionStats.totalPortions} {portionStats.unit})
+                          </span>
+                        )}
+
                         {task.isCustom && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-200 text-black dark:bg-blue-950/60 dark:text-blue-300 font-bold">
                             Custom
@@ -413,7 +459,7 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                     <div className="mt-1">
                       <h4
                         className={`text-sm sm:text-base font-extrabold leading-tight ${
-                          task.completed
+                          portionStats.isComplete
                             ? isDark
                               ? 'line-through text-slate-500'
                               : 'line-through text-slate-700'
@@ -425,8 +471,24 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                         {task.title}
                       </h4>
 
+                      {/* Subtle Mini Progress Bar for Portion Tasks */}
+                      {portionStats.hasPortions && (
+                        <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              portionStats.isComplete
+                                ? 'bg-emerald-600'
+                                : portionStats.isPartial
+                                ? 'bg-amber-500'
+                                : 'bg-transparent'
+                            }`}
+                            style={{ width: `${portionStats.percent}%` }}
+                          />
+                        </div>
+                      )}
+
                       {/* Arabic Title: High-contrast bold Arabic script */}
-                      <p className={`font-arabic text-sm mt-0.5 text-right font-black ${isDark ? 'text-teal-300' : 'text-black'}`} dir="rtl">
+                      <p className={`font-arabic text-sm mt-1 text-right font-black ${isDark ? 'text-teal-300' : 'text-black'}`} dir="rtl">
                         {task.arabicTitle}
                       </p>
 
@@ -741,10 +803,14 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
           </div>
 
           {/* Legend for Mini-Status Dots */}
-          <div className="flex items-center gap-3 text-[11px] font-extrabold">
+          <div className="flex items-center gap-3 text-[11px] font-extrabold flex-wrap">
             <span className="inline-flex items-center gap-1">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-emerald-700 inline-block" />
               <span>🟢 Completed</span>
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 border border-amber-700 inline-block" />
+              <span>🟡 Partial</span>
             </span>
             <span className="inline-flex items-center gap-1">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 border border-rose-700 inline-block" />
@@ -818,19 +884,19 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                     </div>
                   </div>
 
-                  {/* Completion Ratio Badge (e.g. 5/7 days or 22/30 days) */}
+                  {/* Completion Ratio Badge (e.g. 28/35 prayers or 5/7 days) */}
                   <div className="flex items-center gap-2 shrink-0">
                     <span
                       data-testid={`task-audit-ratio-${row.task.id}`}
                       className={`px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold border ${
-                        row.completedDays === row.totalDays
+                        row.completionPercent === 100
                           ? isDark
                             ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300'
                             : 'bg-emerald-200 border-emerald-700 text-black'
-                          : row.completedDays > 0
+                          : row.completionPercent > 0
                           ? isDark
-                            ? 'bg-teal-950/80 border-teal-600 text-teal-300'
-                            : 'bg-teal-100 border-teal-700 text-black'
+                            ? 'bg-amber-950/80 border-amber-600 text-amber-300'
+                            : 'bg-amber-100 border-amber-600 text-black'
                           : isDark
                           ? 'bg-rose-950/70 border-rose-700 text-rose-300'
                           : 'bg-rose-100 border-rose-600 text-black'
@@ -849,7 +915,33 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                   </div>
                 </div>
 
-                {/* Visual Mini-Status Row: 7 compact dots/bars for Week or 30 mini dots for Month */}
+                {/* Subtask quick-toggles inside Audit row for 5 Fard Prayers & 12 Rawatib */}
+                {row.task.subtasks && row.task.subtasks.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-slate-200/70 dark:border-slate-800/60 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-extrabold text-teal-800 dark:text-teal-300 mr-1">
+                      Today ({row.task.subtasks.filter((s) => s.completed).length}/{row.task.subtasks.length}):
+                    </span>
+                    {row.task.subtasks.map((st) => (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => handleSubtaskCheck(row.task.id, st.id)}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold border transition-all cursor-pointer active:scale-95 ${
+                          st.completed
+                            ? 'bg-emerald-700 text-white border-emerald-700'
+                            : isDark
+                            ? 'bg-slate-800 text-slate-300 border-slate-700 hover:border-teal-500'
+                            : 'bg-white text-black border-slate-300 hover:border-teal-600'
+                        }`}
+                      >
+                        {st.completed ? '✓ ' : '○ '}
+                        {st.malayalamLabel || st.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Visual Mini-Status Row: Clickable 7 Day pills for Week or 30 mini dots for Month */}
                 <div
                   data-testid={`task-audit-dots-${row.task.id}`}
                   className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-2"
@@ -857,51 +949,71 @@ export const DailyTasksTracker: React.FC<DailyTasksTrackerProps> = ({
                   {auditPeriod === 'week' ? (
                     <div className="grid grid-cols-7 gap-1.5 w-full">
                       {row.dots.map((dot) => (
-                        <div
+                        <button
                           key={dot.date}
+                          type="button"
+                          onClick={() => handleToggleAuditDay(row.task.id, dot.date)}
+                          data-testid={`audit-day-pill-${row.task.id}-${dot.date}`}
                           title={`${dot.shortLabel} (${dot.dayOfWeek}): ${
-                            dot.completed ? '🟢 Completed' : '🔴 Missed / Incomplete'
+                            dot.status === 'completed'
+                              ? '🟢 Completed (Tap to toggle)'
+                              : dot.status === 'partial'
+                              ? `🟡 Partial (${dot.percent}% done - Tap to toggle)`
+                              : '🔴 Missed (Tap to toggle)'
                           }`}
-                          data-status={dot.completed ? 'completed' : 'missed'}
-                          className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg border text-[10px] font-mono font-extrabold ${
-                            dot.completed
+                          data-status={dot.status}
+                          className={`flex flex-col items-center justify-center py-1 px-1 rounded-lg border text-[10px] font-mono font-extrabold transition-all cursor-pointer active:scale-95 ${
+                            dot.status === 'completed'
                               ? isDark
-                                ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-200'
-                                : 'bg-emerald-100 border-emerald-700 text-black'
+                                ? 'bg-emerald-950/70 border-emerald-500/80 text-emerald-200 hover:bg-emerald-900/70'
+                                : 'bg-emerald-100 border-emerald-700 text-black hover:bg-emerald-200'
+                              : dot.status === 'partial'
+                              ? isDark
+                                ? 'bg-amber-950/70 border-amber-500/80 text-amber-200 hover:bg-amber-900/70'
+                                : 'bg-amber-100 border-amber-600 text-black hover:bg-amber-200'
                               : isDark
-                              ? 'bg-rose-950/60 border-rose-700/80 text-rose-200'
-                              : 'bg-rose-50 border-rose-500 text-black'
+                              ? 'bg-rose-950/60 border-rose-700/80 text-rose-200 hover:bg-rose-900/60'
+                              : 'bg-rose-50 border-rose-500 text-black hover:bg-rose-100'
                           } ${dot.isToday ? 'ring-2 ring-teal-500' : ''}`}
                         >
                           <span className="text-[9px] uppercase tracking-tight">
                             {dot.dayOfWeek}
                           </span>
                           <span
-                            aria-label={dot.completed ? 'Completed' : 'Missed'}
+                            aria-label={dot.status}
                             className={`w-2.5 h-2.5 rounded-full mt-0.5 border ${
-                              dot.completed
+                              dot.status === 'completed'
                                 ? 'bg-emerald-500 border-emerald-700'
+                                : dot.status === 'partial'
+                                ? 'bg-amber-500 border-amber-700'
                                 : 'bg-rose-500 border-rose-700'
                             }`}
                           />
-                        </div>
+                        </button>
                       ))}
                     </div>
                   ) : (
                     <div className="flex flex-wrap items-center gap-1 w-full">
                       {row.dots.map((dot) => (
-                        <span
+                        <button
                           key={dot.date}
+                          type="button"
+                          onClick={() => handleToggleAuditDay(row.task.id, dot.date)}
+                          data-testid={`audit-day-pill-${row.task.id}-${dot.date}`}
                           title={`${dot.shortLabel} (${dot.dayOfWeek}): ${
-                            dot.completed ? '🟢 Completed' : '🔴 Missed / Incomplete'
+                            dot.status === 'completed'
+                              ? '🟢 Completed (Tap to toggle)'
+                              : dot.status === 'partial'
+                              ? `🟡 Partial (${dot.percent}% done - Tap to toggle)`
+                              : '🔴 Missed (Tap to toggle)'
                           }`}
-                          data-status={dot.completed ? 'completed' : 'missed'}
-                          aria-label={`${dot.shortLabel}: ${
-                            dot.completed ? 'Completed' : 'Missed'
-                          }`}
-                          className={`w-3 h-3 rounded-full border inline-block transition-transform hover:scale-125 ${
-                            dot.completed
+                          data-status={dot.status}
+                          aria-label={`${dot.shortLabel}: ${dot.status}`}
+                          className={`w-3.5 h-3.5 rounded-full border inline-block transition-transform hover:scale-125 cursor-pointer active:scale-90 ${
+                            dot.status === 'completed'
                               ? 'bg-emerald-500 border-emerald-700'
+                              : dot.status === 'partial'
+                              ? 'bg-amber-500 border-amber-700'
                               : 'bg-rose-500 border-rose-700'
                           } ${dot.isToday ? 'ring-2 ring-teal-500' : ''}`}
                         />

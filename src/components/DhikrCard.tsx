@@ -17,8 +17,17 @@ import {
   Plus,
   Minus,
   Sparkles,
+  MapPin,
+  ArrowRight,
+  Share2,
+  Image as ImageIcon,
+  Download,
+  X,
 } from 'lucide-react';
-import { DhikrItem, AppSettings, ThemeMode } from '../types/adhkar.ts';
+import { DhikrItem, AdhkarCategory, AppSettings, ThemeMode } from '../types/adhkar.ts';
+import { ALL_ADHKAR_ITEMS } from '../data/adhkarData.ts';
+import { getAdhkarCategoryLocation } from '../utils/adhkar-utils.ts';
+import { shareOrDownloadFadheelathCard } from '../utils/fadheelath-card.ts';
 import { getVisibleTranslations, getVisibleVirtues } from '../utils/translation-utils.ts';
 import {
   PronunciationManager,
@@ -46,6 +55,9 @@ interface DhikrCardProps {
   isFavorite: boolean;
   onToggleFavorite: (id: string) => void;
   showCategoryBadge?: boolean;
+  isSearchResult?: boolean;
+  onSelectCategory?: (category: AdhkarCategory, itemId: string) => void;
+  onIndividualPlay?: (id: string) => void;
   isAutoplayCurrentItem?: boolean;
   settings: AppSettings;
   theme: ThemeMode;
@@ -59,12 +71,23 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
   isFavorite,
   onToggleFavorite,
   showCategoryBadge = false,
+  isSearchResult = false,
+  onSelectCategory,
+  onIndividualPlay,
   isAutoplayCurrentItem = false,
   settings,
   theme,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isSharingImage, setIsSharingImage] = useState(false);
+  const [generatedCardPreview, setGeneratedCardPreview] = useState<{
+    dataUrl: string;
+    caption: string;
+    fileName: string;
+    mode: 'shared' | 'downloaded';
+  } | null>(null);
   const [showVirtue, setShowVirtue] = useState(() => item.category === 'sleep');
+  const [isTranslationExpanded, setIsTranslationExpanded] = useState(false);
   const [playbackState, setPlaybackState] = useState<AudioPlaybackState>(PronunciationManager.getState());
   const [speechSpeed, setSpeechSpeed] = useState<PronunciationSpeed>('1.0x');
 
@@ -159,6 +182,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
   const handleTogglePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
+    onIndividualPlay?.(item.id);
     PronunciationManager.togglePlayPause({
       id: item.id,
       arabicText: item.arabic,
@@ -166,6 +190,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       isQuranic: !!item.isQuranic,
       audioUrl: item.audioUrl,
       audioUrls: item.audioUrls,
+      audioStartTime: item.audioStartTime,
+      audioEndTime: item.audioEndTime,
       reciterTitle: item.reciter,
     });
   };
@@ -178,6 +204,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
 
   const handleReplay = (e: React.MouseEvent) => {
     e.stopPropagation();
+    onIndividualPlay?.(item.id);
     PronunciationManager.replay({
       id: item.id,
       arabicText: item.arabic,
@@ -185,6 +212,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       isQuranic: !!item.isQuranic,
       audioUrl: item.audioUrl,
       audioUrls: item.audioUrls,
+      audioStartTime: item.audioStartTime,
+      audioEndTime: item.audioEndTime,
     });
   };
 
@@ -194,6 +223,20 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleShareAsImage = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isSharingImage) return;
+    setIsSharingImage(true);
+    try {
+      const result = await shareOrDownloadFadheelathCard(item);
+      setGeneratedCardPreview(result);
+    } catch {
+      // ignore error
+    } finally {
+      setIsSharingImage(false);
+    }
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -243,18 +286,18 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
       } ${settings.cardTapToCount && !isDone ? 'cursor-pointer active:scale-[0.995]' : ''}`}
     >
       {/* Top Meta Bar: Repeat count badge & Actions */}
-      <div className="flex items-center justify-between gap-2 mb-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-1.5 flex-wrap">
-          {item.uthaymeenNumber && (
+          {item.itemNumber && (
             <span
               className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black ${
                 isDark
                   ? 'bg-amber-950/70 text-amber-300 border border-amber-800/80'
                   : 'bg-amber-200 text-black border border-amber-600'
               }`}
-              title={`Supplication #${item.uthaymeenNumber} from Shaykh Ibn Uthaymeen collection`}
+              title={`Supplication #${item.itemNumber}`}
             >
-              #{item.uthaymeenNumber}
+              #{item.itemNumber}
             </span>
           )}
           {item.hisnNumber && (
@@ -300,7 +343,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* Quick Play/Pause Audio Button alongside card header */}
           <button
             type="button"
@@ -403,8 +446,88 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
               }`}
             />
           </button>
+
+          {/* Share as Image (Fadheelath Card) button */}
+          <button
+            type="button"
+            data-testid={`share-image-btn-${item.id}`}
+            onClick={handleShareAsImage}
+            disabled={isSharingImage}
+            aria-label={`ചിത്രമായി പങ്കുവെക്കുക (Share Image) for ${item.transliteration}`}
+            title="ചിത്രമായി പങ്കുവെക്കുക (Share 9:16 Fadheelath Image Card)"
+            className={`px-2.5 py-1.5 rounded-lg text-[11px] font-extrabold flex items-center gap-1.5 transition-all cursor-pointer border shadow-2xs ${
+              isDark
+                ? 'bg-emerald-950/80 hover:bg-emerald-900 text-amber-300 border-amber-600/60'
+                : 'bg-emerald-900 hover:bg-emerald-950 text-amber-200 border-amber-600'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5 stroke-[2.3] shrink-0 text-amber-300" />
+            <span className="font-malayalam whitespace-nowrap">ചിത്രമായി പങ്കുവെക്കുക (Share Image)</span>
+          </button>
         </div>
       </div>
+
+      {/* Generated 9:16 Fadheelath Card Preview & Quick Share Drawer */}
+      {generatedCardPreview && (
+        <div
+          data-testid={`fadheelath-card-preview-${item.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className={`mb-3.5 p-3.5 rounded-2xl border space-y-3 ${
+            isDark
+              ? 'bg-emerald-950/50 border-amber-500/60 text-slate-100'
+              : 'bg-emerald-50 border-emerald-700 text-black shadow-sm'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Share2 className="w-4 h-4 text-emerald-700 dark:text-amber-300 stroke-[2.5]" />
+              <span className="text-xs font-extrabold font-malayalam">
+                9:16 ഫളീലത്ത് കാർഡ് തയ്യാറായി! (PNG Downloaded &amp; Link Copied)
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setGeneratedCardPreview(null)}
+              aria-label="Close card preview"
+              className="p-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <img
+              src={generatedCardPreview.dataUrl}
+              alt={`Fadheelath Share Card for ${item.transliteration}`}
+              className="w-40 sm:w-44 aspect-[9/16] rounded-xl border-2 border-amber-500/80 shadow-md object-contain bg-[#0d2818]"
+            />
+            <div className="flex-1 space-y-2 text-xs w-full">
+              <p className="font-malayalam font-bold leading-relaxed">
+                വാട്സ്ആപ്പ് സ്റ്റാറ്റസിലും ഇൻസ്റ്റാഗ്രാം സ്റ്റോറിയിലും പങ്കുവെക്കാൻ അനുയോജ്യമായ 9:16 ചിത്രം ഡൗൺലോഡ് ചെയ്യുകയും ആപ്പ് ലിങ്ക് ക്ലിപ്പ്ബോർഡിലേക്ക് പകർത്തുകയും ചെയ്തിട്ടുണ്ട്.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <a
+                  href={generatedCardPreview.dataUrl}
+                  download={generatedCardPreview.fileName}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-amber-200 font-extrabold text-xs inline-flex items-center gap-1.5 shadow-xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PNG</span>
+                </a>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(generatedCardPreview.caption)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-extrabold text-xs inline-flex items-center gap-1.5 shadow-xs"
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                  <span>Share on WhatsApp</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showCategoryBadge && (
         <div className="mb-2">
@@ -647,88 +770,88 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
         </div>
       )}
 
-      {/* Meaning / Translation (English & Malayalam) with Strong Daylight Contrast */}
+      {/* Meaning / Translation Accordion ("View Translation / അർത്ഥം കാണുക") */}
       {settings.showTranslation && (() => {
         const visible = getVisibleTranslations(item, settings.translationLanguage || 'both');
+        if (!visible.hasMl && !visible.hasEn) return null;
 
-        if (visible.hasMl && visible.hasEn) {
-          return (
-            <div className="space-y-2 mb-3.5">
-              {/* Malayalam Translation */}
-              <div
-                className={`font-malayalam text-xs sm:text-[13px] select-text leading-relaxed p-2.5 rounded-xl border ${
-                  isDark
-                    ? 'bg-teal-950/30 border-teal-800/40 text-teal-100'
-                    : 'bg-emerald-50/90 border-emerald-500 text-black shadow-xs'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-900 text-white uppercase shadow-xs">
-                    മലയാളം
-                  </span>
-                </div>
-                <p className={`leading-relaxed ${isDark ? 'font-semibold text-teal-100' : 'font-bold text-black'}`}>
-                  {visible.ml}
-                </p>
-              </div>
-
-              {/* English Translation */}
-              <div
-                className={`text-xs sm:text-[13px] select-text leading-relaxed px-2 py-1 ${
-                  isDark ? 'text-slate-300' : 'text-black font-bold'
-                }`}
-              >
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className={`text-[10px] font-black uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-teal-950'}`}>
-                    English:
-                  </span>
-                </div>
-                <p className={isDark ? 'text-slate-200 font-medium' : 'text-black font-bold'}>
-                  {visible.en}
-                </p>
-              </div>
-            </div>
-          );
-        }
-
-        if (visible.hasMl) {
-          return (
-            <div
-              className={`meaning font-malayalam text-xs sm:text-[13px] select-text leading-relaxed mb-3.5 p-2.5 rounded-xl border ${
+        return (
+          <div className="mb-3.5">
+            <button
+              type="button"
+              data-testid={`toggle-translation-${item.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsTranslationExpanded((prev) => !prev);
+              }}
+              aria-expanded={isTranslationExpanded}
+              className={`flex items-center justify-between gap-2 w-full py-2 px-3 rounded-xl text-xs font-extrabold text-left transition-all cursor-pointer border ${
                 isDark
-                  ? 'bg-teal-950/30 border-teal-800/40 text-teal-100'
-                  : 'bg-emerald-50/90 border-emerald-500 text-black shadow-xs'
+                  ? 'bg-slate-800/80 hover:bg-slate-800 text-emerald-300 border-slate-700'
+                  : 'bg-emerald-50/90 hover:bg-emerald-100/90 text-[#064e3b] border-emerald-300 shadow-2xs'
               }`}
             >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-emerald-900 text-white uppercase shadow-xs">
-                  മലയാളം
+              <span className="font-malayalam flex items-center gap-1.5">
+                <span>📖</span>
+                <span>
+                  {isTranslationExpanded
+                    ? 'Hide Translation / അർത്ഥം മറയ്ക്കുക'
+                    : 'View Translation / അർത്ഥം കാണുക'}
                 </span>
-              </div>
-              <p className={`leading-relaxed ${isDark ? 'font-semibold text-teal-100' : 'font-bold text-black'}`}>
-                {visible.ml}
-              </p>
-            </div>
-          );
-        }
+              </span>
+              {isTranslationExpanded ? (
+                <ChevronUp className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+              )}
+            </button>
 
-        if (visible.hasEn) {
-          return (
             <div
-              className={`meaning text-xs sm:text-sm select-text leading-relaxed mb-3.5 ${
-                isDark ? 'text-slate-300 font-medium' : 'text-black font-bold'
-              }`}
+              data-testid={`translation-panel-${item.id}`}
+              className={`${isTranslationExpanded ? 'mt-2 space-y-2' : 'hidden'}`}
             >
-              {visible.en}
-            </div>
-          );
-        }
+              {visible.hasMl && (
+                <div
+                  className={`meaning font-malayalam text-xs sm:text-[13px] select-text leading-relaxed p-2.5 rounded-xl border ${
+                    isDark
+                      ? 'bg-teal-950/30 border-teal-800/40 text-teal-100'
+                      : 'bg-emerald-50/90 border-emerald-500 text-black shadow-xs'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded bg-[#0d5c3a] text-white uppercase shadow-xs">
+                      മലയാളം
+                    </span>
+                  </div>
+                  <p className={`leading-relaxed ${isDark ? 'font-semibold text-teal-100' : 'font-bold text-black'}`}>
+                    {visible.ml}
+                  </p>
+                </div>
+              )}
 
-        return null;
+              {visible.hasEn && (
+                <div
+                  className={`meaning text-xs sm:text-[13px] select-text leading-relaxed px-2 py-1 ${
+                    isDark ? 'text-slate-300' : 'text-black font-bold'
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <span className={`text-[10px] font-black uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-[#064e3b]'}`}>
+                      English:
+                    </span>
+                  </div>
+                  <p className={isDark ? 'text-slate-200 font-medium' : 'text-black font-bold'}>
+                    {visible.en}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
       })()}
 
-      {/* Virtue / Hadith Source disclosure with Strong Daylight Contrast */}
-      {settings.showVirtues && (item.virtue || item.malayalamVirtue || item.source) && (
+      {/* Virtue / Hadith Source disclosure */}
+      {settings.showVirtues && (item.virtue || item.malayalamVirtue || item.hadithArabic || item.source) && (
         <div className="mb-3.5">
           <button
             type="button"
@@ -746,7 +869,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           >
             <span className="flex items-center gap-1.5 min-w-0 flex-wrap">
               <Info className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
-              <span className="break-words">Hadith Ref: {item.source}</span>
+              <span className="break-words">Hadith Ref &amp; Virtue / ഹദീസിൻ്റെ ശ്രേഷ്ഠത • {item.source}</span>
               <span
                 className={`font-malayalam text-[10px] px-1.5 py-0.5 rounded font-black shrink-0 ${
                   isDark
@@ -767,7 +890,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           {showVirtue && (() => {
             const visibleVirtue = getVisibleVirtues(item, settings.translationLanguage || 'both');
 
-            if (!visibleVirtue.hasMl && !visibleVirtue.hasEn) return null;
+            if (!visibleVirtue.hasMl && !visibleVirtue.hasEn && !item.hadithArabic) return null;
 
             return (
               <div
@@ -778,6 +901,25 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
                     : 'bg-amber-50 border-amber-600 text-black shadow-xs'
                 }`}
               >
+                {item.source && (
+                  <div className="font-extrabold text-teal-900 dark:text-teal-300">
+                    📚 {item.source}
+                  </div>
+                )}
+
+                {item.hadithArabic && (
+                  <div
+                    dir="rtl"
+                    className={`font-arabic text-base sm:text-lg leading-loose text-right p-2.5 rounded-lg border select-text ${
+                      isDark
+                        ? 'bg-slate-900/70 border-slate-700 text-amber-100 font-bold'
+                        : 'bg-white border-amber-400 text-black font-bold'
+                    }`}
+                  >
+                    {item.hadithArabic}
+                  </div>
+                )}
+
                 {/* Both Malayalam and English */}
                 {visibleVirtue.hasMl && visibleVirtue.hasEn && (
                   <>
@@ -830,7 +972,8 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
         </div>
       )}
 
-      {/* Recitation Focus Countdown Timer */}
+      {/* Recitation Focus Countdown Timer (Shown only when enabled in Settings) */}
+      {Boolean(settings.showFocusTimer) && (
       <div
         data-testid={`dhikr-timer-${item.id}`}
         onClick={(e) => e.stopPropagation()}
@@ -1123,7 +1266,7 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           </div>
         )}
       </div>
-
+      )}
       {/* Primary Counter Button */}
       <div className="relative">
         <button
@@ -1174,6 +1317,81 @@ export const DhikrCard: React.FC<DhikrCardProps> = ({
           </span>
         </button>
       </div>
+
+      {/* Category Location Footer (Displayed below each search result item so the user knows where the found Zikr is located) */}
+      {(isSearchResult || showCategoryBadge) && (() => {
+        const loc = getAdhkarCategoryLocation(item, ALL_ADHKAR_ITEMS);
+        return (
+          <div
+            data-testid={`search-result-category-${item.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className={`mt-3 pt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-xs ${
+              isDark ? 'border-slate-800 text-slate-200' : 'border-slate-300 text-black'
+            }`}
+          >
+            <div className="flex items-center gap-2 flex-wrap">
+              <span
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-extrabold text-[11px] sm:text-xs border shadow-2xs ${
+                  loc.category === 'morning'
+                    ? isDark
+                      ? 'bg-amber-950/70 text-amber-300 border-amber-700/80'
+                      : 'bg-amber-100 text-black border-amber-600'
+                    : loc.category === 'evening'
+                    ? isDark
+                      ? 'bg-indigo-950/70 text-indigo-300 border-indigo-700/80'
+                      : 'bg-indigo-100 text-black border-indigo-600'
+                    : loc.category === 'prayer'
+                    ? isDark
+                      ? 'bg-teal-950/70 text-teal-300 border-teal-700/80'
+                      : 'bg-teal-100 text-black border-teal-600'
+                    : isDark
+                    ? 'bg-purple-950/70 text-purple-300 border-purple-700/80'
+                    : 'bg-purple-100 text-black border-purple-600'
+                }`}
+              >
+                <MapPin className="w-3 h-3 stroke-[2.5] shrink-0" />
+                <span>{loc.icon}</span>
+                <span>{loc.label}</span>
+                <span className="font-mono font-black opacity-90">
+                  ({loc.totalInCategory > 0 ? `#${loc.itemPosition} of ${loc.totalInCategory}` : `#${loc.itemPosition}`})
+                </span>
+              </span>
+
+              <span
+                className={`text-[11px] font-bold flex items-center gap-1.5 ${
+                  isDark ? 'text-teal-300' : 'text-teal-950'
+                }`}
+              >
+                <span className="font-malayalam font-extrabold">{loc.malayalamLabel}</span>
+                <span className="opacity-60">•</span>
+                <span className="font-arabic text-xs font-bold">{loc.arabicLabel}</span>
+              </span>
+            </div>
+
+            {onSelectCategory && (
+              <button
+                type="button"
+                data-testid={`jump-to-category-${item.id}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectCategory(loc.category, item.id);
+                }}
+                aria-label={`Go to ${loc.label} item #${loc.itemPosition}`}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold inline-flex items-center gap-1 transition-colors cursor-pointer border ${
+                  isDark
+                    ? 'bg-slate-800 hover:bg-teal-900/70 text-teal-300 border-slate-700 hover:border-teal-600'
+                    : 'bg-teal-50 hover:bg-teal-200 text-black border-teal-600 shadow-2xs'
+                }`}
+              >
+                <span>Open in {loc.shortLabel}</span>
+                <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+              </button>
+            )}
+          </div>
+        );
+      })()}
+
     </article>
   );
 };
+

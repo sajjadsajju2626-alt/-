@@ -1,20 +1,160 @@
 import type { DailyTask, TaskFilterStatus } from '../types/tasks.ts';
 
 /**
- * Calculates completion statistics for daily tasks.
+ * Safely normalizes any raw tasks value (array, legacy { date, tasks } object, or invalid value)
+ * into a guaranteed DailyTask[] array so array methods (.filter, .map) never throw TypeError.
  */
-export function calculateTasksProgress(tasks: DailyTask[]): {
+export function normalizeDailyTasks(
+  raw: unknown,
+  fallback: DailyTask[] = []
+): DailyTask[] {
+  if (Array.isArray(raw)) {
+    return raw.filter(
+      (item): item is DailyTask =>
+        Boolean(item && typeof item === 'object' && typeof (item as DailyTask).id === 'string')
+    );
+  }
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    Array.isArray((raw as { tasks?: unknown }).tasks)
+  ) {
+    const extracted = (raw as { tasks: unknown[] }).tasks.filter(
+      (item): item is DailyTask =>
+        Boolean(item && typeof item === 'object' && typeof (item as DailyTask).id === 'string')
+    );
+    return extracted.length > 0 ? extracted : fallback;
+  }
+  return fallback;
+}
+
+export const RAWATIB_RAKAHS: Record<string, number> = {
+  'rawatib-fajr': 2,
+  'rawatib-dhuhr-pre': 4,
+  'rawatib-dhuhr-post': 2,
+  'rawatib-maghrib': 2,
+  'rawatib-isha': 2,
+};
+
+/**
+ * Calculates live portion stats, percentage, and completion for any daily task
+ * (e.g. 5 Daily Obligatory Prayers, 12 Sunnah Rawatib Prayers, or standard tasks).
+ */
+export function getTaskPortionStats(task: DailyTask | null | undefined): {
+  hasPortions: boolean;
+  completedPortions: number;
+  totalPortions: number;
+  percent: number;
+  unit: string;
+  isComplete: boolean;
+  isPartial: boolean;
+} {
+  if (!task || typeof task !== 'object') {
+    return {
+      hasPortions: false,
+      completedPortions: 0,
+      totalPortions: 0,
+      percent: 0,
+      unit: '',
+      isComplete: false,
+      isPartial: false,
+    };
+  }
+
+  if (task.id === 'task-fard-prayers') {
+    const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+    const totalPortions = 5;
+    const completedPortions = subtasks.filter((s) => s.completed).length;
+    const percent = Math.round((completedPortions / totalPortions) * 100);
+    const isComplete = completedPortions === 5;
+    const isPartial = completedPortions > 0 && completedPortions < 5;
+    return {
+      hasPortions: true,
+      completedPortions,
+      totalPortions,
+      percent,
+      unit: 'prayers',
+      isComplete,
+      isPartial,
+    };
+  }
+
+  if (task.id === 'task-rawatib') {
+    const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+    const totalPortions = 12;
+    let completedPortions = 0;
+    for (const st of subtasks) {
+      if (st.completed) {
+        completedPortions += RAWATIB_RAKAHS[st.id] ?? 2;
+      }
+    }
+    const percent = Math.min(100, Math.round((completedPortions / totalPortions) * 100));
+    const isComplete = completedPortions >= 12;
+    const isPartial = completedPortions > 0 && completedPortions < 12;
+    return {
+      hasPortions: true,
+      completedPortions,
+      totalPortions,
+      percent,
+      unit: "rak'ahs",
+      isComplete,
+      isPartial,
+    };
+  }
+
+  if (Array.isArray(task.subtasks) && task.subtasks.length > 0) {
+    const totalPortions = task.subtasks.length;
+    const completedPortions = task.subtasks.filter((s) => s.completed).length;
+    const percent = Math.round((completedPortions / totalPortions) * 100);
+    const isComplete = completedPortions === totalPortions;
+    const isPartial = completedPortions > 0 && completedPortions < totalPortions;
+    return {
+      hasPortions: true,
+      completedPortions,
+      totalPortions,
+      percent,
+      unit: 'steps',
+      isComplete,
+      isPartial,
+    };
+  }
+
+  const isComplete = Boolean(task.completed);
+  return {
+    hasPortions: false,
+    completedPortions: isComplete ? 1 : 0,
+    totalPortions: 1,
+    percent: isComplete ? 100 : 0,
+    unit: 'tasks',
+    isComplete,
+    isPartial: false,
+  };
+}
+
+/**
+ * Returns true if a task has achieved 100% completion (all portions done for multi-portion tasks).
+ */
+export function isTaskEffectivelyCompleted(task: DailyTask | null | undefined): boolean {
+  return getTaskPortionStats(task).isComplete;
+}
+
+/**
+ * Calculates completion statistics for daily tasks.
+ * Multi-portion tasks count as completed ONLY if all portions are done (100%).
+ */
+export function calculateTasksProgress(tasks: DailyTask[] | unknown): {
   completed: number;
   total: number;
   percent: number;
   isAllDone: boolean;
 } {
-  const total = tasks.length;
+  const safeTasks = normalizeDailyTasks(tasks);
+  const total = safeTasks.length;
   if (total === 0) {
     return { completed: 0, total: 0, percent: 0, isAllDone: false };
   }
 
-  const completed = tasks.filter((t) => t.completed).length;
+  const completed = safeTasks.filter((t) => getTaskPortionStats(t).isComplete).length;
   const percent = Math.round((completed / total) * 100);
   const isAllDone = completed === total && total > 0;
 
@@ -23,13 +163,17 @@ export function calculateTasksProgress(tasks: DailyTask[]): {
 
 /**
  * Toggles a main task completion status.
- * If the task has subtasks, toggling the parent sets all subtasks accordingly.
+ * If the task has subtasks:
+ * - If not 100% complete, clicking marks all subtasks & parent as completed (100%).
+ * - If already 100% complete, clicking unchecks all subtasks & parent (0%).
  */
 export function toggleTask(tasks: DailyTask[], taskId: string): DailyTask[] {
-  return tasks.map((task) => {
+  const safeTasks = normalizeDailyTasks(tasks);
+  return safeTasks.map((task) => {
     if (task.id !== taskId) return task;
 
-    const nextCompleted = !task.completed;
+    const stats = getTaskPortionStats(task);
+    const nextCompleted = !stats.isComplete;
     const nowIso = nextCompleted ? new Date().toISOString() : undefined;
 
     const nextSubtasks = task.subtasks
@@ -46,28 +190,29 @@ export function toggleTask(tasks: DailyTask[], taskId: string): DailyTask[] {
 }
 
 /**
- * Toggles an individual subtask within a parent task (e.g., Fajr in 5 Fard Prayers).
- * Updates parent completed status: true if all subtasks are complete, false otherwise.
+ * Toggles an individual subtask within a parent task (e.g., Fajr in 5 Fard Prayers or 2 before Fajr in 12 Rawatib).
+ * Sets task.completed = true ONLY if all portions are complete (5/5 for Fard, 12/12 for Rawatib).
  */
 export function toggleSubtask(
   tasks: DailyTask[],
   taskId: string,
   subtaskId: string
 ): DailyTask[] {
-  return tasks.map((task) => {
+  const safeTasks = normalizeDailyTasks(tasks);
+  return safeTasks.map((task) => {
     if (task.id !== taskId || !task.subtasks) return task;
 
     const updatedSubtasks = task.subtasks.map((st) =>
       st.id === subtaskId ? { ...st, completed: !st.completed } : st
     );
 
-    const allSubtasksDone = updatedSubtasks.every((st) => st.completed);
+    const stats = getTaskPortionStats({ ...task, subtasks: updatedSubtasks });
 
     return {
       ...task,
       subtasks: updatedSubtasks,
-      completed: allSubtasksDone,
-      completedAt: allSubtasksDone ? new Date().toISOString() : undefined,
+      completed: stats.isComplete,
+      completedAt: stats.isComplete ? new Date().toISOString() : undefined,
     };
   });
 }
@@ -86,8 +231,9 @@ export function addCustomTask(
     malayalamDescription?: string;
   }
 ): DailyTask[] {
+  const safeTasks = normalizeDailyTasks(tasks);
   const trimmedTitle = data.title.trim();
-  if (!trimmedTitle) return tasks;
+  if (!trimmedTitle) return safeTasks;
 
   const newTask: DailyTask = {
     id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -101,21 +247,21 @@ export function addCustomTask(
     completed: false,
   };
 
-  return [...tasks, newTask];
+  return [...safeTasks, newTask];
 }
 
 /**
  * Deletes a task from the list (primarily custom tasks).
  */
 export function deleteTask(tasks: DailyTask[], taskId: string): DailyTask[] {
-  return tasks.filter((t) => t.id !== taskId);
+  return normalizeDailyTasks(tasks).filter((t) => t.id !== taskId);
 }
 
 /**
  * Resets all task and subtask completions for a new day.
  */
 export function resetDailyTasks(tasks: DailyTask[]): DailyTask[] {
-  return tasks.map((task) => ({
+  return normalizeDailyTasks(tasks).map((task) => ({
     ...task,
     completed: false,
     completedAt: undefined,
@@ -130,7 +276,7 @@ export function resetDailyTasks(tasks: DailyTask[]): DailyTask[] {
  */
 export function completeAllTasks(tasks: DailyTask[]): DailyTask[] {
   const nowIso = new Date().toISOString();
-  return tasks.map((task) => ({
+  return normalizeDailyTasks(tasks).map((task) => ({
     ...task,
     completed: true,
     completedAt: nowIso,
@@ -148,9 +294,10 @@ export function syncAdhkarWithTasks(
   isMorningComplete: boolean,
   isEveningComplete: boolean
 ): DailyTask[] {
+  const safeTasks = normalizeDailyTasks(tasks);
   let changed = false;
 
-  const nextTasks = tasks.map((task) => {
+  const nextTasks = safeTasks.map((task) => {
     if (task.id === 'task-morning-adhkar') {
       if (task.completed !== isMorningComplete) {
         changed = true;
@@ -173,7 +320,7 @@ export function syncAdhkarWithTasks(
     return task;
   });
 
-  return changed ? nextTasks : tasks;
+  return changed ? nextTasks : safeTasks;
 }
 
 /**
@@ -185,7 +332,7 @@ export function filterDailyTasks(
   categoryFilter: string,
   searchQuery: string
 ): DailyTask[] {
-  let filtered = tasks;
+  let filtered = normalizeDailyTasks(tasks);
 
   // Filter by status
   if (filterStatus === 'incomplete') {
@@ -237,17 +384,26 @@ export interface TaskAuditDayDot {
   date: string; // YYYY-MM-DD
   shortLabel: string; // e.g. "Oct 29"
   dayOfWeek: string; // Sun, Mon, Tue...
-  completed: boolean;
+  completed: boolean; // true ONLY if 100% complete
+  status: 'completed' | 'partial' | 'missed'; // 'completed' (100%), 'partial' (1-99%), 'missed' (0%)
+  percent: number; // 0 to 100
+  completedPortions: number;
+  totalPortions: number;
   isToday: boolean;
 }
 
 export interface TaskAuditRow {
   task: DailyTask;
   completedDays: number;
+  partialDays: number;
   totalDays: number; // 7 for week, 30 for month
   missedDays: number;
-  completionPercent: number;
-  ratioLabel: string; // e.g. "5/7 days" or "22/30 days"
+  completionPercent: number; // Proportional percentage based on total portions or days
+  ratioLabel: string; // e.g. "28/35 prayers", "60/84 rak'ahs", or "5/7 days"
+  totalPortionsCompleted: number;
+  totalPortionsPossible: number;
+  unit: string;
+  hasPortions: boolean;
   dots: TaskAuditDayDot[];
   isCompletedFilterMatch: boolean;
   isMissedFilterMatch: boolean;
@@ -305,14 +461,138 @@ export function upsertTaskHistoryForDate(
   dateStr: string,
   tasks: DailyTask[]
 ): TaskHistoryMap {
-  const dayRecord: Record<string, boolean> = { ...(history[dateStr] || {}) };
-  for (const task of tasks) {
-    dayRecord[task.id] = Boolean(task.completed);
+  const safeTasks = normalizeDailyTasks(tasks);
+  const existingEntry = history?.[dateStr] as
+    | (Record<string, unknown> & { completedTaskIds?: string[] })
+    | undefined;
+  const dayRecord: Record<string, unknown> =
+    existingEntry && typeof existingEntry === 'object' ? { ...existingEntry } : {};
+  const completedIds = new Set<string>(
+    Array.isArray(existingEntry?.completedTaskIds) ? existingEntry.completedTaskIds : []
+  );
+
+  for (const task of safeTasks) {
+    const stats = getTaskPortionStats(task);
+    const done = stats.isComplete;
+    dayRecord[task.id] = done;
+    if (stats.hasPortions) {
+      dayRecord[`${task.id}_portion`] = stats.completedPortions;
+      dayRecord[`${task.id}_percent`] = stats.percent;
+      dayRecord[`${task.id}_total`] = stats.totalPortions;
+    }
+    if (done) {
+      completedIds.add(task.id);
+    } else {
+      completedIds.delete(task.id);
+    }
   }
+  dayRecord.completedTaskIds = Array.from(completedIds);
+
   return {
-    ...history,
-    [dateStr]: dayRecord,
+    ...(history || {}),
+    [dateStr]: dayRecord as Record<string, boolean>,
   };
+}
+
+/**
+ * Manually toggles a task's completion status on a specific date (YYYY-MM-DD) when the user clicks
+ * a Day pill (e.g. SUN, MON, ..., SAT) in the Weekly/Monthly Task Audit.
+ * Also syncs today's tasks list if the toggled date is todayStr.
+ */
+export function toggleTaskAuditDay(
+  history: TaskHistoryMap,
+  tasks: DailyTask[],
+  taskId: string,
+  dateStr: string,
+  todayStr: string
+): {
+  nextHistory: TaskHistoryMap;
+  nextTasks: DailyTask[];
+  nextCompleted: boolean;
+} {
+  const safeTasks = normalizeDailyTasks(tasks);
+  const safeHistory = history && typeof history === 'object' ? { ...history } : {};
+  const existingDay = (safeHistory[dateStr] || {}) as Record<string, unknown> & {
+    completedTaskIds?: string[];
+  };
+
+  const isToday = dateStr === todayStr;
+  const targetTask = safeTasks.find((t) => t.id === taskId);
+  const statsTemplate = targetTask
+    ? getTaskPortionStats(targetTask)
+    : { hasPortions: false, totalPortions: 1, unit: 'days' };
+
+  let currentPercent = 0;
+  if (isToday && targetTask) {
+    currentPercent = getTaskPortionStats(targetTask).percent;
+  } else if (existingDay[`${taskId}_percent`] !== undefined) {
+    currentPercent = Number(existingDay[`${taskId}_percent`]);
+  } else if (existingDay[taskId] === true) {
+    currentPercent = 100;
+  } else if (
+    Array.isArray(existingDay.completedTaskIds) &&
+    existingDay.completedTaskIds.includes(taskId)
+  ) {
+    currentPercent = 100;
+  }
+
+  // If already 100% complete, toggle to 0% (Missed). If 0% or partial (1-99%), toggle to 100% (Completed).
+  const nextCompleted = currentPercent < 100;
+
+  const completedIds = new Set<string>(
+    Array.isArray(existingDay.completedTaskIds) ? existingDay.completedTaskIds : []
+  );
+  if (nextCompleted) {
+    completedIds.add(taskId);
+  } else {
+    completedIds.delete(taskId);
+  }
+
+  const updatedDay: Record<string, unknown> = {
+    ...existingDay,
+    [taskId]: nextCompleted,
+    completedTaskIds: Array.from(completedIds),
+  };
+
+  if (statsTemplate.hasPortions) {
+    updatedDay[`${taskId}_portion`] = nextCompleted ? statsTemplate.totalPortions : 0;
+    updatedDay[`${taskId}_percent`] = nextCompleted ? 100 : 0;
+    updatedDay[`${taskId}_total`] = statsTemplate.totalPortions;
+  }
+
+  let nextTasks = safeTasks;
+  if (isToday) {
+    nextTasks = safeTasks.map((t) => {
+      if (t.id !== taskId) return t;
+      return {
+        ...t,
+        completed: nextCompleted,
+        completedAt: nextCompleted ? new Date().toISOString() : undefined,
+        subtasks: t.subtasks
+          ? t.subtasks.map((st) => ({ ...st, completed: nextCompleted }))
+          : undefined,
+      };
+    });
+  }
+
+  const nextHistory: TaskHistoryMap = {
+    ...safeHistory,
+    [dateStr]: updatedDay as Record<string, boolean>,
+  };
+
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem('adhkar_tasks_history', JSON.stringify(nextHistory));
+      if (isToday) {
+        localStorage.setItem('adhkar_daily_tasks', JSON.stringify(nextTasks));
+        localStorage.setItem('adhkar_tasks_date', todayStr);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  return { nextHistory, nextTasks, nextCompleted };
 }
 
 /**
@@ -323,6 +603,7 @@ export function loadAndSyncTaskHistory(
   todayStr: string,
   currentTasks: DailyTask[]
 ): TaskHistoryMap {
+  const safeCurrentTasks = normalizeDailyTasks(currentTasks);
   let history: TaskHistoryMap = {};
 
   if (typeof localStorage !== 'undefined') {
@@ -360,9 +641,9 @@ export function loadAndSyncTaskHistory(
 
           const inferredDay: Record<string, boolean> = {};
           const tasksPct = Number(sections.tasks || 0);
-          const countToMark = Math.round((tasksPct / 100) * currentTasks.length);
+          const countToMark = Math.round((tasksPct / 100) * safeCurrentTasks.length);
 
-          currentTasks.forEach((t, idx) => {
+          safeCurrentTasks.forEach((t, idx) => {
             if (t.id === 'task-morning-adhkar' && Number(sections.morning || 0) >= 100) {
               inferredDay[t.id] = true;
             } else if (t.id === 'task-evening-adhkar' && Number(sections.evening || 0) >= 100) {
@@ -380,7 +661,7 @@ export function loadAndSyncTaskHistory(
     }
   }
 
-  const synced = upsertTaskHistoryForDate(history, todayStr, currentTasks);
+  const synced = upsertTaskHistoryForDate(history, todayStr, safeCurrentTasks);
 
   if (typeof localStorage !== 'undefined') {
     try {
@@ -405,6 +686,8 @@ export function buildTaskAuditReport(
   filter: TaskAuditFilter,
   todayStr: string
 ): TaskAuditReport {
+  const safeTasks = normalizeDailyTasks(tasks);
+  const safeHistory = history && typeof history === 'object' ? history : {};
   const totalDays = period === 'week' ? 7 : 30;
   const endDate = parseLocalDateKey(todayStr);
 
@@ -424,65 +707,139 @@ export function buildTaskAuditReport(
     });
   }
 
-  const rows: TaskAuditRow[] = tasks.map((task) => {
+  const rows: TaskAuditRow[] = safeTasks.map((task) => {
+    const todayStats = getTaskPortionStats(task);
+    const hasPortions = todayStats.hasPortions;
+    const unit = todayStats.unit;
+    const singleDayPortions = hasPortions ? todayStats.totalPortions : 1;
+
     const dots: TaskAuditDayDot[] = dateItems.map((item) => {
-      const completed = item.isToday
-        ? Boolean(task.completed || history[item.dateStr]?.[task.id])
-        : Boolean(history[item.dateStr]?.[task.id]);
+      let percent = 0;
+      let completedPortions = 0;
+      const totalPortions = singleDayPortions;
+
+      if (item.isToday) {
+        percent = todayStats.percent;
+        completedPortions = hasPortions
+          ? todayStats.completedPortions
+          : todayStats.isComplete
+          ? 1
+          : 0;
+      } else {
+        const dayEntry = safeHistory[item.dateStr] as Record<string, unknown> | undefined;
+        if (dayEntry) {
+          if (hasPortions && typeof dayEntry[`${task.id}_portion`] === 'number') {
+            completedPortions = Number(dayEntry[`${task.id}_portion`]);
+            percent =
+              typeof dayEntry[`${task.id}_percent`] === 'number'
+                ? Number(dayEntry[`${task.id}_percent`])
+                : totalPortions > 0
+                ? Math.min(100, Math.round((completedPortions / totalPortions) * 100))
+                : 0;
+          } else if (
+            dayEntry[task.id] === true ||
+            (Array.isArray(dayEntry.completedTaskIds) &&
+              dayEntry.completedTaskIds.includes(task.id))
+          ) {
+            completedPortions = totalPortions;
+            percent = 100;
+          } else {
+            completedPortions = 0;
+            percent = 0;
+          }
+        }
+      }
+
+      const completed = percent === 100;
+      const status: 'completed' | 'partial' | 'missed' =
+        percent === 100 ? 'completed' : percent > 0 ? 'partial' : 'missed';
+
       return {
         date: item.dateStr,
         shortLabel: item.shortLabel,
         dayOfWeek: item.dayOfWeek,
         completed,
+        status,
+        percent,
+        completedPortions,
+        totalPortions,
         isToday: item.isToday,
       };
     });
 
-    const completedDays = dots.filter((d) => d.completed).length;
-    const missedDays = totalDays - completedDays;
-    const completionPercent = Math.round((completedDays / totalDays) * 100);
-    const ratioLabel = `${completedDays}/${totalDays} days`;
+    const completedDays = dots.filter((d) => d.status === 'completed').length;
+    const partialDays = dots.filter((d) => d.status === 'partial').length;
+    const missedDays = dots.filter((d) => d.status === 'missed').length;
 
-    // A task matches "Completed (പൂർത്തിയായവ)" if it was completed today or achieved on at least 1 day in the period
-    const isCompletedFilterMatch = Boolean(task.completed || completedDays > 0);
-    // A task matches "Missed (നഷ്ടപ്പെട്ടവ)" if it was missed on any day in the period or not completed today
-    const isMissedFilterMatch = Boolean(!task.completed || missedDays > 0);
+    let completionPercent: number;
+    let ratioLabel: string;
+    let totalPortionsCompleted: number;
+    let totalPortionsPossible: number;
+
+    if (hasPortions) {
+      totalPortionsCompleted = dots.reduce((acc, d) => acc + d.completedPortions, 0);
+      totalPortionsPossible = totalDays * singleDayPortions;
+      completionPercent =
+        totalPortionsPossible > 0
+          ? Math.round((totalPortionsCompleted / totalPortionsPossible) * 100)
+          : 0;
+      ratioLabel = `${totalPortionsCompleted}/${totalPortionsPossible} ${unit}`;
+    } else {
+      totalPortionsCompleted = completedDays;
+      totalPortionsPossible = totalDays;
+      completionPercent = Math.round((completedDays / totalDays) * 100);
+      ratioLabel = `${completedDays}/${totalDays} days`;
+    }
+
+    // A task matches "Completed (പൂർത്തിയായവ)" if completed on at least 1 day or partially done
+    const isCompletedFilterMatch = Boolean(
+      completedDays > 0 || partialDays > 0 || todayStats.percent > 0
+    );
+    // A task matches "Missed (നഷ്ടപ്പെട്ടവ)" if missed or partially missed on any day
+    const isMissedFilterMatch = Boolean(
+      missedDays > 0 || partialDays > 0 || todayStats.percent < 100
+    );
 
     return {
       task,
       completedDays,
+      partialDays,
       totalDays,
       missedDays,
       completionPercent,
       ratioLabel,
+      totalPortionsCompleted,
+      totalPortionsPossible,
+      unit,
+      hasPortions,
       dots,
       isCompletedFilterMatch,
       isMissedFilterMatch,
     };
   });
 
-  // Determine Most Completed Task and Most Skipped Task
+  // Determine Most Completed Task and Most Skipped Task based on completionPercent
   let mostCompletedTask: TaskAuditRow | null = null;
   let mostSkippedTask: TaskAuditRow | null = null;
 
   if (rows.length > 0) {
     const sortedByMostCompleted = [...rows].sort((a, b) => {
+      if (b.completionPercent !== a.completionPercent) {
+        return b.completionPercent - a.completionPercent;
+      }
       if (b.completedDays !== a.completedDays) {
         return b.completedDays - a.completedDays;
-      }
-      if (a.task.completed !== b.task.completed) {
-        return a.task.completed ? -1 : 1;
       }
       return 0;
     });
     mostCompletedTask = sortedByMostCompleted[0];
 
     const sortedByMostSkipped = [...rows].sort((a, b) => {
+      if (a.completionPercent !== b.completionPercent) {
+        return a.completionPercent - b.completionPercent;
+      }
       if (a.completedDays !== b.completedDays) {
         return a.completedDays - b.completedDays;
-      }
-      if (a.task.completed !== b.task.completed) {
-        return a.task.completed ? 1 : -1;
       }
       return 0;
     });

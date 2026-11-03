@@ -16,13 +16,16 @@ export interface DhikrItem {
   malayalamTranslation?: string;
   target: number;
   source: string;
+  hadithArabic?: string;
   virtue?: string;
   malayalamVirtue?: string;
   repeatNote?: string;
-  uthaymeenNumber?: number;
+  itemNumber?: number;
   hisnNumber?: number;
   audioUrl?: string;
   audioUrls?: string[];
+  audioStartTime?: number;
+  audioEndTime?: number;
   isQuranic?: boolean;
   reciter?: string;
   audioClipType?: 'tajweed' | 'natural_dua' | 'classical_male';
@@ -42,6 +45,7 @@ export interface AppSettings {
   vibrateEnabled: boolean;
   theme: ThemeMode;
   cardTapToCount: boolean;
+  showFocusTimer?: boolean;
   autoScrollNext: boolean;
   remindersEnabled: boolean;
   morningReminderTime: string; // HH:mm format, e.g. "06:00"

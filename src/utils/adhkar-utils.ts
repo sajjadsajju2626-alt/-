@@ -1,5 +1,90 @@
-import { DhikrItem, ProgressSummary } from '../types/adhkar.ts';
+import { AdhkarCategory, DhikrItem, ProgressSummary } from '../types/adhkar.ts';
 import { matchesQuery } from './translation-utils.ts';
+
+export interface AdhkarCategoryLocationInfo {
+  category: AdhkarCategory;
+  icon: string;
+  label: string;
+  shortLabel: string;
+  malayalamLabel: string;
+  arabicLabel: string;
+  itemPosition: number;
+  totalInCategory: number;
+  badgeText: string;
+  locationText: string;
+}
+
+const CATEGORY_LOCATION_META: Record<
+  AdhkarCategory,
+  {
+    icon: string;
+    label: string;
+    shortLabel: string;
+    malayalamLabel: string;
+    arabicLabel: string;
+  }
+> = {
+  morning: {
+    icon: '☀️',
+    label: 'Morning Adhkar',
+    shortLabel: 'Morning',
+    malayalamLabel: 'പ്രഭാത ദിക്റുകൾ',
+    arabicLabel: 'أذكار الصباح',
+  },
+  evening: {
+    icon: '🌙',
+    label: 'Evening Adhkar',
+    shortLabel: 'Evening',
+    malayalamLabel: 'വൈകുന്നേരത്തെ ദിക്റുകൾ',
+    arabicLabel: 'أذكار المساء',
+  },
+  prayer: {
+    icon: '✨',
+    label: 'After Prayer Adhkar',
+    shortLabel: 'After Prayer',
+    malayalamLabel: 'നമസ്കാര ശേഷമുള്ള ദിക്റുകൾ',
+    arabicLabel: 'أذكار بعد الصلاة',
+  },
+  sleep: {
+    icon: '🌌',
+    label: 'Before Sleep Adhkar',
+    shortLabel: 'Before Sleep',
+    malayalamLabel: 'ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ',
+    arabicLabel: 'أذكار النوم',
+  },
+};
+
+/**
+ * Resolves full category location details (icon, English/Malayalam/Arabic labels, and item position)
+ * to display below each search result item so the user knows where the found Zikr is located.
+ */
+export function getAdhkarCategoryLocation(
+  item: DhikrItem,
+  allItems: DhikrItem[] = []
+): AdhkarCategoryLocationInfo {
+  const meta = CATEGORY_LOCATION_META[item.category] || CATEGORY_LOCATION_META.morning;
+  const sameCategoryItems = allItems.filter((it) => it.category === item.category);
+  const indexInCategory = sameCategoryItems.findIndex((it) => it.id === item.id);
+  const itemPosition =
+    item.itemNumber ?? (indexInCategory >= 0 ? indexInCategory + 1 : 1);
+  const totalInCategory = sameCategoryItems.length;
+
+  const positionSuffix =
+    totalInCategory > 0 ? `#${itemPosition} of ${totalInCategory}` : `#${itemPosition}`;
+
+  return {
+    category: item.category,
+    icon: meta.icon,
+    label: meta.label,
+    shortLabel: meta.shortLabel,
+    malayalamLabel: meta.malayalamLabel,
+    arabicLabel: meta.arabicLabel,
+    itemPosition,
+    totalInCategory,
+    badgeText: `${meta.icon} ${meta.label} • ${meta.malayalamLabel}`,
+    locationText: `Located in: ${meta.label} (${positionSuffix})`,
+  };
+}
 
 /**
  * Calculates progress for a given list of adhkar items against user's counts.
@@ -116,3 +201,40 @@ export function filterDhikrItems(
     return matchesQuery(item, searchQuery);
   });
 }
+
+/**
+ * Searches across Adhkar items:
+ * - When searchQuery is empty, returns filtered items for the active category/tab.
+ * - When searchQuery is non-empty, searches across all Adhkar categories (when not restricted to Favorites),
+ *   prioritizing matches from the currently active category first so the user can locate any Zikr
+ *   and see its exact category location below each result.
+ */
+export function searchAdhkarWithCategories(
+  activeItems: DhikrItem[],
+  allItems: DhikrItem[],
+  counts: Record<string, number>,
+  searchQuery: string,
+  filterMode: 'all' | 'incomplete' | 'completed' = 'all',
+  activeTab?: string
+): DhikrItem[] {
+  const trimmed = searchQuery.trim();
+  if (!trimmed) {
+    return filterDhikrItems(activeItems, counts, '', filterMode);
+  }
+
+  const pool =
+    activeTab === 'favorites' || allItems.length === 0 ? activeItems : allItems;
+
+  const matched = filterDhikrItems(pool, counts, trimmed, filterMode);
+
+  if (activeTab && ['morning', 'evening', 'prayer', 'sleep'].includes(activeTab)) {
+    return [...matched].sort((a, b) => {
+      const aInActive = a.category === activeTab ? 0 : 1;
+      const bInActive = b.category === activeTab ? 0 : 1;
+      return aInActive - bInActive;
+    });
+  }
+
+  return matched;
+}
+

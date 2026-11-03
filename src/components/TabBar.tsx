@@ -23,67 +23,93 @@ export const TabBar: React.FC<TabBarProps> = ({
     {
       id: 'tab-morning',
       key: 'morning' as TabKey,
+      circleNum: '①',
       label: 'Morning',
+      mlLabel: 'പ്രഭാതം',
       icon: Sun,
-      arabic: 'الصباح',
+      arabic: 'أذكار الصباح',
+      subtitle: '25 Contents',
     },
     {
       id: 'tab-evening',
       key: 'evening' as TabKey,
+      circleNum: '②',
       label: 'Evening',
+      mlLabel: 'പ്രദോഷം',
       icon: Moon,
-      arabic: 'المساء',
+      arabic: 'أذكار المساء',
+      subtitle: '24 Contents',
     },
     {
       id: 'tab-prayer',
       key: 'prayer' as TabKey,
-      label: 'Prayer',
+      circleNum: '③',
+      label: 'After Prayer',
+      mlLabel: 'നമസ്കാരം',
       icon: Sparkles,
-      arabic: 'الصلاة',
+      arabic: 'أذكار بعد الصلاة',
+      subtitle: '14 Contents',
     },
     {
       id: 'tab-sleep',
       key: 'sleep' as TabKey,
+      circleNum: '④',
       label: 'Sleep',
+      mlLabel: 'ഉറക്കം',
       icon: BedDouble,
-      arabic: 'النوم',
+      arabic: 'أذكار النوم',
+      subtitle: '11 Contents',
     },
     {
       id: 'tab-tasks',
       key: 'tasks' as TabKey,
+      circleNum: '⑤',
       label: 'Tasks',
+      mlLabel: 'കർമ്മങ്ങൾ',
       icon: CheckSquare,
-      arabic: 'المهام',
+      arabic: 'المهام اليومية',
+      subtitle: 'Daily Checklist',
     },
     {
       id: 'tab-favorites',
       key: 'favorites' as TabKey,
+      circleNum: '⑥',
       label: 'Favorites',
+      mlLabel: 'പ്രിയപ്പെട്ടവ',
       icon: Star,
       arabic: 'المفضلة',
+      subtitle: 'Saved Items',
     },
     {
       id: 'tab-tasbih',
       key: 'tasbih' as TabKey,
+      circleNum: '⑦',
       label: 'Tasbih',
+      mlLabel: 'തസ്ബീഹ്',
       icon: CircleDot,
-      arabic: 'سبحة',
+      arabic: 'سبحة إلكترونية',
+      subtitle: '33 / 100 Counter',
     },
     {
       id: 'tab-progress',
       key: 'progress' as TabKey,
+      circleNum: '⑧',
       label: 'Progress',
+      mlLabel: 'പുരോഗതി',
       icon: TrendingUp,
-      arabic: 'التقدم',
+      arabic: 'التقدم الأسبوعي',
+      subtitle: 'Weekly & Monthly',
     },
   ];
 
   return (
     <nav
-      className="bg-teal-900 border-b border-teal-800 text-teal-100 overflow-x-auto no-scrollbar"
+      className="max-w-xl w-full mx-auto px-4 pt-2 pb-4"
       aria-label="Adhkar categories"
+      data-testid="category-grid-section"
     >
-      <div className="max-w-xl mx-auto flex items-stretch min-w-full">
+      {/* 2-Column Rounded Emerald Green Card Grid */}
+      <div className="grid grid-cols-2 gap-3">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           const Icon = tab.icon;
@@ -111,94 +137,70 @@ export const TabBar: React.FC<TabBarProps> = ({
               aria-selected={isActive}
               data-section-completed={isSectionDone ? 'true' : 'false'}
               onClick={() => onTabChange(tab.key)}
-              className={`relative flex-1 min-w-[68px] py-2 px-1 flex flex-col items-center justify-center gap-0.5 transition-all border-b-2 text-center cursor-pointer select-none ${
+              className={`relative rounded-2xl p-3.5 text-left text-white transition-all cursor-pointer select-none overflow-hidden min-h-[104px] flex flex-col justify-between active:scale-[0.98] ${
                 isActive
-                  ? isSectionDone
-                    ? 'border-emerald-400 bg-teal-800/95 text-white font-bold shadow-[inset_0_-8px_16px_rgba(16,185,129,0.25)]'
-                    : 'border-amber-400 bg-teal-800/80 text-white font-semibold'
-                  : isSectionDone
-                  ? 'border-emerald-500/70 bg-teal-900/90 text-emerald-200 hover:text-white hover:bg-teal-800/50 font-semibold'
-                  : 'border-transparent text-teal-200 hover:text-white hover:bg-teal-800/40 font-medium'
+                  ? 'bg-[#064e3b] dark:bg-[#064e3b] ring-2 ring-emerald-300 shadow-lg border border-emerald-400/50'
+                  : 'bg-[#0d5c3a] hover:bg-[#115e59] dark:bg-[#0d5c3a] dark:hover:bg-[#115e59] shadow-md border border-emerald-500/30 opacity-95'
               }`}
             >
-              <div className="flex items-center gap-1">
-                {isSectionDone ? (
-                  <span
-                    data-testid={`tab-flame-icon-${tab.key}`}
-                    className="relative inline-flex items-center justify-center w-4 h-4 rounded-full bg-gradient-to-tr from-orange-500 via-amber-400 to-yellow-200 text-slate-950 shadow-[0_0_10px_rgba(251,191,36,0.9)] scale-110 transition-transform animate-pulse"
-                  >
-                    <Flame className="w-3 h-3 fill-orange-600 text-slate-950" />
+              <div className="flex items-start justify-between gap-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-black text-white/95 leading-none">
+                    {tab.circleNum}
                   </span>
-                ) : (
-                  <Icon
-                    className={`w-3.5 h-3.5 ${
-                      isActive ? 'text-amber-400' : 'text-teal-300'
-                    }`}
-                  />
-                )}
-                <span className="text-[11px] sm:text-xs">{tab.label}</span>
-              </div>
-
-              {/* Progress counter badge or Arabic subtitle */}
-              <div className="text-[10px] leading-none flex items-center justify-center gap-1 mt-0.5">
-                {tab.key === 'favorites' ? (
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono flex items-center gap-1 ${
-                      isFavoritesDone
-                        ? 'bg-gradient-to-r from-amber-400/30 to-emerald-500/30 text-amber-200 font-black ring-1 ring-amber-300/70 shadow-[0_0_8px_rgba(245,158,11,0.5)]'
-                        : favoritesCount > 0
-                        ? 'bg-amber-400/20 text-amber-300 font-bold'
-                        : 'bg-black/20 text-teal-200'
-                    }`}
-                  >
-                    <Star className="w-2 h-2 fill-amber-300 text-amber-300" />
-                    <span>{favoritesCount}</span>
-                  </span>
-                ) : tab.key === 'tasks' && tasksProgress ? (
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono flex items-center gap-0.5 transition-all ${
-                      isTasksDone
-                        ? 'bg-gradient-to-r from-orange-500/40 via-amber-400/30 to-emerald-500/40 text-amber-200 font-black ring-1 ring-amber-300/80 shadow-[0_0_10px_rgba(251,191,36,0.65)] scale-105'
-                        : 'bg-black/20 text-teal-200'
-                    }`}
-                  >
-                    {isTasksDone && <span className="text-[9px]">🔥</span>}
-                    <span>
-                      {tasksProgress.completed}/{tasksProgress.total}
+                  {isSectionDone && (
+                    <span
+                      data-testid={`tab-flame-icon-${tab.key}`}
+                      className="relative inline-flex items-center justify-center w-4 h-4 rounded-full bg-gradient-to-tr from-orange-500 via-amber-400 to-yellow-200 text-slate-950 shadow-[0_0_10px_rgba(251,191,36,0.9)]"
+                    >
+                      <Flame className="w-3 h-3 fill-orange-600 text-slate-950" />
                     </span>
-                  </span>
-                ) : progress ? (
-                  <span
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-mono flex items-center gap-0.5 transition-all ${
-                      isCategoryDone
-                        ? 'bg-gradient-to-r from-orange-500/40 via-amber-400/30 to-emerald-500/40 text-amber-200 font-black ring-1 ring-amber-300/80 shadow-[0_0_10px_rgba(251,191,36,0.65)] scale-105'
-                        : 'bg-black/20 text-teal-200'
-                    }`}
-                  >
-                    {isCategoryDone && <span className="text-[9px]">🔥</span>}
-                    <span>
-                      {progress.completed}/{progress.total}
-                    </span>
-                  </span>
-                ) : (
-                  <span className="font-arabic text-[11px] text-teal-300/80">
-                    {tab.arabic}
-                  </span>
-                )}
-              </div>
-
-              {/* Glowing Checkmark + Bold 'പൂർത്തിയായി!' Label Below Completed Tab */}
-              {isSectionDone && (
-                <div
-                  data-testid={`tab-completed-label-${tab.key}`}
-                  className="mt-0.5 flex items-center justify-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/25 border border-emerald-400/70 text-emerald-200 shadow-[0_0_8px_rgba(52,211,153,0.6)]"
-                >
-                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-300 stroke-[3]" />
-                  <span className="font-malayalam text-[9px] font-black tracking-tight text-emerald-200 leading-none">
-                    പൂർത്തിയായി!
-                  </span>
+                  )}
                 </div>
-              )}
+                <span className="font-arabic text-xs text-emerald-100 font-bold">
+                  {tab.arabic}
+                </span>
+              </div>
+
+              <div className="pr-8 mt-1">
+                <div className="text-sm sm:text-base font-extrabold text-white leading-tight">
+                  {tab.label} • <span className="font-malayalam">{tab.mlLabel}</span>
+                </div>
+                <div className="text-[11px] font-bold text-emerald-100 mt-1 flex items-center gap-1 flex-wrap">
+                  {tab.key === 'favorites' ? (
+                    <span className="font-mono">
+                      ★ {favoritesCount} • {tab.subtitle}
+                    </span>
+                  ) : tab.key === 'tasks' && tasksProgress ? (
+                    <span className="font-mono">
+                      {isTasksDone && '🔥 '}
+                      {tasksProgress.completed}/{tasksProgress.total} • {tab.subtitle}
+                    </span>
+                  ) : progress ? (
+                    <span className="font-mono">
+                      {isCategoryDone && '🔥 '}
+                      {progress.completed}/{progress.total} • {progress.total} Contents
+                    </span>
+                  ) : (
+                    <span>{tab.subtitle}</span>
+                  )}
+                </div>
+
+                {isSectionDone && (
+                  <div
+                    data-testid={`tab-completed-label-${tab.key}`}
+                    className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/30 border border-emerald-300/70 text-emerald-100"
+                  >
+                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-200 stroke-[3]" />
+                    <span className="font-malayalam text-[9px] font-black tracking-tight text-emerald-100 leading-none">
+                      പൂർത്തിയായി!
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom-Right Line-Art SVG Icon */}
+              <Icon className="w-7 h-7 text-emerald-100/80 absolute bottom-2.5 right-2.5 stroke-[1.75] pointer-events-none" />
             </button>
           );
         })}

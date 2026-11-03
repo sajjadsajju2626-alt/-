@@ -2,16 +2,15 @@ import { DhikrItem } from '../types/adhkar.ts';
 
 /**
  * Morning Adhkar (أذكار الصباح)
- * Includes all 23 numbered supplications and Quranic verses from the authentic
- * booklet "الأذكار التي تقال صباحاً ومساءً" compiled by Shaykh Muhammad ibn Salih al-Uthaymeen
- * (dated 20-1-1418 AH), with precise Arabic vocalization, transliteration, English,
- * and Malayalam translations, and authentic citations.
+ * Authentic daily morning supplications and Quranic verses
+ * with precise Arabic vocalization, transliteration, English,
+ * and Malayalam translations, and authentic Hadith citations.
  */
 export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-1',
     category: 'morning',
-    uthaymeenNumber: 1,
+    itemNumber: 1,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالم (١) ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ (٢) الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ (٣) وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ (٤) أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ (٥)',
     transliteration:
@@ -21,12 +20,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. അലിഫ്-ലാം-മീം. ഇത് അല്ലാഹുവിന്റെ വേദഗ്രന്ഥമാകുന്നു; ഇതിൽ യാതൊരു സംശയവുമില്ല, ഭയഭക്തിയുള്ളവർക്ക് (മുത്തഖികൾക്ക്) മാർഗദർശനമാണിത്. അദൃശ്യകാര്യങ്ങളിൽ വിശ്വസിക്കുകയും, നമസ്കാരം മുറപ്രകാരം നിർവ്വഹിക്കുകയും, നാം അവർക്ക് നൽകിയതിൽ നിന്ന് ചെലവഴിക്കുകയും ചെയ്യുന്നവരാണവർ. നിനക്ക് അവതരിപ്പിച്ചു കിട്ടിയതിലും നിനക്ക് മുമ്പ് അവതരിപ്പിക്കപ്പെട്ടതിലും അവർ വിശ്വസിക്കുന്നു; പരലോകത്തിൽ അവർ ദൃഢമായി വിശ്വസിക്കുകയും ചെയ്യുന്നു. അവരാകുന്നു തങ്ങളുടെ നാഥനിൽ നിന്നുള്ള സന്മാർഗത്തിലുള്ളവർ. അവർ തന്നെയാണ് വിജയികൾ.',
     target: 1,
-    source: 'Surah Al-Baqarah (2:1-5) • Shaykh Ibn Uthaymeen Collection #1',
+    source: 'Surah Al-Baqarah (2:1-5)',
     virtue:
       'Reciting the opening of Surah Al-Baqarah brings divine guidance, firm faith in the unseen, and spiritual protection for the day.',
     malayalamVirtue:
       'സൂറത്തുൽ ബഖറയുടെ ആദ്യ അഞ്ച് ആയത്തുകൾ പാരായണം ചെയ്യുന്നത് ദിവ്യമായ സന്മാർഗ്ഗദർശനവും, അദൃശ്യകാര്യങ്ങളിൽ ദൃഢവിശ്വാസവും, ആ ദിവസത്തെ സംരക്ഷണവും നേടിത്തരുന്നു.',
     repeatNote: '1 time (Surah Al-Baqarah 1-5)',
+    title: 'സൂറത്തുൽ ബഖറയിലെ ആദ്യ അഞ്ച് ആയത്തുകൾ (സൂറത്തുൽ ബഖറ 2:1-5)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -41,7 +41,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-2',
     category: 'morning',
-    uthaymeenNumber: 2,
+    itemNumber: 2,
     arabic:
       'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     transliteration:
@@ -51,12 +51,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
     target: 1,
-    source: 'Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani • Shaykh Ibn Uthaymeen #2',
+    source: 'Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani',
     virtue:
       'Whoever recites this when waking up in the morning will be shielded from jinn and harm until evening.',
     malayalamVirtue:
       'പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ വൈകുന്നേരം വരെ ജിന്നുകളിൽ നിന്നും എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നും അല്ലാഹുവിന്റെ കാവലിലായിരിക്കും (ഹാകിം, ത്വബ്റാനി).',
     repeatNote: '1 time (Ayat al-Kursi)',
+    title: 'ആയത്തുൽ കുർസിയ്യ് (സൂറത്തുൽ ബഖറ 2:255)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -65,23 +66,24 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-3',
     category: 'morning',
-    uthaymeenNumber: 3,
+    itemNumber: 3,
     arabic:
       'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)',
     transliteration:
       "Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon, kullun amana billahi wa mala'ikatihi wa kutubihi wa rusulih, la nufarriqu bayna ahadim-mir-rusulih, wa qaloo sami'na wa ata'na ghufranaka Rabbana wa-ilaykal-maseer. La yukallifullahu nafsan illa wus'aha, laha ma kasabat wa 'alayha maktasabat, Rabbana la tu'akhidhna in-naseena aw akhta'na, Rabbana wa la tahmil 'alayna isran kama hamaltahu 'alalladheena min qablina, Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.",
     translation:
-      'The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], "We make no distinction between any of His messengers." And they say, "We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination." Allah does not charge a soul except [with that within] its capacity... "Our Lord, do not impose blame upon us if we have forgotten or erred... and pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people."',
+      'The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], "We make no distinction between any of His messengers." And they say, "We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination." Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what [good] it has gained, and it will bear [the consequence of] what [evil] it has earned. "Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people."',
     malayalamTranslation:
-      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, ഞങ്ങൾ നിന്നോട് പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല... ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ... ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
+      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, നിന്നോട് ഞങ്ങൾ പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല. ഓരോരുത്തർക്കും താൻ പ്രവർത്തിച്ച നന്മയുടെ ഫലമുണ്ട്, താൻ ചെയ്ത തിന്മയുടെ ഭാരവുമുണ്ട്. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങളുടെ മുൻഗാമികളുടെ മേൽ ചുമത്തിയതുപോലുള്ള ഭാരം ഞങ്ങളുടെ മേൽ നീ ചുമത്തരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാനാവാത്ത ഭാരം ഞങ്ങളെ നീ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
     target: 1,
     source:
-      'Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807 • Shaykh Ibn Uthaymeen #3',
+      'Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807',
     virtue:
       'The Prophet (ﷺ) said: "Whoever recites the last two verses of Surah Al-Baqarah at night/day, they will suffice him for all protection and blessing."',
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ പാരായണം ചെയ്താൽ, എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകുന്നതാണ്" (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '1 time (Last two verses of Al-Baqarah)',
+    title: 'സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ (ആമന റസൂലു — 2:285-286)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -93,22 +95,23 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-4',
     category: 'morning',
-    uthaymeenNumber: 4,
+    itemNumber: 4,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nحم (١) تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْعَلِيمِ (٢) غَافِرِ الذَّنبِ وَقَابِلِ التَّوْبِ شَدِيدِ الْعِقَابِ ذِي الطَّوْلِ، لَا إِلَٰهَ إِلَّا هُوَ، إِلَيْهِ الْمَصِيرُ (٣)',
     transliteration:
-      "Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.",
+      "Bismillahir-Rahmanir-Raheem. Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.",
     translation:
-      'Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.',
+      'In the name of Allah, the Entirely Merciful, the Especially Merciful. Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.',
     malayalamTranslation:
-      'ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.',
+      'പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.',
     target: 1,
-    source: 'Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879 • Shaykh Ibn Uthaymeen #4',
+    source: 'Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879',
     virtue:
       'The Prophet (ﷺ) stated that reciting Ha-Meem (Ghafir 1-3) together with Ayat al-Kursi in the morning preserves a person until evening.',
     malayalamVirtue:
       'പ്രഭാതത്തിൽ ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ കൂടി ഓതുന്നവൻ വൈകുന്നേരം വരെ സകല തിന്മകളിൽ നിന്നും സംരക്ഷിക്കപ്പെടുമെന്ന് നബി (ﷺ) അരുളിയിരിക്കുന്നു (തിർമിദി).',
     repeatNote: '1 time (Surah Ghafir 1-3)',
+    title: 'സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ (ഹാ-മീം — 40:1-3)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -121,7 +124,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-5',
     category: 'morning',
-    uthaymeenNumber: 5,
+    itemNumber: 5,
     arabic:
       'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ، عَالِمُ الْغَيْبِ وَالشَّهَادَةِ، هُوَ الرَّحْمَٰنُ الرَّحِيمُ (٢٢) هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ، سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ (٢٣) هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ، لَهُ الْأَسْمَاءُ الْحُسْنَىٰ، يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ، وَهُوَ الْعَزِيزُ الْحَكِيمُ (٢٤)',
     transliteration:
@@ -131,12 +134,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അദൃശ്യവും ദൃശ്യവും അറിയുന്നവൻ. അവൻ പരമകാരുണികനും കരുണാനിധിയുമാകുന്നു. യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അവൻ രാജാവും, പരമപരിശുദ്ധനും, സമാധാനം നൽകുന്നവനും, അഭയം നൽകുന്നവനും, മേൽനോട്ടം വഹിക്കുന്നവനും, പ്രതാപശാലിയും, പരമാധികാരിയും, സർവ്വോന്നതനുമാകുന്നു. അവർ പങ്കുചേർക്കുന്നതിൽ നിന്നെല്ലാം അല്ലാഹു എത്രയോ പരിശുദ്ധൻ! സൃഷ്ടികർത്താവും, ശൂന്യതയിൽ നിന്ന് ഉണ്ടാക്കിയവനും, രൂപം നൽകിയവനുമായ അല്ലാഹുവാണ് അവൻ. അവന്നാണ് ഏറ്റവും ഉത്കൃഷ്ടമായ നാമങ്ങളുള്ളത്. ആകാശങ്ങളിലുള്ളതും ഭൂമിയിലുള്ളതുമെല്ലാം അവന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു. അവൻ പ്രതാപശാലിയും യുക്തിമാനുമാകുന്നു.',
     target: 1,
-    source: 'Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922 • Shaykh Ibn Uthaymeen #5',
+    source: 'Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922',
     virtue:
       'Reciting these concluding verses of Surah Al-Hashr prompts seventy thousand angels to supplicate for Allah’s mercy and forgiveness upon the reciter until evening.',
     malayalamVirtue:
       'സൂറത്തുൽ ഹശ്റിലെ അവസാനത്തെ ഈ ആയത്തുകൾ പ്രഭാതത്തിൽ പാരായണം ചെയ്യുന്നയാൾക്കായി വൈകുന്നേരം വരെ എഴുപതിനായിരം മലക്കുകൾ കാരുണ്യത്തിനും പാപമോചനത്തിനുമായി പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Al-Hashr 22-24)',
+    title: 'സൂറത്തുൽ ഹശ്റിലെ അവസാന മൂന്ന് ആയത്തുകൾ (ഹുവല്ലാഹുല്ലദീ — 59:22-24)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -149,7 +153,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-6',
     category: 'morning',
-    uthaymeenNumber: 6,
+    itemNumber: 6,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)',
     transliteration:
@@ -159,12 +163,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ച ജീവികളുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയപ്പെടുന്നവൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, മനുഷ്യരിലും ജിന്നുകളിലും പെട്ടവനായ പിശാചിൽ നിന്നും.',
     target: 3,
-    source: 'Abu Dawud 5082 & Tirmidhi 3575 • Shaykh Ibn Uthaymeen #6',
+    source: 'Abu Dawud 5082 & Tirmidhi 3575',
     virtue:
       'The Prophet (ﷺ) said: "Recite Qul Huwallahu Ahad and the Mu\'awwidhatayn three times every morning and evening; they will suffice you against every single evil."',
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "സൂറത്തുൽ ഇഖ്ലാസും മുഅവ്വിദതൈനിയും (ഫലഖ്, നാസ്) രാവിലെയും വൈകുന്നേരവും 3 തവണ വീതം ഓതുക; എല്ലാവിധ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അത് നിനക്ക് മതിയാകും" (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times each (Al-Ikhlas, Al-Falaq, An-Nas)',
+    title: 'മൂന്ന് ഖുൽ സൂറത്തുകൾ (സൂറത്തുൽ ഇഖ്‌ലാസ്, ഫലഖ്, നാസ് — 3 തവണ വീതം)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -189,14 +194,14 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-7',
     category: 'morning',
-    uthaymeenNumber: 7,
+    itemNumber: 7,
     arabic: 'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
     transliteration: "A'oodhu bi-kalimatillahit-tammati min sharri ma khalaq",
     translation: 'I seek refuge in the perfect words of Allah from the evil of what He has created.',
     malayalamTranslation:
       'അല്ലാഹു സൃഷ്ടിച്ച സർവ്വ സൃഷ്ടികളുടെയും ദോഷങ്ങളിൽ നിന്നും അവന്റെ സമ്പൂർണ്ണ വചനങ്ങളെക്കൊണ്ട് ഞാൻ രക്ഷതേടുന്നു.',
     target: 3,
-    source: 'Sahih Muslim 2709 • Shaykh Ibn Uthaymeen #7',
+    source: 'Sahih Muslim 2709',
     virtue:
       'Whoever recites this 3 times in the evening and morning will be protected against poisonous stings, venomous creatures, and malicious harm.',
     malayalamVirtue:
@@ -209,7 +214,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-8',
     category: 'morning',
-    uthaymeenNumber: 8,
+    itemNumber: 8,
     arabic:
       'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
     transliteration:
@@ -219,7 +224,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ആരുടെ നാമത്തോടൊപ്പം ഭൂമിയിലോ ആകാശത്തോ ഉള്ള യാതൊരു വസ്തുവും ഉപദ്രവം വരുത്തുകയില്ലയോ, ആ അല്ലാഹുവിന്റെ നാമത്തിൽ. അവൻ എല്ലാം കേൾക്കുന്നവനും അറിയുന്നവനുമാകുന്നു.',
     target: 3,
-    source: 'Abu Dawud 5088 & Tirmidhi 3388 • Shaykh Ibn Uthaymeen #8',
+    source: 'Abu Dawud 5088 & Tirmidhi 3388',
     virtue:
       'Whoever recites this 3 times in the morning will not be afflicted by any unexpected calamity until evening, and whoever recites it in the evening will not be afflicted until morning.',
     malayalamVirtue:
@@ -232,7 +237,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-9',
     category: 'morning',
-    uthaymeenNumber: 9,
+    itemNumber: 9,
     arabic:
       'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا',
     transliteration:
@@ -242,7 +247,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവിനെ രക്ഷിതാവായും, ഇസ്ലാമിനെ ദീനായും, മുഹമ്മദ് നബി (സ്വ) യെ പ്രവാചകനായും ഞാൻ തൃപ്തിപ്പെട്ടിരിക്കുന്നു.',
     target: 3,
-    source: 'Abu Dawud 5072 & Tirmidhi 3389 • Shaykh Ibn Uthaymeen #9',
+    source: 'Abu Dawud 5072 & Tirmidhi 3389',
     virtue:
       'Allah has promised that whoever recites this 3 times morning and evening, He will surely please him on the Day of Resurrection.',
     malayalamVirtue:
@@ -255,7 +260,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-10',
     category: 'morning',
-    uthaymeenNumber: 10,
+    itemNumber: 10,
     arabic:
       'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ',
     transliteration:
@@ -265,7 +270,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ഞങ്ങളിതാ പ്രഭാതത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നു; സർവ്വാധിപത്യവും അല്ലാഹുവിന്നുള്ളതായി പ്രഭാതമായിരിക്കുന്നു. സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ്. അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. അവന്നാണ് സർവ്വാധികാരവും സർവ്വസ്തുതിയും, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്. എന്റെ രക്ഷിതാവേ, ഈ ദിവസത്തിലുള്ള നന്മയും ഇതിനുശേഷമുള്ള നന്മയും നിന്നോട് ഞാൻ ചോദിക്കുന്നു; ഈ ദിവസത്തിലുള്ള തിന്മയിൽ നിന്നും ഇതിനുശേഷമുള്ള തിന്മയിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു. എന്റെ നാഥാ, മടിയിൽ നിന്നും വാർദ്ധക്യത്തിന്റെ അവശതകളിൽ നിന്നും നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എന്റെ നാഥാ, നരകശിക്ഷയിൽ നിന്നും ഖബർ ശിക്ഷയിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു.',
     target: 1,
-    source: 'Sahih Muslim 2723 • Shaykh Ibn Uthaymeen #10',
+    source: 'Sahih Muslim 2723',
     virtue:
       'Affirms complete submission to Allah’s dominion, asking for the blessings of the new day while seeking sanctuary from the Fire, laziness, and the grave.',
     malayalamVirtue:
@@ -278,7 +283,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-11',
     category: 'morning',
-    uthaymeenNumber: 11,
+    itemNumber: 11,
     arabic:
       'اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ',
     transliteration:
@@ -288,7 +293,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നിന്റെ കാരുണ്യത്താൽ നാം പ്രഭാതത്തിലെത്തി, നിന്റെ അനുഗ്രഹത്താൽ നാം സന്ധ്യയിലെത്തുന്നു, നിന്റെ കൽപ്പനയാൽ നാം ജീവിക്കുന്നു, നിന്റെ വിധിയാൽ നാം മരിക്കുന്നു, നിന്നിലേക്കാണ് പുനരുത്ഥാനം.',
     target: 1,
-    source: 'Abu Dawud 5068 & Tirmidhi 3391 • Shaykh Ibn Uthaymeen #11',
+    source: 'Abu Dawud 5068 & Tirmidhi 3391',
     virtue:
       'Entrusts life, death, and resurrection into the divine keeping of Allah at daybreak.',
     malayalamVirtue:
@@ -301,7 +306,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-12',
     category: 'morning',
-    uthaymeenNumber: 12,
+    itemNumber: 12,
     arabic:
       'اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ',
     transliteration:
@@ -311,7 +316,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഈ പ്രഭാതത്തിൽ എനിക്കോ നിന്റെ സൃഷ്ടികളിൽ മറ്റാർക്കെങ്കിലുമോ എന്തെങ്കിലും അനുഗ്രഹം ലഭിച്ചിട്ടുണ്ടെങ്കിൽ അത് നിന്നിൽ നിന്ന് മാത്രമുള്ളതാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. അതിനാൽ സർവ്വസ്തുതിയും നിനക്കാണ്, സർവ്വ നന്ദിയും നിനക്കാണ്.',
     target: 1,
-    source: "Abu Dawud 5073 & An-Nasa'i • Shaykh Ibn Uthaymeen #12",
+    source: "Abu Dawud 5073 & An-Nasa'i",
     virtue:
       'The Prophet (ﷺ) said: "Whoever recites this in the morning has fulfilled his gratitude for that day, and whoever says it in the evening has fulfilled his gratitude for that night."',
     malayalamVirtue:
@@ -324,7 +329,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-13',
     category: 'morning',
-    uthaymeenNumber: 13,
+    itemNumber: 13,
     arabic:
       'اللَّهُمَّ إِنِّي أَصْبَحْتُ فِي نِعْمَةٍ وَعَافِيَةٍ وَسِتْرٍ، فَأَتِمَّ نِعْمَتَكَ عَلَيَّ وَعَافِيَتَكَ وَسِتْرَكَ فِي الدُّنْيَا وَالْآخِرَةِ',
     transliteration:
@@ -334,7 +339,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നിന്നിൽ നിന്നുള്ള അനുഗ്രഹത്തിലും സൗഖ്യത്തിലും കാവലിലും ആയാണ് ഞാൻ പ്രഭാതത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നത്. അതിനാൽ ഇഹത്തിലും പരത്തിലും നിന്റെ അനുഗ്രഹവും സൗഖ്യവും കാവലും നീ എനിക്ക് പൂർത്തിയാക്കി തരേണമേ.',
     target: 3,
-    source: 'Ibn as-Sunni 55 & Kitab al-Adhkar • Shaykh Ibn Uthaymeen #13',
+    source: 'Ibn as-Sunni 55 & Kitab al-Adhkar',
     virtue:
       'Reciting this 3 times morning and evening guarantees that Allah will complete His bounty, health, and covering of human faults in both worlds.',
     malayalamVirtue:
@@ -346,7 +351,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-14',
     category: 'morning',
-    uthaymeenNumber: 14,
+    itemNumber: 14,
     arabic:
       'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ',
     transliteration:
@@ -356,7 +361,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഉത്കണ്ഠയിൽ നിന്നും ദുഃഖത്തിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; കഴിവുകേടിൽ നിന്നും മടിയിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; ഭീരുത്വത്തിൽ നിന്നും പിശുക്കിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു; കടം പെരുകുന്നതിൽ നിന്നും മനുഷ്യരുടെ അടിച്ചമർത്തലിൽ (മേൽക്കോയ്മയിൽ) നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.',
     target: 1,
-    source: 'Sahih al-Bukhari 2893 & Abu Dawud 1555 • Shaykh Ibn Uthaymeen #14',
+    source: 'Sahih al-Bukhari 2893 & Abu Dawud 1555',
     virtue:
       'The Prophet (ﷺ) taught this supplication to Abu Umamah; reciting it morning and evening relieves anxiety and removes heavy debt.',
     malayalamVirtue:
@@ -369,7 +374,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-15',
     category: 'morning',
-    uthaymeenNumber: 15,
+    itemNumber: 15,
     arabic:
       'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي',
     transliteration:
@@ -379,7 +384,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഇഹത്തിലും പരത്തിലും ഞാൻ നിന്നോട് സൗഖ്യം (ആരോഗ്യവും സമാധാനവും) ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ ദീനിലും ദുനിയാവിലും കുടുംബത്തിലും സമ്പത്തിലും നിന്നോട് ഞാൻ മാപ്പും സൗഖ്യവും ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ കുറവുകൾ നീ മറച്ചുവെക്കേണമേ, എന്റെ ഭയങ്ങളിൽ എനിക്ക് ശാന്തി നൽകേണമേ. അല്ലാഹുവേ, എന്റെ മുന്നിലൂടെയും പിന്നിലൂടെയും വലത്തുഭാഗത്തുനിന്നും ഇടത്തുഭാഗത്തുനിന്നും മുകളിൽ നിന്നും എന്നെ നീ കാത്തുരക്ഷിക്കേണമേ. എന്റെ അടിയിലൂടെ വഞ്ചനാപരമായി ഞാൻ നശിപ്പിക്കപ്പെടുന്നതിൽ നിന്ന് നിന്റെ മഹത്വത്താൽ ഞാൻ കാവൽ തേടുന്നു.',
     target: 1,
-    source: 'Abu Dawud 5074 & Ibn Majah 3871 • Shaykh Ibn Uthaymeen #15',
+    source: 'Abu Dawud 5074 & Ibn Majah 3871',
     virtue:
       'The Messenger of Allah (ﷺ) never omitted these words morning and evening, wrapping the reciter in a fortress of divine protection on all six sides.',
     malayalamVirtue:
@@ -392,7 +397,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-16',
     category: 'morning',
-    uthaymeenNumber: 16,
+    itemNumber: 16,
     arabic:
       'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
     transliteration:
@@ -402,7 +407,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നീ എന്റെ രക്ഷിതാവാണ്, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. നീ എന്നെ സൃഷ്ടിച്ചു, ഞാൻ നിന്റെ ദാസനാണ്. എന്റെ കഴിവിനനുസരിച്ച് നിന്നോടുള്ള കരാറിലും വാഗ്ദാനത്തിലും ഞാൻ നിലകൊള്ളുന്നു. ഞാൻ ചെയ്തുപോയ തിന്മകളിൽ നിന്ന് നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എനിക്ക് നീ നൽകിയ അനുഗ്രഹങ്ങൾ ഞാൻ ഏറ്റുപറയുന്നു, എന്റെ പാപങ്ങളും ഞാൻ സമ്മതിക്കുന്നു. അതിനാൽ എനിക്ക് നീ പൊറുത്തുതരേണമേ, തീർച്ചയായും നീയല്ലാതെ പാപങ്ങൾ പൊറുത്തുതരുവാൻ മറ്റാരുമില്ല.',
     target: 1,
-    source: 'Sahih al-Bukhari 6306 (Sayyid al-Istighfar) • Shaykh Ibn Uthaymeen #16',
+    source: 'Sahih al-Bukhari 6306 (Sayyid al-Istighfar)',
     virtue:
       'The Master Supplication for Forgiveness. Whoever says it with certainty in the morning and dies before evening will be among the people of Paradise.',
     malayalamVirtue:
@@ -415,7 +420,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-17',
     category: 'morning',
-    uthaymeenNumber: 17,
+    itemNumber: 17,
     arabic:
       'اللَّهُمَّ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ',
     transliteration:
@@ -425,7 +430,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവായ, അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനായ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളുടെയും തിന്മയിൽ നിന്നും, എന്റെ സ്വന്തത്തിന് എന്തെങ്കിലും ദോഷം ചെയ്യുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് തിന്മ വരുത്തിവെക്കുന്നതിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു.',
     target: 1,
-    source: 'Sunan at-Tirmidhi 3529 & Abu Dawud 5067 • Shaykh Ibn Uthaymeen #17',
+    source: 'Sunan at-Tirmidhi 3529 & Abu Dawud 5067',
     virtue:
       'The Prophet (ﷺ) instructed Abu Bakr as-Siddiq to recite this every morning, evening, and before sleep to protect against internal evil and devilish snares.',
     malayalamVirtue:
@@ -438,7 +443,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-18',
     category: 'morning',
-    uthaymeenNumber: 18,
+    itemNumber: 18,
     arabic:
       'اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ',
     transliteration:
@@ -448,7 +453,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഈ പ്രഭാതത്തിൽ നിന്നെയും, നിന്റെ സിംഹാസനം വഹിക്കുന്ന മലക്കുകളെയും, മറ്റു മലക്കുകളെയും, നിന്റെ സർവ്വ സൃഷ്ടികളെയും ഞാൻ സാക്ഷിനിർത്തുന്നു: തീർച്ചയായും നീ മാത്രമാണ് അല്ലാഹു, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, നീ ഏകനാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. മുഹമ്മദ് നബി (സ്വ) നിന്റെ ദാസനും ദൂതനുമാകുന്നു എന്നും ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു.',
     target: 4,
-    source: 'Abu Dawud 5069 • Shaykh Ibn Uthaymeen #18',
+    source: 'Abu Dawud 5069',
     virtue:
       'The Prophet (ﷺ) said: "Whoever recites this four times in the morning or evening, Allah will emancipate him completely from the Fire of Hell."',
     malayalamVirtue:
@@ -461,7 +466,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-19',
     category: 'morning',
-    uthaymeenNumber: 19,
+    itemNumber: 19,
     arabic:
       'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
     transliteration:
@@ -471,7 +476,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. സർവ്വാധിപത്യവും സർവ്വസ്തുതിയും അവന്നാണ്, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്.',
     target: 100,
-    source: 'Sahih al-Bukhari 3293 & Sahih Muslim 2691 • Shaykh Ibn Uthaymeen #19',
+    source: 'Sahih al-Bukhari 3293 & Sahih Muslim 2691',
     virtue:
       'Recited 100 times daily: reward equal to freeing 10 slaves, 100 good deeds credited, 100 sins erased, and serves as an impenetrable shield against Satan all day.',
     malayalamVirtue:
@@ -484,7 +489,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-20',
     category: 'morning',
-    uthaymeenNumber: 20,
+    itemNumber: 20,
     arabic:
       'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
     transliteration:
@@ -494,7 +499,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'എനിക്ക് അല്ലാഹു മതി; അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. അവനിൽ ഞാൻ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, അവൻ മഹത്തായ അർശിന്റെ (സിംഹാസനത്തിന്റെ) നാഥനാകുന്നു.',
     target: 7,
-    source: 'Abu Dawud 5081 (Surah At-Tawbah 9:129) • Shaykh Ibn Uthaymeen #20',
+    source: 'Abu Dawud 5081 (Surah At-Tawbah 9:129)',
     virtue:
       'The Prophet (ﷺ) said: "Whoever recites this 7 times in the morning and evening, Allah will suffice him in all matters that distress him of this world and the Hereafter."',
     malayalamVirtue:
@@ -507,7 +512,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-21',
     category: 'morning',
-    uthaymeenNumber: 21,
+    itemNumber: 21,
     arabic: 'حَسْبِيَ اللَّهُ وَكَفَى، سَمِعَ اللَّهُ لِمَنْ دَعَا، لَيْسَ وَرَاءَ اللَّهِ مَرْمَى',
     transliteration:
       "Hasbiyallahu wa kafa, sami'allahu liman da'a, laysa wara'allahi marma.",
@@ -516,7 +521,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'എനിക്ക് അല്ലാഹു മതി, അവൻ സർവ്വതിനും മതിയായവനാണ്. പ്രാർത്ഥിച്ചവന്റെ വിളി അല്ലാഹു കേട്ടിരിക്കുന്നു. അല്ലാഹുവിന് അതീതമായി മറ്റൊരു അഭയസ്ഥാനമോ ലക്ഷ്യമോ ഇല്ല.',
     target: 1,
-    source: "Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya • Shaykh Ibn Uthaymeen #21",
+    source: "Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya",
     virtue:
       'A deep affirmation of complete reliance on the Almighty, acknowledging that He answers all earnest supplications and that all sanctuary ends with Him.',
     malayalamVirtue:
@@ -528,13 +533,13 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-22',
     category: 'morning',
-    uthaymeenNumber: 22,
+    itemNumber: 22,
     arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
     transliteration: 'Subhanallahi wa bihamdih',
     translation: 'Glory is to Allah and praise is to Him.',
     malayalamTranslation: 'അല്ലാഹു എത്ര പരിശുദ്ധൻ, അവന്ന് സർവ്വസ്തുതിയും.',
     target: 100,
-    source: 'Sahih Muslim 2692 • Shaykh Ibn Uthaymeen #22',
+    source: 'Sahih Muslim 2692',
     virtue:
       'Whoever recites this 100 times in the morning and evening, his sins will be forgiven even if they were like the foam of the sea, and none will bring better deeds on Judgment Day except one who said more.',
     malayalamVirtue:
@@ -547,14 +552,14 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-23',
     category: 'morning',
-    uthaymeenNumber: 23,
+    itemNumber: 23,
     arabic: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
     transliteration: 'Astaghfirullaha wa atubu ilayh',
     translation: 'I seek the forgiveness of Allah and repent to Him.',
     malayalamTranslation:
       'ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുകയും അവനിലേക്ക് പശ്ചാത്തപിച്ചു മടങ്ങുകയും ചെയ്യുന്നു.',
     target: 100,
-    source: 'Sahih al-Bukhari 6307 & Sahih Muslim 2702 • Shaykh Ibn Uthaymeen #23',
+    source: 'Sahih al-Bukhari 6307 & Sahih Muslim 2702',
     virtue:
       'The Prophet (ﷺ) said: "By Allah, I seek forgiveness of Allah and turn to Him in repentance more than seventy (and one hundred) times in a day."',
     malayalamVirtue:
@@ -588,6 +593,7 @@ export const MORNING_ADHKAR: DhikrItem[] = [
   {
     id: 'm-25',
     category: 'morning',
+    itemNumber: 25,
     arabic: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ',
     transliteration: "Allahumma salli wa sallim 'ala Nabiyyina Muhammad",
     translation: 'O Allah, send peace and blessings upon our Prophet Muhammad.',
@@ -604,33 +610,58 @@ export const MORNING_ADHKAR: DhikrItem[] = [
     title: 'തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്',
     audioUrl: 'https://www.hisnmuslim.com/audio/ar/98.mp3',
   },
+  {
+    id: 'm-26',
+    category: 'morning',
+    itemNumber: 26,
+    arabic:
+      '«سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ»',
+    transliteration:
+      "Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih",
+    translation:
+      'Glory is to Allah and praise is to Him, to the number of His creation, to the pleasure of Himself, to the weight of His Throne, and to the ink of His words.',
+    malayalamTranslation:
+      "അല്ലാഹുവിൻ്റെ സൃഷ്ടികളുടെ എണ്ണത്തോളവും, അവൻ്റെ തൃപ്തിയോളവും, അവൻ്റെ സിംഹാസനത്തിൻ്റെ (അർശിൻ്റെ) ഭാരത്തോളവും, അവൻ്റെ വചനങ്ങളുടെ മഷിയോളവും ഞാൻ അല്ലാഹുവിൻ്റെ പരിശുദ്ധിയെ വാഴ്ത്തുകയും അവനെ സ്തുതിക്കുകയും ചെയ്യുന്നു.",
+    target: 3,
+    source: 'صحيح مسلم (2726)، أبو داود، والنسائي',
+    hadithArabic:
+      'عن جويرية أم المؤمنين رضي الله عنها: أن النبي ﷺ خرج من عندها بُكرةً حين صلى الصبح وهي في مسجدها، ثم رجع بعد أن أضحى وهي جالسة، فقال: «ما زلتِ على الحال التي فارقتكِ عليها؟» قالت: نعم، قال النبي ﷺ: «لقد قلتُ بعدكِ أربع كلمات، ثلاث مرات، لو وُزنت بما قلتِ منذ اليوم لوزنتهن: سبحان الله وبحمده، عدد خلقه، ورضا نفسه، وزنة عرشه، ومداد كلماته».',
+    virtue:
+      "Narrated by Juwayriyah, Mother of the Believers (may Allah be pleased with her): The Prophet ﷺ left her early in the morning when he prayed Fajr while she was in her place of prayer, then returned after forenoon (Duha) while she was sitting. He said: 'Have you remained in the same state I left you upon?' She said: 'Yes.' The Prophet ﷺ said: 'Indeed, I said after leaving you four words, three times, which if weighed against all that you have said today would outweigh them: Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih.'",
+    malayalamVirtue:
+      "ജുവൈരിയ്യ (റ) വിൽ നിന്ന് നിവേദനം: നബി ﷺ സുബ്ഹ് നമസ്കാര ശേഷം അവരുടെ അടുത്തുനിന്ന് പുറത്തുപോയി, പിന്നീട് ളുഹാ സമയത്ത് തിരിച്ചെത്തിയപ്പോഴും അവർ അതേ ഇരിപ്പിൽ ദിക്റിലായിരുന്നു. നബി ﷺ ചോദിച്ചു: 'ഞാൻ പോയ അതേ അവസ്ഥയിൽ തന്നെയാണോ നീ ഇപ്പോഴും?' അവർ പറഞ്ഞു: 'അതെ'. അപ്പോൾ നബി ﷺ പറഞ്ഞു: 'നിന്റെ അടുത്തുനിന്ന് പോയ ശേഷം ഞാൻ നാല് വാക്കുകൾ മൂന്ന് തവണ ചൊല്ലുകയുണ്ടായി. നീ ഇന്ന് ഇതുവരെ ചൊല്ലിയതിനോട് അവ തൂക്കി നോക്കിയാൽ അവ അതിനേക്കാൾ ഭാരമുള്ളതായിരിക്കും: (സുബ്ഹാനല്ലാഹി വബിഹംദിഹി, അദദ ഖൽഖിഹി, വരിളാ നഫ്സിഹി, വസിനത അർശിഹി, വമിദാദ കലിമാതിഹി)'.",
+    repeatNote: '3 Times (3 തവണ / 3 مرات)',
+    type: 'adhkar',
+    title: 'മഹത്തായ തസ്ബീഹ് (ജുവൈരിയ്യ (റ) ഹദീസ് — 3 തവണ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/90.mp3',
+  },
 ];
 
 /**
  * Evening Adhkar (أذكار المساء)
  * Complete evening sequence containing the 23 items with appropriate evening adaptations
- * (e.g., أَمْسَيْنَا, أَمْسَيْتُ, هَذِهِ اللَّيْلَةِ, إِلَيْكَ الْمَصِيرُ) from the same authentic
- * booklet by Shaykh Muhammad ibn Salih al-Uthaymeen, plus supplementary Salawat.
+ * (e.g., أَمْسَيْنَا, أَمْسَيْتُ, هَذِهِ اللَّيْلَةِ, إِلَيْكَ الْمَصِيرُ), plus supplementary Salawat.
  */
 export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-1',
     category: 'evening',
-    uthaymeenNumber: 1,
+    itemNumber: 1,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nالم (١) ذَٰلِكَ الْكِتَابُ لَا رَيْبَ فِيهِ هُدًى لِّلْمُتَّقِينَ (٢) الَّذِينَ يُؤْمِنُونَ بِالْغَيْبِ وَيُقِيمُونَ الصَّلَاةَ وَمِمَّا رَزَقْنَاهُمْ يُنفِقُونَ (٣) وَالَّذِينَ يُؤْمِنُونَ بِمَا أُنزِلَ إِلَيْكَ وَمَا أُنزِلَ مِن قَبْلِكَ وَبِالْآخِرَةِ هُمْ يُوقِنُونَ (٤) أُولَٰئِكَ عَلَىٰ هُدًى مِّن رَّبِّهِمْ وَأُولَٰئِكَ هُمُ الْمُفْلِحُونَ (٥)',
     transliteration:
       "Bismillahir-Rahmanir-Raheem. Alif-Lam-Meem. Dhalikal-Kitabu la rayba feeh, hudal-lil-muttaqeen. Alladheena yu'minoona bil-ghaybi wa yuqeemoonas-Salata wa mimma razaqnahum yunfiqoon. Walladheena yu'minoona bima unzila ilayka wa ma unzila min qablika wa bil-Akhirati hum yooqinoon. Ula'ika 'ala hudam-mir-Rabbihim wa ula'ika humul-muflihoon.",
     translation:
-      'In the name of Allah, the Entirely Merciful, the Especially Merciful. Alif, Lam, Meem. This is the Book about which there is no doubt, a guidance for those conscious of Allah - Who believe in the unseen, establish prayer, and spend out of what We have provided for them...',
+      'In the name of Allah, the Entirely Merciful, the Especially Merciful. Alif, Lam, Meem. This is the Book about which there is no doubt, a guidance for those conscious of Allah - Who believe in the unseen, establish prayer, and spend out of what We have provided for them, and who believe in what has been revealed to you, [O Muhammad], and what was revealed before you, and of the Hereafter they are certain [in faith]. Those are upon [right] guidance from their Lord, and it is those who are the successful.',
     malayalamTranslation:
-      'പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. അലിഫ്-ലാം-മീം. ഇത് അല്ലാഹുവിന്റെ വേദഗ്രന്ഥമാകുന്നു; ഇതിൽ യാതൊരു സംശയവുമില്ല, ഭയഭക്തിയുള്ളവർക്ക് (മുത്തഖികൾക്ക്) മാർഗദർശനമാണിത്...',
+      'പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. അലിഫ്-ലാം-മീം. ഇത് അല്ലാഹുവിന്റെ വേദഗ്രന്ഥമാകുന്നു; ഇതിൽ യാതൊരു സംശയവുമില്ല, ഭയഭക്തിയുള്ളവർക്ക് (മുത്തഖികൾക്ക്) മാർഗദർശനമാണിത്. അദൃശ്യകാര്യങ്ങളിൽ വിശ്വസിക്കുകയും, നമസ്കാരം മുറപ്രകാരം നിർവ്വഹിക്കുകയും, നാം അവർക്ക് നൽകിയതിൽ നിന്ന് ചെലവഴിക്കുകയും ചെയ്യുന്നവരാണവർ. നിനക്ക് അവതരിപ്പിച്ചു കിട്ടിയതിലും നിനക്ക് മുമ്പ് അവതരിപ്പിക്കപ്പെട്ടതിലും അവർ വിശ്വസിക്കുന്നു; പരലോകത്തിൽ അവർ ദൃഢമായി വിശ്വസിക്കുകയും ചെയ്യുന്നു. അവരാകുന്നു തങ്ങളുടെ നാഥനിൽ നിന്നുള്ള സന്മാർഗത്തിലുള്ളവർ. അവർ തന്നെയാണ് വിജയികൾ.',
     target: 1,
-    source: 'Surah Al-Baqarah (2:1-5) • Shaykh Ibn Uthaymeen Collection #1',
+    source: 'Surah Al-Baqarah (2:1-5)',
     virtue: 'Recited for nighttime steadfastness, guidance, and protection against misguidance.',
     malayalamVirtue:
       'രാത്രിയിലെ സന്മാർഗ്ഗദർശനത്തിനും വഴികേടുകളിൽ നിന്നുള്ള സംരക്ഷണത്തിനും ഉറച്ച വിശ്വാസത്തിനുമായി പാരായണം ചെയ്യുന്നു.',
     repeatNote: '1 time (Surah Al-Baqarah 1-5)',
+    title: 'സൂറത്തുൽ ബഖറയിലെ ആദ്യ അഞ്ച് ആയത്തുകൾ (സൂറത്തുൽ ബഖറ 2:1-5)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -645,22 +676,23 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-2',
     category: 'evening',
-    uthaymeenNumber: 2,
+    itemNumber: 2,
     arabic:
       'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ، لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ، لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ، مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ، يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ، وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ، وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ، وَلَا يَئُودُهُ حِفْظُهُمَا، وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     transliteration:
       "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatuw-wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhitoona bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'ooduhu hifzuhuma, wa Huwal-'Aliyyul-'Azeem.",
     translation:
-      'Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth... and their preservation tires Him not. And He is the Most High, the Most Great.',
+      'Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.',
     malayalamTranslation:
-      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്... അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
+      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
     target: 1,
-    source: 'Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani • Shaykh Ibn Uthaymeen #2',
+    source: 'Surah Al-Baqarah (2:255) • Al-Hakim (1/562) & At-Tabarani',
     virtue:
       'Whoever recites Ayat al-Kursi in the evening will be protected from jinn and harm all through the night until dawn.',
     malayalamVirtue:
       'സായാഹ്നത്തിൽ ആയത്തുൽ കുർസിയ്യ് ഓതുന്നവൻ പ്രഭാതം വരെ ജിന്നുകളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും സകല തിന്മകളിൽ നിന്നും കാത്തുരക്ഷിക്കപ്പെടും (ഹാകിം, ത്വബ്റാനി).',
     repeatNote: '1 time (Ayat al-Kursi)',
+    title: 'ആയത്തുൽ കുർസിയ്യ് (സൂറത്തുൽ ബഖറ 2:255)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -669,23 +701,24 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-3',
     category: 'evening',
-    uthaymeenNumber: 3,
+    itemNumber: 3,
     arabic:
       'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)',
     transliteration:
-      "Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon... Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.",
+      "Amanar-Rasoolu bima unzila ilayhi mir-Rabbihi wal-mu'minoon, kullun amana billahi wa mala'ikatihi wa kutubihi wa rusulih, la nufarriqu bayna ahadim-mir-rusulih, wa qaloo sami'na wa ata'na ghufranaka Rabbana wa-ilaykal-maseer. La yukallifullahu nafsan illa wus'aha, laha ma kasabat wa 'alayha maktasabat, Rabbana la tu'akhidhna in-naseena aw akhta'na, Rabbana wa la tahmil 'alayna isran kama hamaltahu 'alalladheena min qablina, Rabbana wa la tuhammilna ma la taqata lana bih, wa'fu 'anna waghfir lana warhamna, Anta mawlana fansurna 'alal-qawmil-kafireen.",
     translation:
-      'The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers... "Our Lord, and lay not upon us a burden like that which You laid upon those before us... and pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people."',
+      'The Messenger has believed in what was revealed to him from his Lord, and [so have] the believers. All of them have believed in Allah and His angels and His books and His messengers, [saying], "We make no distinction between any of His messengers." And they say, "We hear and we obey. [We seek] Your forgiveness, our Lord, and to You is the [final] destination." Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what [good] it has gained, and it will bear [the consequence of] what [evil] it has earned. "Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people."',
     malayalamTranslation:
-      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും... ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാൻ കഴിയാത്ത ഭാരം ഞങ്ങളെ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
+      'റസൂൽ തനിക്ക് തന്റെ രക്ഷിതാവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ടതിൽ വിശ്വസിച്ചിരിക്കുന്നു; സത്യവിശ്വാസികളും. അവരെല്ലാവരും അല്ലാഹുവിലും അവന്റെ മലക്കുകളിലും അവന്റെ വേദഗ്രന്ഥങ്ങളിലും അവന്റെ ദൂതന്മാരിലും വിശ്വസിച്ചിരിക്കുന്നു. അവന്റെ ദൂതന്മാരിൽ ആർക്കുമിടയിലും ഞങ്ങൾ ഒരു വിവേചനവും കൽപ്പിക്കുന്നില്ല (എന്നവർ പറയുന്നു). അവർ പറഞ്ഞു: ഞങ്ങൾ കേൾക്കുകയും അനുസരിക്കുകയും ചെയ്തിരിക്കുന്നു. ഞങ്ങളുടെ രക്ഷിതാവേ, നിന്നോട് ഞങ്ങൾ പാപമോചനം തേടുന്നു, നിന്നിലേക്കാണ് ഞങ്ങളുടെ മടക്കം. അല്ലാഹു ഒരാളോടും അയാളുടെ കഴിവിൽ കവിഞ്ഞത് ശാസിക്കുന്നില്ല. ഓരോരുത്തർക്കും താൻ പ്രവർത്തിച്ച നന്മയുടെ ഫലമുണ്ട്, താൻ ചെയ്ത തിന്മയുടെ ഭാരവുമുണ്ട്. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾ മറന്നുപോകുകയോ തെറ്റുപറ്റുകയോ ചെയ്തിട്ടുണ്ടെങ്കിൽ ഞങ്ങളെ നീ പിടികൂടരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങളുടെ മുൻഗാമികളുടെ മേൽ ചുമത്തിയതുപോലുള്ള ഭാരം ഞങ്ങളുടെ മേൽ നീ ചുമത്തരുതേ. ഞങ്ങളുടെ നാഥാ, ഞങ്ങൾക്ക് താങ്ങാൻ കഴിയാത്ത ഭാരം ഞങ്ങളെ വഹിപ്പിക്കരുതേ. ഞങ്ങൾക്ക് നീ വിട്ടുതരികയും, പാപങ്ങൾ പൊറുത്തുതരികയും, ഞങ്ങളോട് കരുണ കാണിക്കുകയും ചെയ്യേണമേ. നീയാണ് ഞങ്ങളുടെ രക്ഷാധികാരി; അതിനാൽ സത്യനിഷേധികളായ ജനതയ്ക്കെതിരിൽ ഞങ്ങൾക്ക് നീ വിജയം നൽകേണമേ.',
     target: 1,
     source:
-      'Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807 • Shaykh Ibn Uthaymeen #3',
+      'Surah Al-Baqarah (2:285-286) • Sahih al-Bukhari 5009 & Muslim 807',
     virtue:
       'The Prophet (ﷺ) said: "Whoever recites the last two verses of Surah Al-Baqarah at night, they will suffice him (against every evil)."',
     malayalamVirtue:
       'നബി (ﷺ) അരുളി: "ആരെങ്കിലും രാത്രിയിൽ സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ ഓതിയാൽ, എല്ലാ ദോഷങ്ങളിൽ നിന്നുമുള്ള കാവലിന് അവ അവന് മതിയാകും" (ബുഖാരി, മുസ്ലിം).',
     repeatNote: '1 time (Last two verses of Al-Baqarah)',
+    title: 'സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ (ആമന റസൂലു — 2:285-286)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -697,22 +730,23 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-4',
     category: 'evening',
-    uthaymeenNumber: 4,
+    itemNumber: 4,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nحم (١) تَنزِيلُ الْكِتَابِ مِنَ اللَّهِ الْعَزِيزِ الْعَلِيمِ (٢) غَافِرِ الذَّنبِ وَقَابِلِ التَّوْبِ شَدِيدِ الْعِقَابِ ذِي الطَّوْلِ، لَا إِلَٰهَ إِلَّا هُوَ، إِلَيْهِ الْمَصِيرُ (٣)',
     transliteration:
-      "Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.",
+      "Bismillahir-Rahmanir-Raheem. Ha-Meem. Tanzeelul-Kitabi minallahil-'Azeezil-'Aleem. Ghafiridh-dhambi wa qabilit-tawbi shadeedil-'iqabi dhit-tawli la ilaha illa Huwa ilayhil-maseer.",
     translation:
-      'Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.',
+      'In the name of Allah, the Entirely Merciful, the Especially Merciful. Ha, Meem. The revelation of the Book is from Allah, the Exalted in Might, the Knowing. The forgiver of sin, acceptor of repentance, severe in punishment, owner of abundance. There is no deity except Him; to Him is the final destination.',
     malayalamTranslation:
-      'ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.',
+      'പരമകാരുണികനും കരുണാനിധിയുമായ അല്ലാഹുവിന്റെ നാമത്തിൽ. ഹാ-മീം. പ്രതാപശാലിയും സർവ്വജ്ഞനുമായ അല്ലാഹുവിങ്കൽ നിന്ന് അവതരിപ്പിക്കപ്പെട്ട വേദഗ്രന്ഥമാണിത്. പാപം പൊറുക്കുന്നവനും പശ്ചാത്താപം സ്വീകരിക്കുന്നവനും കഠിനമായി ശിക്ഷിക്കുന്നവനും ഔദാര്യവാനുമായുള്ളവൻ. അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവങ്കലേക്ക് തന്നെയാണ് മടക്കം.',
     target: 1,
-    source: 'Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879 • Shaykh Ibn Uthaymeen #4',
+    source: 'Surah Ghafir (40:1-3) • Sunan at-Tirmidhi 2879',
     virtue:
       'Whoever recites Ha-Meem (verses 1-3 of Surah Ghafir) and Ayat al-Kursi in the evening will be guarded by Allah until morning.',
     malayalamVirtue:
       'വൈകുന്നേരം ആയത്തുൽ കുർസിയ്യോടൊപ്പം സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ ഓതുന്നവനെ പ്രഭാതം വരെ അല്ലാഹു സംരക്ഷിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Ghafir 1-3)',
+    title: 'സൂറത്തു ഗാഫിറിലെ ആദ്യ മൂന്ന് ആയത്തുകൾ (ഹാ-മീം — 40:1-3)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -725,22 +759,23 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-5',
     category: 'evening',
-    uthaymeenNumber: 5,
+    itemNumber: 5,
     arabic:
       'هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ، عَالِمُ الْغَيْبِ وَالشَّهَادَةِ، هُوَ الرَّحْمَٰنُ الرَّحِيمُ (٢٢) هُوَ اللَّهُ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ الْمَلِكُ الْقُدُّوسُ السَّلَامُ الْمُؤْمِنُ الْمُهَيْمِنُ الْعَزِيزُ الْجَبَّارُ الْمُتَكَبِّرُ، سُبْحَانَ اللَّهِ عَمَّا يُشْرِكُونَ (٢٣) هُوَ اللَّهُ الْخَالِقُ الْبَارِئُ الْمُصَوِّرُ، لَهُ الْأَسْمَاءُ الْحُسْنَىٰ، يُسَبِّحُ لَهُ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ، وَهُوَ الْعَزِيزُ الْحَكِيمُ (٢٤)',
     transliteration:
       "Huwallahul-ladhi la ilaha illa Huwa, 'Alimul-ghaybi wash-shahadah, Huwar-Rahmanur-Raheem. Huwallahul-ladhi la ilaha illa Huwal-Malikul-Quddoosus-Salamul-Mu'minul-Muhayminul-'Azeezul-Jabbarul-Mutakabbir, Subhanallahi 'amma yushrikoon. Huwallahul-Khaliqul-Bari'ul-Musawwiru lahul-Asma'ul-Husna, yusabbihu lahu ma fis-samawati wal-ard, wa Huwal-'Azeezul-Hakeem.",
     translation:
-      'He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful... Whatever is in the heavens and earth is exalting Him. And He is the Exalted in Might, the Wise.',
+      'He is Allah, other than whom there is no deity, Knower of the unseen and the witnessed. He is the Entirely Merciful, the Especially Merciful. He is Allah, other than whom there is no deity, the Sovereign, the Pure, the Perfection, the Bestower of Faith, the Overseer, the Exalted in Might, the Compeller, the Superior. Exalted is Allah above whatever they associate with Him. He is Allah, the Creator, the Inventor, the Fashioner; to Him belong the best names. Whatever is in the heavens and earth is exalting Him. And He is the Exalted in Might, the Wise.',
     malayalamTranslation:
-      'യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അദൃശ്യവും ദൃശ്യവും അറിയുന്നവൻ... സൃഷ്ടികർത്താവും, ശൂന്യതയിൽ നിന്ന് ഉണ്ടാക്കിയവനും, രൂപം നൽകിയവനുമായ അല്ലാഹുവാണ് അവൻ. അവന്നാണ് ഏറ്റവും ഉത്കൃഷ്ടമായ നാമങ്ങളുള്ളത്. അവൻ പ്രതാപശാലിയും യുക്തിമാനുമാകുന്നു.',
+      'യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അദൃശ്യവും ദൃശ്യവും അറിയുന്നവൻ. അവൻ പരമകാരുണികനും കരുണാനിധിയുമാകുന്നു. യാതൊരു ദൈവവുമില്ലാത്ത അല്ലാഹുവാണ് അവൻ. അവൻ രാജാവും, പരമപരിശുദ്ധനും, സമാധാനം നൽകുന്നവനും, അഭയം നൽകുന്നവനും, മേൽനോട്ടം വഹിക്കുന്നവനും, പ്രതാപശാലിയും, പരമാധികാരിയും, സർവ്വോന്നതനുമാകുന്നു. അവർ പങ്കുചേർക്കുന്നതിൽ നിന്നെല്ലാം അല്ലാഹു എത്രയോ പരിശുദ്ധൻ! സൃഷ്ടികർത്താവും, ശൂന്യതയിൽ നിന്ന് ഉണ്ടാക്കിയവനും, രൂപം നൽകിയവനുമായ അല്ലാഹുവാണ് അവൻ. അവന്നാണ് ഏറ്റവും ഉത്കൃഷ്ടമായ നാമങ്ങളുള്ളത്. ആകാശങ്ങളിലുള്ളതും ഭൂമിയിലുള്ളതുമെല്ലാം അവന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു. അവൻ പ്രതാപശാലിയും യുക്തിമാനുമാകുന്നു.',
     target: 1,
-    source: 'Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922 • Shaykh Ibn Uthaymeen #5',
+    source: 'Surah Al-Hashr (59:22-24) • Sunan at-Tirmidhi 2922',
     virtue:
       'Reciting these verses in the evening prompts seventy thousand angels to supplicate for Allah’s mercy and forgiveness upon the reciter until morning.',
     malayalamVirtue:
       'സൂറത്തുൽ ഹശ്റിലെ അവസാന ആയത്തുകൾ സായാഹ്നത്തിൽ ഓതുന്നയാൾക്കായി പ്രഭാതം വരെ എഴുപതിനായിരം മലക്കുകൾ പ്രാർത്ഥിച്ചുകൊണ്ടിരിക്കുന്നതാണ് (തിർമിദി).',
     repeatNote: '1 time (Surah Al-Hashr 22-24)',
+    title: 'സൂറത്തുൽ ഹശ്റിലെ അവസാന മൂന്ന് ആയത്തുകൾ (ഹുവല്ലാഹുല്ലദീ — 59:22-24)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -753,7 +788,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-6',
     category: 'evening',
-    uthaymeenNumber: 6,
+    itemNumber: 6,
     arabic:
       'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ هُوَ اللَّهُ أَحَدٌ (١) اللَّهُ الصَّمَدُ (٢) لَمْ يَلِدْ وَلَمْ يُولَدْ (٣) وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ (٤)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ الْفَلَقِ (١) مِن شَرِّ مَا خَلَقَ (٢) وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ (٣) وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ (٤) وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ (٥)\n\nبِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ\nقُلْ أَعُوذُ بِرَبِّ النَّاسِ (١) مَلِكِ النَّاسِ (٢) إِلَٰهِ النَّاسِ (٣) مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ (٤) الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ (٥) مِنَ الْجِنَّةِ وَالنَّاسِ (٦)',
     transliteration:
@@ -763,11 +798,12 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'പറയുക: അവൻ അല്ലാഹു ഏകനാകുന്നു. അല്ലാഹു സർവ്വരുടെയും ആശ്രയമാകുന്നു. അവൻ ആർക്കും ജന്മം നൽകിയിട്ടില്ല, അവന് ആരും ജന്മം നൽകിയിട്ടുമില്ല, അവന് തുല്യനായി ആരുമില്ല. / പറയുക: പ്രഭാതത്തിന്റെ നാഥനോട് ഞാൻ ശരണം തേടുന്നു; അവൻ സൃഷ്ടിച്ച ജീവികളുടെ ദോഷങ്ങളിൽ നിന്നും, ഇരുളടയുമ്പോൾ രാത്രിയുടെ കെടുതികളിൽ നിന്നും, കെട്ടുകളിൽ ഊതുന്ന മന്ത്രവാദികളുടെ ഉപദ്രവങ്ങളിൽ നിന്നും, അസൂയപ്പെടുന്നവൻ അസൂയ വെക്കുമ്പോൾ അവന്റെ കെടുതികളിൽ നിന്നും. / പറയുക: മനുഷ്യരുടെ രക്ഷിതാവിനോട് ഞാൻ അഭയം തേടുന്നു; മനുഷ്യരുടെ രാജാവിനോട്, മനുഷ്യരുടെ ആരാധ്യനോട്, ദുർബോധനം നടത്തി പിൻവാങ്ങിക്കളയുന്ന പിശാചിന്റെ ഉപദ്രവങ്ങളിൽ നിന്നും; മനുഷ്യരുടെ ഹൃദയങ്ങളിൽ ദുർബോധനം നടത്തുന്നവനായ, മനുഷ്യരിലും ജിന്നുകളിലും പെട്ടവനായ പിശാചിൽ നിന്നും.',
     target: 3,
-    source: 'Abu Dawud 5082 & Tirmidhi 3575 • Shaykh Ibn Uthaymeen #6',
+    source: 'Abu Dawud 5082 & Tirmidhi 3575',
     virtue: 'Reciting them 3 times in the evening provides complete protection against all harm.',
     malayalamVirtue:
       'വൈകുന്നേരം ഈ മൂന്ന് സൂറത്തുകൾ 3 തവണ വീതം ഓതുന്നത് രാത്രിയിലെ സകല ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ കാവലാകുന്നു (അബൂദാവൂദ്, തിർമിദി).',
     repeatNote: '3 times each (Al-Ikhlas, Al-Falaq, An-Nas)',
+    title: 'മൂന്ന് ഖുൽ സൂറത്തുകൾ (സൂറത്തുൽ ഇഖ്‌ലാസ്, ഫലഖ്, നാസ് — 3 തവണ വീതം)',
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
@@ -792,14 +828,14 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-7',
     category: 'evening',
-    uthaymeenNumber: 7,
+    itemNumber: 7,
     arabic: 'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
     transliteration: "A'oodhu bi-kalimatillahit-tammati min sharri ma khalaq",
     translation: 'I seek refuge in the perfect words of Allah from the evil of what He has created.',
     malayalamTranslation:
       'അല്ലാഹു സൃഷ്ടിച്ച സർവ്വ സൃഷ്ടികളുടെയും ദോഷങ്ങളിൽ നിന്നും അവന്റെ സമ്പൂർണ്ണ വചനങ്ങളെക്കൊണ്ട് ഞാൻ രക്ഷതേടുന്നു.',
     target: 3,
-    source: 'Sahih Muslim 2709 • Shaykh Ibn Uthaymeen #7',
+    source: 'Sahih Muslim 2709',
     virtue:
       'Whoever recites this 3 times in the evening will not be harmed by any poison, sting, or creature during the night.',
     malayalamVirtue:
@@ -812,7 +848,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-8',
     category: 'evening',
-    uthaymeenNumber: 8,
+    itemNumber: 8,
     arabic:
       'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
     transliteration:
@@ -822,7 +858,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ആരുടെ നാമത്തോടൊപ്പം ഭൂമിയിലോ ആകാശത്തോ ഉള്ള യാതൊരു വസ്തുവും ഉപദ്രവം വരുത്തുകയില്ലയോ, ആ അല്ലാഹുവിന്റെ നാമത്തിൽ. അവൻ എല്ലാം കേൾക്കുന്നവനും അറിയുന്നവനുമാകുന്നു.',
     target: 3,
-    source: 'Abu Dawud 5088 & Tirmidhi 3388 • Shaykh Ibn Uthaymeen #8',
+    source: 'Abu Dawud 5088 & Tirmidhi 3388',
     virtue: 'Recited 3 times in the evening shields against sudden misfortunes until morning.',
     malayalamVirtue:
       'വൈകുന്നേരം ഇത് 3 തവണ ചൊല്ലുന്നവന് പ്രഭാതം വരെ പെട്ടെന്നുണ്ടാകുന്ന യാതൊരു അത്യാഹിതമോ വിപത്തോ ഏൽക്കുകയില്ല (അബൂദാവൂദ്, തിർമിദി).',
@@ -834,7 +870,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-9',
     category: 'evening',
-    uthaymeenNumber: 9,
+    itemNumber: 9,
     arabic:
       'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا',
     transliteration:
@@ -844,7 +880,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവിനെ രക്ഷിതാവായും, ഇസ്ലാമിനെ ദീനായും, മുഹമ്മദ് നബി (സ്വ) യെ പ്രവാചകനായും ഞാൻ തൃപ്തിപ്പെട്ടിരിക്കുന്നു.',
     target: 3,
-    source: 'Abu Dawud 5072 & Tirmidhi 3389 • Shaykh Ibn Uthaymeen #9',
+    source: 'Abu Dawud 5072 & Tirmidhi 3389',
     virtue:
       'Allah has taken upon Himself to please whoever recites this 3 times on the Day of Judgment.',
     malayalamVirtue:
@@ -857,7 +893,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-10',
     category: 'evening',
-    uthaymeenNumber: 10,
+    itemNumber: 10,
     arabic:
       'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ',
     transliteration:
@@ -867,7 +903,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ഞങ്ങളിതാ സായാഹ്നത്തിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നു; സർവ്വാധിപത്യവും അല്ലാഹുവിന്നുള്ളതായി സന്ധ്യയായിരിക്കുന്നു. സർവ്വസ്തുതിയും അല്ലാഹുവിന്നാണ്. അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. അവന്നാണ് സർവ്വാധികാരവും സർവ്വസ്തുതിയും, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്. എന്റെ രക്ഷിതാവേ, ഈ രാത്രിയിലുള്ള നന്മയും ഇതിനുശേഷമുള്ള നന്മയും നിന്നോട് ഞാൻ ചോദിക്കുന്നു; ഈ രാത്രിയിലുള്ള തിന്മയിൽ നിന്നും ഇതിനുശേഷമുള്ള തിന്മയിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു. എന്റെ നാഥാ, മടിയിൽ നിന്നും വാർദ്ധക്യത്തിന്റെ അവശതകളിൽ നിന്നും നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എന്റെ നാഥാ, നരകശിക്ഷയിൽ നിന്നും ഖബർ ശിക്ഷയിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു.',
     target: 1,
-    source: 'Sahih Muslim 2723 • Shaykh Ibn Uthaymeen #10',
+    source: 'Sahih Muslim 2723',
     virtue:
       'Acknowledges Allah’s absolute sovereignty at dusk, seeking the goodness of the night and refuge from all torment.',
     malayalamVirtue:
@@ -880,7 +916,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-11',
     category: 'evening',
-    uthaymeenNumber: 11,
+    itemNumber: 11,
     arabic:
       'اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ',
     transliteration:
@@ -890,7 +926,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നിന്റെ കാരുണ്യത്താൽ നാം സന്ധ്യയിലെത്തി, നിന്റെ കാരുണ്യത്താൽ നാം പ്രഭാതത്തിലെത്തി, നിന്റെ കൽപ്പനയാൽ നാം ജീവിക്കുന്നു, നിന്റെ വിധിയാൽ നാം മരിക്കുന്നു, നിന്നിലേക്കാണ് നമ്മുടെ മടക്കം.',
     target: 1,
-    source: 'Sunan at-Tirmidhi 3391 & Abu Dawud 5068 • Shaykh Ibn Uthaymeen #11',
+    source: 'Sunan at-Tirmidhi 3391 & Abu Dawud 5068',
     virtue: 'Committing every phase of evening, night, life, and death to the Creator.',
     malayalamVirtue:
       'രാത്രിയിലേക്കുള്ള പ്രവേശനവും ജീവിതവും മരണവും പുനരുത്ഥാനവും അല്ലാഹുവിൽ സമർപ്പിക്കുന്ന പ്രാർത്ഥന (തിർമിദി, അബൂദാവൂദ്).',
@@ -902,7 +938,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-12',
     category: 'evening',
-    uthaymeenNumber: 12,
+    itemNumber: 12,
     arabic:
       'اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ',
     transliteration:
@@ -912,7 +948,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഈ സന്ധ്യയിൽ എനിക്കോ നിന്റെ സൃഷ്ടികളിൽ മറ്റാർക്കെങ്കിലുമോ എന്തെങ്കിലും അനുഗ്രഹം ലഭിച്ചിട്ടുണ്ടെങ്കിൽ അത് നിന്നിൽ നിന്ന് മാത്രമുള്ളതാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. അതിനാൽ സർവ്വസ്തുതിയും നിനക്കാണ്, സർവ്വ നന്ദിയും നിനക്കാണ്.',
     target: 1,
-    source: "Abu Dawud 5073 & An-Nasa'i • Shaykh Ibn Uthaymeen #12",
+    source: "Abu Dawud 5073 & An-Nasa'i",
     virtue: 'Whoever recites this in the evening has fulfilled his gratitude for that entire night.',
     malayalamVirtue:
       'വൈകുന്നേരം ഇത് ചൊല്ലുന്നവൻ ആ രാത്രിയിലെ അല്ലാഹുവിനോടുള്ള നന്ദി (ശുക്റ്) പൂർണ്ണമായി നിർവ്വഹിച്ചിരിക്കുന്നു (അബൂദാവൂദ്, നസാഈ).',
@@ -924,7 +960,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-13',
     category: 'evening',
-    uthaymeenNumber: 13,
+    itemNumber: 13,
     arabic:
       'اللَّهُمَّ إِنِّي أَمْسَيْتُ فِي نِعْمَةٍ وَعَافِيَةٍ وَسِتْرٍ، فَأَتِمَّ نِعْمَتَكَ عَلَيَّ وَعَافِيَتَكَ وَسِتْرَكَ فِي الدُّنْيَا وَالْآخِرَةِ',
     transliteration:
@@ -934,7 +970,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നിന്നിൽ നിന്നുള്ള അനുഗ്രഹത്തിലും സൗഖ്യത്തിലും കാവലിലും ആയാണ് ഞാൻ സന്ധ്യയിലേക്ക് പ്രവേശിച്ചിരിക്കുന്നത്. അതിനാൽ ഇഹത്തിലും പരത്തിലും നിന്റെ അനുഗ്രഹവും സൗഖ്യവും കാവലും നീ എനിക്ക് പൂർത്തിയാക്കി തരേണമേ.',
     target: 3,
-    source: 'Ibn as-Sunni 55 & Kitab al-Adhkar • Shaykh Ibn Uthaymeen #13',
+    source: 'Ibn as-Sunni 55 & Kitab al-Adhkar',
     virtue:
       'Recited 3 times; Allah fulfills His blessing, health, and covering of human sins and defects.',
     malayalamVirtue:
@@ -946,7 +982,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-14',
     category: 'evening',
-    uthaymeenNumber: 14,
+    itemNumber: 14,
     arabic:
       'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ',
     transliteration:
@@ -956,7 +992,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഉത്കണ്ഠയിൽ നിന്നും ദുഃഖത്തിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; കഴിവുകേടിൽ നിന്നും മടിയിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു; ഭീരുത്വത്തിൽ നിന്നും പിശുക്കിൽ നിന്നും നിന്നിൽ ഞാൻ കാവൽ ചോദിക്കുന്നു; കടം പെരുകുന്നതിൽ നിന്നും മനുഷ്യരുടെ അടിച്ചമർത്തലിൽ നിന്നും നിന്നിൽ ഞാൻ അഭയം തേടുന്നു.',
     target: 1,
-    source: 'Sahih al-Bukhari 2893 & Abu Dawud 1555 • Shaykh Ibn Uthaymeen #14',
+    source: 'Sahih al-Bukhari 2893 & Abu Dawud 1555',
     virtue: 'Relieves heart sorrow, discouragement, and burden of debt.',
     malayalamVirtue:
       'മനോവേദനകൾ, ദുഃഖം, ഭീരുത്വം, അലസത, കടബാധ്യത എന്നിവയിൽ നിന്നുള്ള മോചനത്തിനായി നബി (ﷺ) പഠിപ്പിച്ച പ്രാർത്ഥന (ബുഖാരി, അബൂദാവൂദ്).',
@@ -968,7 +1004,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-15',
     category: 'evening',
-    uthaymeenNumber: 15,
+    itemNumber: 15,
     arabic:
       'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ وَمِنْ خَلْفِي وَعَنْ يَمِينِي وَعَنْ شِمَالِي وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي',
     transliteration:
@@ -976,9 +1012,9 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     translation:
       'O Allah, I ask You for well-being in this world and the Hereafter. O Allah, I ask You for pardon and well-being in my religion, my worldly affairs, my family and my wealth. O Allah, conceal my faults and calm my fears. O Allah, protect me from in front of me, from behind me, from my right, from my left, and from above me; and I seek refuge in Your greatness from being assassinated from beneath me.',
     malayalamTranslation:
-      'അല്ലാഹുവേ, ഇഹത്തിലും പരത്തിലും ഞാൻ നിന്നോട് സൗഖ്യം (ആരോഗ്യവും സമാധാനവും) ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ ദീനിലും ദുനിയാവിലും കുടുംബത്തിലും സമ്പത്തിലും നിന്നോട് ഞാൻ മാപ്പും സൗഖ്യവും ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ കുറവുകൾ നീ മറച്ചുവെക്കേണമേ, എന്റെ ഭയങ്ങളിൽ എനിക്ക് ശാന്തി നൽകേണമേ...',
+      'അല്ലാഹുവേ, ഇഹത്തിലും പരത്തിലും ഞാൻ നിന്നോട് സൗഖ്യം (ആരോഗ്യവും സമാധാനവും) ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ ദീനിലും ദുനിയാവിലും കുടുംബത്തിലും സമ്പത്തിലും നിന്നോട് ഞാൻ മാപ്പും സൗഖ്യവും ചോദിക്കുന്നു. അല്ലാഹുവേ, എന്റെ കുറവുകൾ നീ മറച്ചുവെക്കേണമേ, എന്റെ ഭയങ്ങളിൽ എനിക്ക് ശാന്തി നൽകേണമേ. അല്ലാഹുവേ, എന്റെ മുന്നിലൂടെയും പിന്നിലൂടെയും വലത്തുഭാഗത്തുനിന്നും ഇടത്തുഭാഗത്തുനിന്നും മുകളിൽ നിന്നും എന്നെ നീ കാത്തുരക്ഷിക്കേണമേ. എന്റെ അടിയിലൂടെ വഞ്ചനാപരമായി ഞാൻ നശിപ്പിക്കപ്പെടുന്നതിൽ നിന്ന് നിന്റെ മഹത്വത്താൽ ഞാൻ കാവൽ തേടുന്നു.',
     target: 1,
-    source: 'Abu Dawud 5074 & Ibn Majah 3871 • Shaykh Ibn Uthaymeen #15',
+    source: 'Abu Dawud 5074 & Ibn Majah 3871',
     virtue: 'Comprehensive all-around protection through the night.',
     malayalamVirtue:
       'രാത്രി മുഴുവൻ എല്ലാ ദിശകളിൽ നിന്നുമുള്ള അല്ലാഹുവിന്റെ ദിവ്യസംരക്ഷണവും സൗഖ്യവും ഉറപ്പാക്കുന്ന പ്രാർത്ഥന (അബൂദാവൂദ്, ഇബ്നുമാജ).',
@@ -990,7 +1026,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-16',
     category: 'evening',
-    uthaymeenNumber: 16,
+    itemNumber: 16,
     arabic:
       'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
     transliteration:
@@ -1000,7 +1036,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, നീ എന്റെ രക്ഷിതാവാണ്, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. നീ എന്നെ സൃഷ്ടിച്ചു, ഞാൻ നിന്റെ ദാസനാണ്. എന്റെ കഴിവിനനുസരിച്ച് നിന്നോടുള്ള കരാറിലും വാഗ്ദാനത്തിലും ഞാൻ നിലകൊള്ളുന്നു. ഞാൻ ചെയ്തുപോയ തിന്മകളിൽ നിന്ന് നിന്നിൽ ഞാൻ ശരണം തേടുന്നു. എനിക്ക് നീ നൽകിയ അനുഗ്രഹങ്ങൾ ഞാൻ ഏറ്റുപറയുന്നു, എന്റെ പാപങ്ങളും ഞാൻ സമ്മതിക്കുന്നു. അതിനാൽ എനിക്ക് നീ പൊറുത്തുതരേണമേ, തീർച്ചയായും നീയല്ലാതെ പാപങ്ങൾ പൊറുത്തുതരുവാൻ മറ്റാരുമില്ല.',
     target: 1,
-    source: 'Sahih al-Bukhari 6306 (Sayyid al-Istighfar) • Shaykh Ibn Uthaymeen #16',
+    source: 'Sahih al-Bukhari 6306 (Sayyid al-Istighfar)',
     virtue:
       'Whoever recites this at night with firm faith and passes away during the night will enter Paradise.',
     malayalamVirtue:
@@ -1013,7 +1049,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-17',
     category: 'evening',
-    uthaymeenNumber: 17,
+    itemNumber: 17,
     arabic:
       'اللَّهُمَّ فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ',
     transliteration:
@@ -1023,7 +1059,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'ആകാശങ്ങളുടെയും ഭൂമിയുടെയും സ്രഷ്ടാവായ, അദൃശ്യവും ദൃശ്യവും അറിയുന്നവനായ, സർവ്വ വസ്തുക്കളുടെയും രക്ഷിതാവും ഉടമസ്ഥനുമായ അല്ലാഹുവേ! നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ലെന്ന് ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു. എന്റെ സ്വന്തം മനസ്സിന്റെ തിന്മയിൽ നിന്നും, പിശാചിന്റെയും അവന്റെ ശിർക്കൻ കെണികളുടെയും തിന്മയിൽ നിന്നും, എന്റെ സ്വന്തത്തിന് എന്തെങ്കിലും ദോഷം ചെയ്യുന്നതിൽ നിന്നും അല്ലെങ്കിൽ ഒരു മുസ്ലിമിന് തിന്മ വരുത്തിവെക്കുന്നതിൽ നിന്നും ഞാൻ നിന്നിൽ ശരണം തേടുന്നു.',
     target: 1,
-    source: 'Sunan at-Tirmidhi 3529 & Abu Dawud 5067 • Shaykh Ibn Uthaymeen #17',
+    source: 'Sunan at-Tirmidhi 3529 & Abu Dawud 5067',
     virtue: 'Sanctuary against demonic whispers and harmful intentions throughout the night.',
     malayalamVirtue:
       'രാത്രിയിൽ പിശാചിന്റെ കുതന്ത്രങ്ങളിൽ നിന്നും തിന്മകളിൽ നിന്നും സ്വന്തം മനസ്സിന്റെ ദോഷങ്ങളിൽ നിന്നും സമ്പൂർണ്ണ സംരക്ഷണം നൽകുന്നു (തിർമിദി, അബൂദാവൂദ്).',
@@ -1035,7 +1071,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-18',
     category: 'evening',
-    uthaymeenNumber: 18,
+    itemNumber: 18,
     arabic:
       'اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ',
     transliteration:
@@ -1045,7 +1081,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവേ, ഈ സന്ധ്യയിൽ നിന്നെയും, നിന്റെ സിംഹാസനം വഹിക്കുന്ന മലക്കുകളെയും, മറ്റു മലക്കുകളെയും, നിന്റെ സർവ്വ സൃഷ്ടികളെയും ഞാൻ സാക്ഷിനിർത്തുന്നു: തീർച്ചയായും നീ മാത്രമാണ് അല്ലാഹു, നീയല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, നീ ഏകനാണ്, നിനക്ക് യാതൊരു പങ്കുകാരനുമില്ല. മുഹമ്മദ് നബി (സ്വ) നിന്റെ ദാസനും ദൂതനുമാകുന്നു എന്നും ഞാൻ സാക്ഷ്യം വഹിക്കുന്നു.',
     target: 4,
-    source: 'Abu Dawud 5069 • Shaykh Ibn Uthaymeen #18',
+    source: 'Abu Dawud 5069',
     virtue:
       'Recited 4 times in the evening: Allah frees the servant completely from the Fire of Hell.',
     malayalamVirtue:
@@ -1058,7 +1094,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-19',
     category: 'evening',
-    uthaymeenNumber: 19,
+    itemNumber: 19,
     arabic:
       'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
     transliteration:
@@ -1068,7 +1104,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'അല്ലാഹുവല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല, അവൻ ഏകനാണ്, അവന് യാതൊരു പങ്കുകാരനുമില്ല. സർവ്വാധിപത്യവും സർവ്വസ്തുതിയും അവന്നാണ്, അവൻ എല്ലാ കാര്യത്തിനും കഴിവുള്ളവനാണ്.',
     target: 100,
-    source: 'Sahih al-Bukhari 3293 & Sahih Muslim 2691 • Shaykh Ibn Uthaymeen #19',
+    source: 'Sahih al-Bukhari 3293 & Sahih Muslim 2691',
     virtue: 'Immense reward, sins expiated, and strong protective fortress.',
     malayalamVirtue:
       'മഹത്തായ പ്രതിഫലം, പാപമോചനം, രാത്രി മുഴുവൻ പിശാചിൽ നിന്നുള്ള ശക്തമായ സംരക്ഷണക്കോട്ട (ബുഖാരി, മുസ്ലിം).',
@@ -1080,7 +1116,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-20',
     category: 'evening',
-    uthaymeenNumber: 20,
+    itemNumber: 20,
     arabic:
       'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',
     transliteration:
@@ -1090,7 +1126,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'എനിക്ക് അല്ലാഹു മതി; അവനല്ലാതെ യാതൊരു ആരാധ്യനുമില്ല. അവനിൽ ഞാൻ ഭരമേൽപ്പിച്ചിരിക്കുന്നു, അവൻ മഹത്തായ അർശിന്റെ (സിംഹാസനത്തിന്റെ) നാഥനാകുന്നു.',
     target: 7,
-    source: 'Abu Dawud 5081 (Surah At-Tawbah 9:129) • Shaykh Ibn Uthaymeen #20',
+    source: 'Abu Dawud 5081 (Surah At-Tawbah 9:129)',
     virtue: 'Recited 7 times: Allah suffices the servant for all his worldly and eternal concerns.',
     malayalamVirtue:
       'സായാഹ്നത്തിൽ 7 തവണ ചൊല്ലിയാൽ ഇഹപരകാര്യങ്ങളിലെ സകല ഉത്കണ്ഠകൾക്കും അല്ലാഹു പരിഹാരമേകും (അബൂദാവൂദ്).',
@@ -1102,7 +1138,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-21',
     category: 'evening',
-    uthaymeenNumber: 21,
+    itemNumber: 21,
     arabic: 'حَسْبِيَ اللَّهُ وَكَفَى، سَمِعَ اللَّهُ لِمَنْ دَعَا، لَيْسَ وَرَاءَ اللَّهِ مَرْمَى',
     transliteration:
       "Hasbiyallahu wa kafa, sami'allahu liman da'a, laysa wara'allahi marma.",
@@ -1111,7 +1147,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     malayalamTranslation:
       'എനിക്ക് അല്ലാഹു മതി, അവൻ സർവ്വതിനും മതിയായവനാണ്. പ്രാർത്ഥിച്ചവന്റെ വിളി അല്ലാഹു കേട്ടിരിക്കുന്നു. അല്ലാഹുവിന് അതീതമായി മറ്റൊരു അഭയസ്ഥാനമോ ലക്ഷ്യമോ ഇല്ല.',
     target: 1,
-    source: "Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya • Shaykh Ibn Uthaymeen #21",
+    source: "Bayhaqi (Shu'ab al-Iman) & Ibn Abi ad-Dunya",
     virtue: 'Affirmation of peace, complete reliance, and spiritual serenity.',
     malayalamVirtue:
       'മനസ്സിന് ശാന്തിയും അല്ലാഹുവിൽ പൂർണ്ണ ഭരമേല്പിക്കലും സമ്മാനിക്കുന്ന സായാഹ്ന ദിക്റ് (ബൈഹഖി).',
@@ -1122,13 +1158,13 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-22',
     category: 'evening',
-    uthaymeenNumber: 22,
+    itemNumber: 22,
     arabic: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
     transliteration: 'Subhanallahi wa bihamdih',
     translation: 'Glory is to Allah and praise is to Him.',
     malayalamTranslation: 'അല്ലാഹു എത്ര പരിശുദ്ധൻ, അവന്ന് സർവ്വസ്തുതിയും.',
     target: 100,
-    source: 'Sahih Muslim 2692 • Shaykh Ibn Uthaymeen #22',
+    source: 'Sahih Muslim 2692',
     virtue:
       'Forgiveness of sins even if they were like the foam of the sea, and supreme merit on the Day of Judgment.',
     malayalamVirtue:
@@ -1141,14 +1177,14 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-23',
     category: 'evening',
-    uthaymeenNumber: 23,
+    itemNumber: 23,
     arabic: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
     transliteration: 'Astaghfirullaha wa atubu ilayh',
     translation: 'I seek the forgiveness of Allah and repent to Him.',
     malayalamTranslation:
       'ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുകയും അവനിലേക്ക് പശ്ചാത്തപിച്ചു മടങ്ങുകയും ചെയ്യുന്നു.',
     target: 100,
-    source: 'Sahih al-Bukhari 6307 & Sahih Muslim 2702 • Shaykh Ibn Uthaymeen #23',
+    source: 'Sahih al-Bukhari 6307 & Sahih Muslim 2702',
     virtue: 'Continuous purification of heart and following the blessed Sunnah of the Prophet (ﷺ).',
     malayalamVirtue:
       'ഹൃദയശുദ്ധീകരണത്തിനും തിരുനബി (ﷺ) യുടെ ചര്യ പിൻപറ്റുന്നതിനുമുള്ള നിരന്തര തൗബയും ഇസ്തിഗ്ഫാറും (ബുഖാരി, മുസ്ലിം).',
@@ -1160,6 +1196,7 @@ export const EVENING_ADHKAR: DhikrItem[] = [
   {
     id: 'e-24',
     category: 'evening',
+    itemNumber: 24,
     arabic: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ',
     transliteration: "Allahumma salli wa sallim 'ala Nabiyyina Muhammad",
     translation: 'O Allah, send peace and blessings upon our Prophet Muhammad.',
@@ -1175,6 +1212,31 @@ export const EVENING_ADHKAR: DhikrItem[] = [
     title: 'തിരുനബി (ﷺ) യുടെ മേലുള്ള സ്വലാത്ത്',
     audioUrl: 'https://www.hisnmuslim.com/audio/ar/98.mp3',
   },
+  {
+    id: 'e-25',
+    category: 'evening',
+    itemNumber: 25,
+    arabic:
+      '«سُبْحَانَ اللهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ»',
+    transliteration:
+      "Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih",
+    translation:
+      'Glory is to Allah and praise is to Him, to the number of His creation, to the pleasure of Himself, to the weight of His Throne, and to the ink of His words.',
+    malayalamTranslation:
+      "അല്ലാഹുവിൻ്റെ സൃഷ്ടികളുടെ എണ്ണത്തോളവും, അവൻ്റെ തൃപ്തിയോളവും, അവൻ്റെ സിംഹാസനത്തിൻ്റെ (അർശിൻ്റെ) ഭാരത്തോളവും, അവൻ്റെ വചനങ്ങളുടെ മഷിയോളവും ഞാൻ അല്ലാഹുവിൻ്റെ പരിശുദ്ധിയെ വാഴ്ത്തുകയും അവനെ സ്തുതിക്കുകയും ചെയ്യുന്നു.",
+    target: 3,
+    source: 'صحيح مسلم (2726)، أبو داود، والنسائي',
+    hadithArabic:
+      'عن جويرية أم المؤمنين رضي الله عنها: أن النبي ﷺ خرج من عندها بُكرةً حين صلى الصبح وهي في مسجدها، ثم رجع بعد أن أضحى وهي جالسة، فقال: «ما زلتِ على الحال التي فارقتكِ عليها؟» قالت: نعم، قال النبي ﷺ: «لقد قلتُ بعدكِ أربع كلمات، ثلاث مرات، لو وُزنت بما قلتِ منذ اليوم لوزنتهن: سبحان الله وبحمده، عدد خلقه، ورضا نفسه، وزنة عرشه، ومداد كلماته».',
+    virtue:
+      "Narrated by Juwayriyah, Mother of the Believers (may Allah be pleased with her): The Prophet ﷺ left her early in the morning when he prayed Fajr while she was in her place of prayer, then returned after forenoon (Duha) while she was sitting. He said: 'Have you remained in the same state I left you upon?' She said: 'Yes.' The Prophet ﷺ said: 'Indeed, I said after leaving you four words, three times, which if weighed against all that you have said today would outweigh them: Subhanallahi wa bihamdihi, 'adada khalqihi, wa rida nafsihi, wa zinata 'arshihi, wa midada kalimatih.'",
+    malayalamVirtue:
+      "ജുവൈരിയ്യ (റ) വിൽ നിന്ന് നിവേദനം: നബി ﷺ സുബ്ഹ് നമസ്കാര ശേഷം അവരുടെ അടുത്തുനിന്ന് പുറത്തുപോയി, പിന്നീട് ളുഹാ സമയത്ത് തിരിച്ചെത്തിയപ്പോഴും അവർ അതേ ഇരിപ്പിൽ ദിക്റിലായിരുന്നു. നബി ﷺ ചോദിച്ചു: 'ഞാൻ പോയ അതേ അവസ്ഥയിൽ തന്നെയാണോ നീ ഇപ്പോഴും?' അവർ പറഞ്ഞു: 'അതെ'. അപ്പോൾ നബി ﷺ പറഞ്ഞു: 'നിന്റെ അടുത്തുനിന്ന് പോയ ശേഷം ഞാൻ നാല് വാക്കുകൾ മൂന്ന് തവണ ചൊല്ലുകയുണ്ടായി. നീ ഇന്ന് ഇതുവരെ ചൊല്ലിയതിനോട് അവ തൂക്കി നോക്കിയാൽ അവ അതിനേക്കാൾ ഭാരമുള്ളതായിരിക്കും: (സുബ്ഹാനല്ലാഹി വബിഹംദിഹി, അദദ ഖൽഖിഹി, വരിളാ നഫ്സിഹി, വസിനത അർശിഹി, വമിദാദ കലിമാതിഹി)'.",
+    repeatNote: '3 Times (3 തവണ / 3 مرات)',
+    type: 'adhkar',
+    title: 'മഹത്തായ തസ്ബീഹ് (ജുവൈരിയ്യ (റ) ഹദീസ് — 3 തവണ)',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/90.mp3',
+  },
 ];
 
 /**
@@ -1184,6 +1246,7 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
   {
     id: 'p-1',
     category: 'prayer',
+    itemNumber: 1,
     type: 'adhkar',
     title: 'നമസ്കാര ശേഷമുള്ള ഇസ്തിഗ്ഫാർ (പാപമോചനം തേടൽ)',
     arabic: 'أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ، أَسْتَغْفِرُ اللَّهَ',
@@ -1196,11 +1259,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'ഫർദ് നമസ്കാരത്തിൽ സംഭവിച്ചുപോയേക്കാവുന്ന ന്യൂനതകൾ പരിഹരിക്കാൻ സലാം വീട്ടിയ ഉടനെ തിരുനബി (ﷺ) 3 തവണ പാപമോചനം തേടിയിരുന്നു (മുസ്ലിം).',
     repeatNote: '3 times',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3#t=7.0,11.85',
+    audioStartTime: 7.0,
+    audioEndTime: 11.85,
   },
   {
     id: 'p-2',
     category: 'prayer',
+    itemNumber: 2,
     type: 'adhkar',
     title: 'സലാം വീട്ടിയ ശേഷമുള്ള പ്രാർത്ഥന',
     arabic: 'اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالإِكْرَامِ',
@@ -1215,11 +1281,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'സലാം വീട്ടിയ ശേഷമുള്ള പ്രധാന പ്രാർത്ഥന; അല്ലാഹുവിന്റെ ശാന്തിയും അനുഗ്രഹങ്ങളും തേടുന്നു (മുസ്ലിം).',
     repeatNote: '1 time',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/66.mp3#t=13.1,20.35',
+    audioStartTime: 13.1,
+    audioEndTime: 20.35,
   },
   {
     id: 'p-3',
     category: 'prayer',
+    itemNumber: 3,
     type: 'adhkar',
     title: 'തസ്ബീഹ് (സുബ്ഹാനല്ലാഹ് - 33 തവണ)',
     arabic: 'سُبْحَانَ اللَّهِ',
@@ -1232,11 +1301,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നമസ്കാര ശേഷം 33 തവണ ചൊല്ലുന്ന തസ്ബീഹ്; അല്ലാഹുവിന്റെ പരിശുദ്ധിയെ വാഴ്ത്തുന്നു (മുസ്ലിം).',
     repeatNote: '33 times',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=0.35,1.90',
+    audioStartTime: 0.35,
+    audioEndTime: 1.90,
   },
   {
     id: 'p-4',
     category: 'prayer',
+    itemNumber: 4,
     type: 'adhkar',
     title: 'തഹ്മീദ് (അൽഹംദുലില്ലാഹ് - 33 തവണ)',
     arabic: 'الْحَمْدُ لِلَّهِ',
@@ -1249,11 +1321,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നമസ്കാര ശേഷം 33 തവണ അല്ലാഹുവിന് സ്തുതി അർപ്പിക്കുന്ന തഹ്മീദ് (മുസ്ലിം).',
     repeatNote: '33 times',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=2.80,4.30',
+    audioStartTime: 2.80,
+    audioEndTime: 4.30,
   },
   {
     id: 'p-5',
     category: 'prayer',
+    itemNumber: 5,
     type: 'adhkar',
     title: 'തക്ബീർ (അല്ലാഹു അക്ബർ - 33 തവണ)',
     arabic: 'اللَّهُ أَكْبَرُ',
@@ -1266,11 +1341,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       '33 തവണ തക്ബീർ ചൊല്ലി 99 എണ്ണം പൂർത്തിയാക്കുന്നു (മുസ്ലിം).',
     repeatNote: '33 times',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=5.05,6.15',
+    audioStartTime: 5.05,
+    audioEndTime: 6.15,
   },
   {
     id: 'p-6',
     category: 'prayer',
+    itemNumber: 6,
     type: 'adhkar',
     title: 'നൂറാമത്തെ തഹ്‌ലീൽ ദിക്റ്',
     arabic:
@@ -1288,11 +1366,14 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     malayalamVirtue:
       'നൂറാമത്തെതായി ഇത് ചൊല്ലി 100 പൂർത്തിയാക്കുന്നവന്റെ പാപങ്ങൾ കടൽനുരയോളം ഉണ്ടെങ്കിലും പൊറുക്കപ്പെടുന്നതാണ് (മുസ്ലിം).',
     repeatNote: '1 time (Seals the 100 counts)',
-    audioUrl: 'https://www.hisnmuslim.com/audio/ar/68.mp3',
+    audioUrl: 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=13.45,23.15',
+    audioStartTime: 13.45,
+    audioEndTime: 23.15,
   },
   {
     id: 'p-7',
     category: 'prayer',
+    itemNumber: 7,
     type: 'quran',
     title: 'ആയത്തുൽ കുർസിയ്യ് (നമസ്കാര ശേഷം)',
     arabic:
@@ -1300,9 +1381,9 @@ export const PRAYER_ADHKAR: DhikrItem[] = [
     transliteration:
       "Allahu la ilaha illa Huwal-Hayyul-Qayyum, la ta'khudhuhu sinatun wa la nawm, lahu ma fis-samawati wa ma fil-ard, man dhal-ladhi yashfa'u 'indahu illa bi'idhnih, ya'lamu ma bayna aydihim wa ma khalfahum, wa la yuhituna bishay'im-min 'ilmihi illa bima sha', wasi'a Kursiyyuhus-samawati wal-ard, wa la ya'uduhu hifzuhuma, wa Huwal-'Aliyyul-'Azim",
     translation:
-      'Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth... and He is the Most High, the Most Great.',
+      'Allah! There is no deity except Him, the Ever-Living, the Sustainer of all existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great.',
     malayalamTranslation:
-      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്... അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
+      'അല്ലാഹു, അവനല്ലാതെ യാതൊരു ദൈവവുമില്ല, അവൻ എന്നെന്നും ജീവിച്ചിരിക്കുന്നവനും സർവ്വലോക പരിപാലകനുമാണ്. അവനെ മയക്കമോ ഉറക്കമോ ബാധിക്കുകയില്ല. ആകാശഭൂമികളിലുള്ളതെല്ലാം അവന്റെതാണ്. അവന്റെ അനുവാദമില്ലാതെ അവന്റെയടുക്കൽ ശുപാർശ ചെയ്യാൻ കഴിയുന്നവൻ ആരാണ്? അവരുടെ മുന്നിലുള്ളതും പിന്നിലുള്ളതും അവൻ അറിയുന്നു. അവന്റെ അറിവിൽ നിന്ന് അവൻ ഉദ്ദേശിക്കുന്നതല്ലാതെ മറ്റൊന്നും അവർക്ക് ഗ്രഹിക്കാനാവില്ല. അവന്റെ കുർസിയ്യ് ആകാശങ്ങളെയും ഭൂമിയെയും ഉൾക്കൊള്ളുന്നതാണ്. അവ രണ്ടിന്റെയും സംരക്ഷണം അവനൊരു ഭാരമേയല്ല. അവൻ പരമോന്നതനും അതിമഹാനുമാകുന്നു.',
     target: 1,
     source: "Surah Al-Baqarah 2:255 & An-Nasa'i in Al-Kubra",
     virtue:
@@ -1405,7 +1486,7 @@ export const SLEEP_ADHKAR: DhikrItem[] = [
     isQuranic: true,
     reciter: 'Sheikh Mishary Rashid Alafasy',
     audioClipType: 'tajweed',
-    title: 'സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ (ആമന റസൂലു...)',
+    title: 'സൂറത്തുൽ ബഖറയിലെ അവസാനത്തെ രണ്ട് ആയത്തുകൾ (ആമന റസൂലു — 2:285-286)',
     arabic:
       'آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ، كُلٌّ آمَنَ بِاللَّهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ، وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ (٢٨٥) لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا، لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ، رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا، رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا، رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ، وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا، أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ (٢٨٦)',
     transliteration:

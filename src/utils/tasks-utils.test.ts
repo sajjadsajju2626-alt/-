@@ -13,7 +13,18 @@ import {
   shouldResetTasksDate,
   upsertTaskHistoryForDate,
   buildTaskAuditReport,
+  normalizeDailyTasks,
+  toggleTaskAuditDay,
+  isTaskEffectivelyCompleted,
 } from './tasks-utils.ts';
+import {
+  MORNING_ADHKAR,
+  EVENING_ADHKAR,
+  PRAYER_ADHKAR,
+  SLEEP_ADHKAR,
+} from '../data/adhkarData.ts';
+import { DEFAULT_DAILY_TASKS } from '../data/defaultTasks.ts';
+import { generateSingleFileHtml } from './single-file-generator.ts';
 import type { DailyTask } from '../types/tasks.ts';
 
 const createMockTasks = (): DailyTask[] => [
@@ -86,25 +97,97 @@ test('toggleTask toggles boolean status and cascades to all subtasks', () => {
   assert.ok(t1Off.subtasks?.every((st) => !st.completed));
 });
 
-test('toggleSubtask updates subtask and sets parent completed only when all subtasks complete', () => {
+test('toggleSubtask does NOT mark parent completed on single portion; parent marks completed ONLY when all portions are checked', () => {
   const tasks = createMockTasks();
 
-  // Complete Fajr subtask only
+  // Complete Fajr subtask only (1 of 2) -> parent remains incomplete (completed: false)
   const step1 = toggleSubtask(tasks, 't-1', 'fajr');
   const t1Step1 = step1.find((t) => t.id === 't-1')!;
   assert.equal(t1Step1.subtasks?.find((s) => s.id === 'fajr')?.completed, true);
   assert.equal(t1Step1.subtasks?.find((s) => s.id === 'dhuhr')?.completed, false);
-  assert.equal(t1Step1.completed, false, 'Parent should remain false until all subtasks complete');
+  assert.equal(t1Step1.completed, false, 'Parent should remain false when only Fajr is checked');
+  assert.equal(isTaskEffectivelyCompleted(t1Step1), false);
 
-  // Complete Dhuhr subtask as well
-  const step2 = toggleSubtask(step1, 't-1', 'dhuhr');
+  // Clicking toggleTask on partially completed task marks ALL subtasks completed (100%)
+  const allMarked = toggleTask(step1, 't-1');
+  const t1All = allMarked.find((t) => t.id === 't-1')!;
+  assert.equal(t1All.completed, true);
+  assert.equal(isTaskEffectivelyCompleted(t1All), true);
+  assert.ok(t1All.subtasks?.every((s) => s.completed), 'toggleTask should complete remaining subtasks');
+
+  // Uncheck Fajr when Dhuhr is still checked -> reverts to false (not 100%)
+  const step2 = toggleSubtask(allMarked, 't-1', 'fajr');
   const t1Step2 = step2.find((t) => t.id === 't-1')!;
-  assert.equal(t1Step2.completed, true, 'Parent should automatically mark complete when all subtasks done');
+  assert.equal(t1Step2.completed, false, 'Parent must revert to incomplete when any subtask is unchecked');
+  assert.equal(isTaskEffectivelyCompleted(t1Step2), false);
 
-  // Uncheck Fajr
-  const step3 = toggleSubtask(step2, 't-1', 'fajr');
+  // Uncheck Dhuhr as well -> all subtasks unchecked, parent remains false
+  const step3 = toggleSubtask(step2, 't-1', 'dhuhr');
   const t1Step3 = step3.find((t) => t.id === 't-1')!;
-  assert.equal(t1Step3.completed, false, 'Parent should revert to incomplete when one subtask is undone');
+  assert.equal(t1Step3.completed, false);
+  assert.equal(isTaskEffectivelyCompleted(t1Step3), false);
+});
+
+test('checking any prayer in 5 Daily Prayers or 12 Rawatib displays partial percentage and amber dot, and all prayers turns green', () => {
+  const todayStr = '2026-10-31';
+  let tasks = structuredClone(DEFAULT_DAILY_TASKS);
+  let history = upsertTaskHistoryForDate({}, todayStr, tasks);
+
+  // Initially 0 prayers checked -> audit dot for today is Missed (status: 'missed')
+  const initialReport = buildTaskAuditReport(tasks, history, 'week', 'all', todayStr);
+  const fardRow0 = initialReport.rows.find((r) => r.task.id === 'task-fard-prayers')!;
+  const rawatibRow0 = initialReport.rows.find((r) => r.task.id === 'task-rawatib')!;
+  assert.equal(fardRow0.dots[6].status, 'missed');
+  assert.equal(fardRow0.dots[6].completed, false);
+  assert.equal(rawatibRow0.dots[6].status, 'missed');
+  assert.equal(rawatibRow0.dots[6].completed, false);
+
+  // Check Fajr in 5 Daily Obligatory Prayers (1/5 = 20%) and 2 before Fajr in 12 Sunnah Rawatib (2/12 = 17%)
+  tasks = toggleSubtask(tasks, 'task-fard-prayers', 'fajr');
+  tasks = toggleSubtask(tasks, 'task-rawatib', 'rawatib-fajr');
+  history = upsertTaskHistoryForDate(history, todayStr, tasks);
+
+  const afterSubtaskReport = buildTaskAuditReport(tasks, history, 'week', 'all', todayStr);
+  const fardRow1 = afterSubtaskReport.rows.find((r) => r.task.id === 'task-fard-prayers')!;
+  const rawatibRow1 = afterSubtaskReport.rows.find((r) => r.task.id === 'task-rawatib')!;
+  assert.equal(fardRow1.dots[6].status, 'partial', 'Today audit dot for 1/5 Fard Prayers must be partial (amber)');
+  assert.equal(fardRow1.dots[6].percent, 20);
+  assert.equal(fardRow1.dots[6].completed, false);
+  assert.equal(rawatibRow1.dots[6].status, 'partial', 'Today audit dot for 2/12 Rawatib must be partial (amber)');
+  assert.equal(rawatibRow1.dots[6].completed, false);
+
+  // Check remaining 4 Fard prayers -> 5/5 = 100%
+  tasks = toggleSubtask(tasks, 'task-fard-prayers', 'dhuhr');
+  tasks = toggleSubtask(tasks, 'task-fard-prayers', 'asr');
+  tasks = toggleSubtask(tasks, 'task-fard-prayers', 'maghrib');
+  tasks = toggleSubtask(tasks, 'task-fard-prayers', 'isha');
+  history = upsertTaskHistoryForDate(history, todayStr, tasks);
+
+  const fullReport = buildTaskAuditReport(tasks, history, 'week', 'all', todayStr);
+  const fardRowFull = fullReport.rows.find((r) => r.task.id === 'task-fard-prayers')!;
+  assert.equal(fardRowFull.dots[6].status, 'completed', 'Today audit dot for 5/5 Fard Prayers must turn Green');
+  assert.equal(fardRowFull.dots[6].percent, 100);
+  assert.equal(fardRowFull.dots[6].completed, true);
+
+  // Test manual Day pill override (e.g. toggling yesterday 2026-10-30 to Completed, and toggling today to Missed)
+  const overrideYesterday = toggleTaskAuditDay(history, tasks, 'task-fard-prayers', '2026-10-30', todayStr);
+  history = overrideYesterday.nextHistory;
+  tasks = overrideYesterday.nextTasks;
+  assert.equal(overrideYesterday.nextCompleted, true);
+
+  const reportAfterYesterdayOverride = buildTaskAuditReport(tasks, history, 'week', 'all', todayStr);
+  const fardRow2 = reportAfterYesterdayOverride.rows.find((r) => r.task.id === 'task-fard-prayers')!;
+  assert.equal(fardRow2.dots[5].status, 'completed', 'Yesterday dot should be manually overridden to Completed');
+  assert.equal(fardRow2.completedDays, 2);
+
+  // Toggling today pill manually to Missed
+  const overrideTodayOff = toggleTaskAuditDay(history, tasks, 'task-fard-prayers', todayStr, todayStr);
+  history = overrideTodayOff.nextHistory;
+  tasks = overrideTodayOff.nextTasks;
+  assert.equal(overrideTodayOff.nextCompleted, false);
+  const reportAfterTodayOff = buildTaskAuditReport(tasks, history, 'week', 'all', todayStr);
+  const fardRow3 = reportAfterTodayOff.rows.find((r) => r.task.id === 'task-fard-prayers')!;
+  assert.equal(fardRow3.dots[6].status, 'missed', 'Today dot should be manually overridden to Missed');
 });
 
 test('addCustomTask and deleteTask manage user tasks correctly', () => {
@@ -202,7 +285,14 @@ test('buildTaskAuditReport computes weekly (7d) and monthly (30d) itemized ratio
   const tasks = createMockTasks(); // t-2 is completed today, t-1 and t-3 are false
   let history = {};
   history = upsertTaskHistoryForDate(history, '2026-10-27', [
-    { ...tasks[0], completed: true },
+    {
+      ...tasks[0],
+      completed: true,
+      subtasks: [
+        { id: 'fajr', label: 'Fajr', completed: true },
+        { id: 'dhuhr', label: 'Dhuhr', completed: true },
+      ],
+    },
     { ...tasks[1], completed: true },
     { ...tasks[2], completed: false },
   ]);
@@ -245,4 +335,104 @@ test('buildTaskAuditReport computes weekly (7d) and monthly (30d) itemized ratio
     '3/30 days'
   );
 });
+
+test('EVENING_ADHKAR and all adhkar datasets have 100% unabridged Arabic, English, and Malayalam translations with zero ellipses (...)', () => {
+  assert.equal(EVENING_ADHKAR.length, 24);
+  assert.equal(MORNING_ADHKAR.length, 25);
+
+  const allCollections = [
+    ...EVENING_ADHKAR,
+    ...MORNING_ADHKAR,
+    ...PRAYER_ADHKAR,
+    ...SLEEP_ADHKAR,
+  ];
+
+  for (const item of allCollections) {
+    assert.ok(item.arabic && item.arabic.trim().length > 0, `Missing arabic in ${item.id}`);
+    assert.ok(item.translation && item.translation.trim().length > 0, `Missing English translation in ${item.id}`);
+    assert.ok(
+      item.malayalamTranslation && item.malayalamTranslation.trim().length > 0,
+      `Missing Malayalam translation in ${item.id}`
+    );
+    assert.equal(
+      item.translation.includes('...'),
+      false,
+      `Truncated ellipsis found in English translation of ${item.id}: ${item.translation}`
+    );
+    assert.equal(
+      item.malayalamTranslation.includes('...'),
+      false,
+      `Truncated ellipsis found in Malayalam translation of ${item.id}: ${item.malayalamTranslation}`
+    );
+    if (item.transliteration) {
+      assert.equal(
+        item.transliteration.includes('...'),
+        false,
+        `Truncated ellipsis found in transliteration of ${item.id}`
+      );
+    }
+    if (item.title) {
+      assert.equal(
+        item.title.includes('...'),
+        false,
+        `Truncated ellipsis found in title of ${item.id}: ${item.title}`
+      );
+    }
+  }
+});
+
+test('generateSingleFileHtml outputs complete standalone HTML containing all 11 tasks, Weekly & Monthly Task Audit, filter chips, and unabridged Evening Adhkar', () => {
+  const html = generateSingleFileHtml();
+  assert.ok(html.startsWith('<!DOCTYPE html>'));
+  assert.ok(html.includes('data-tab="tasks"'));
+  assert.ok(html.includes('0/11'));
+  assert.ok(html.includes('Weekly &amp; Monthly Task Audit'));
+  assert.ok(html.includes('ടാസ്‌ക് പുരോഗതി'));
+  assert.ok(html.includes('This Week (ഈ ആഴ്ച)'));
+  assert.ok(html.includes('This Month (ഈ മാസം)'));
+  assert.ok(html.includes('All (എല്ലാം)'));
+  assert.ok(html.includes('Completed (പൂർത്തിയായവ)'));
+  assert.ok(html.includes('Missed (നഷ്ടപ്പെട്ടവ)'));
+  assert.ok(html.includes('ഏറ്റവും കൃത്യമായി ചെയ്തത്:'));
+  assert.ok(html.includes('ശ്രദ്ധിക്കേണ്ട ടാസ്ക്:'));
+
+  // Verify all 11 default tasks are embedded
+  assert.equal(DEFAULT_DAILY_TASKS.length, 11);
+  for (const task of DEFAULT_DAILY_TASKS) {
+    assert.ok(html.includes(task.id), `Missing task ID ${task.id} in single-file HTML`);
+    assert.ok(html.includes(task.title), `Missing task title ${task.title} in single-file HTML`);
+    assert.ok(html.includes(task.malayalamTitle), `Missing task Malayalam title ${task.malayalamTitle} in single-file HTML`);
+  }
+
+  // Verify zero "..." inside the embedded ADHKAR_DATA JSON
+  const match = html.match(/window\.ADHKAR_DATA\s*=\s*(\{[\s\S]*?\});\s*<\/script>/);
+  assert.ok(match && match[1], 'Embedded window.ADHKAR_DATA JSON must exist');
+  assert.equal(match[1].includes('...'), false, 'Embedded window.ADHKAR_DATA must not contain any "..." ellipses');
+});
+
+test('normalizeDailyTasks and calculateTasksProgress safely handle legacy { date, tasks } objects and non-arrays without throwing', () => {
+  const mockTasks = createMockTasks();
+  const wrappedPayload = { date: '2026-10-31', tasks: mockTasks };
+
+  const normalized = normalizeDailyTasks(wrappedPayload, DEFAULT_DAILY_TASKS);
+  assert.equal(normalized.length, 3);
+  assert.equal(normalized[1].id, 't-2');
+
+  const statsFromWrapped = calculateTasksProgress(wrappedPayload);
+  assert.equal(statsFromWrapped.total, 3);
+  assert.equal(statsFromWrapped.completed, 1);
+  assert.equal(statsFromWrapped.percent, 33);
+
+  const statsFromInvalid = calculateTasksProgress({ invalid: true });
+  assert.deepEqual(statsFromInvalid, {
+    completed: 0,
+    total: 0,
+    percent: 0,
+    isAllDone: false,
+  });
+
+  const fallbackFromNull = normalizeDailyTasks(null, DEFAULT_DAILY_TASKS);
+  assert.equal(fallbackFromNull.length, 11);
+});
+
 

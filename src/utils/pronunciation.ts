@@ -432,6 +432,8 @@ class PronunciationManagerClass {
     isQuranic?: boolean;
     audioUrl?: string;
     audioUrls?: string[];
+    audioStartTime?: number;
+    audioEndTime?: number;
     reciterTitle?: string;
   }) {
     const {
@@ -441,6 +443,8 @@ class PronunciationManagerClass {
       isQuranic = false,
       audioUrl,
       audioUrls,
+      audioStartTime,
+      audioEndTime,
       reciterTitle,
     } = options;
 
@@ -463,12 +467,14 @@ class PronunciationManagerClass {
       isQuranic,
       audioUrl,
       audioUrls,
+      audioStartTime,
+      audioEndTime,
       reciterTitle,
     });
   }
 
   /**
-   * Starts playing the requested item from the beginning after forcibly stopping,
+   * Starts playing the requested item from the beginning (or its segment startTime) after forcibly stopping,
    * resetting, and unloading any previously active audio track.
    */
   public play(options: {
@@ -478,6 +484,8 @@ class PronunciationManagerClass {
     isQuranic?: boolean;
     audioUrl?: string;
     audioUrls?: string[];
+    audioStartTime?: number;
+    audioEndTime?: number;
     reciterTitle?: string;
   }) {
     const {
@@ -487,6 +495,8 @@ class PronunciationManagerClass {
       isQuranic = false,
       audioUrl,
       audioUrls,
+      audioStartTime,
+      audioEndTime,
       reciterTitle,
     } = options;
 
@@ -529,7 +539,16 @@ class PronunciationManagerClass {
     const preparedText = prepareArabicSpeechText(arabicText);
 
     if (playlist.length > 0) {
-      this.playAudioPlaylist(id, token, playlist, speed, preparedText, styleProfile);
+      this.playAudioPlaylist(
+        id,
+        token,
+        playlist,
+        speed,
+        preparedText,
+        styleProfile,
+        audioStartTime,
+        audioEndTime
+      );
     } else {
       this.playSpeechSynthesis(id, token, preparedText, speed, styleProfile);
     }
@@ -549,7 +568,7 @@ class PronunciationManagerClass {
   }
 
   /**
-   * Replays the current item from the start (resets currentTime to 0).
+   * Replays the current item from the start (resets currentTime to segment startTime or 0).
    */
   public replay(options?: {
     id?: string;
@@ -558,11 +577,14 @@ class PronunciationManagerClass {
     isQuranic?: boolean;
     audioUrl?: string;
     audioUrls?: string[];
+    audioStartTime?: number;
+    audioEndTime?: number;
   }) {
     if (currentAudio && (!options?.id || options.id === this.currentPlayingId)) {
       try {
+        const startOffset = Number(currentAudio.dataset?.startTime || 0) || 0;
         currentAudio.pause();
-        currentAudio.currentTime = 0;
+        currentAudio.currentTime = startOffset;
         this.status = 'playing';
         this.notify();
         currentAudio.play().catch(() => {
@@ -582,6 +604,8 @@ class PronunciationManagerClass {
         isQuranic: options.isQuranic,
         audioUrl: options.audioUrl,
         audioUrls: options.audioUrls,
+        audioStartTime: options.audioStartTime,
+        audioEndTime: options.audioEndTime,
       });
     }
   }
@@ -595,7 +619,9 @@ class PronunciationManagerClass {
     playlist: string[],
     speed: PronunciationSpeed,
     fallbackText: string,
-    styleProfile: VoiceStyleProfile
+    styleProfile: VoiceStyleProfile,
+    explicitStartTime?: number,
+    explicitEndTime?: number
   ) {
     this.audioPlaylist = playlist;
     this.currentPlaylistIndex = 0;
@@ -620,10 +646,33 @@ class PronunciationManagerClass {
       this.destroyActiveAudioResources();
 
       const url = this.audioPlaylist[this.currentPlaylistIndex];
+      const fragMatch = url.match(/#t=([0-9.]+)(?:,([0-9.]+))?/);
+      const startTime =
+        typeof explicitStartTime === 'number'
+          ? explicitStartTime
+          : fragMatch
+          ? parseFloat(fragMatch[1]) || 0
+          : 0;
+      const endTime =
+        typeof explicitEndTime === 'number'
+          ? explicitEndTime
+          : fragMatch && fragMatch[2]
+          ? parseFloat(fragMatch[2]) || 0
+          : 0;
+
       const audio = new Audio();
       audio.preload = 'auto';
       audio.src = url;
-      audio.currentTime = 0;
+      if (audio.dataset) {
+        audio.dataset.itemId = id;
+        audio.dataset.startTime = String(startTime);
+        audio.dataset.endTime = String(endTime);
+      }
+      try {
+        audio.currentTime = startTime > 0 ? startTime : 0;
+      } catch {
+        // ignore if metadata not yet loaded; onloadedmetadata will seek
+      }
       audio.volume = styleProfile.volume;
       audio.playbackRate = getPronunciationSpeechRate(speed, styleProfile.style);
 
@@ -633,9 +682,18 @@ class PronunciationManagerClass {
         window.currentAudio = audio;
       }
 
+      let segmentAdvanced = false;
+      const advanceSegmentOnce = () => {
+        if (segmentAdvanced) return;
+        if (this.playbackToken !== token || this.currentPlayingId !== id) return;
+        segmentAdvanced = true;
+        this.currentPlaylistIndex++;
+        playCurrentSegment();
+      };
+
       let fallbackTriggered = false;
       const triggerFallbackOnce = () => {
-        if (fallbackTriggered) return;
+        if (fallbackTriggered || segmentAdvanced) return;
         if (this.playbackToken !== token || this.currentPlayingId !== id) return;
         fallbackTriggered = true;
 
@@ -647,8 +705,42 @@ class PronunciationManagerClass {
         }
       };
 
+      audio.onloadedmetadata = () => {
+        if (this.playbackToken !== token || this.currentPlayingId !== id) return;
+        if (startTime > 0 && audio.currentTime < startTime - 0.05) {
+          try {
+            audio.currentTime = startTime;
+          } catch {
+            // ignore
+          }
+        }
+      };
+
+      if (endTime > 0) {
+        audio.ontimeupdate = () => {
+          if (this.playbackToken !== token || this.currentPlayingId !== id) return;
+          if (audio.currentTime >= endTime) {
+            try {
+              audio.ontimeupdate = null;
+              audio.onended = null;
+              audio.pause();
+            } catch {
+              // ignore
+            }
+            advanceSegmentOnce();
+          }
+        };
+      }
+
       audio.onplay = () => {
         if (this.playbackToken === token && this.currentPlayingId === id) {
+          if (startTime > 0 && audio.currentTime < startTime - 0.1) {
+            try {
+              audio.currentTime = startTime;
+            } catch {
+              // ignore
+            }
+          }
           this.status = 'playing';
           this.notify();
         }
@@ -659,6 +751,7 @@ class PronunciationManagerClass {
         if (
           this.playbackToken === token &&
           this.currentPlayingId === id &&
+          !segmentAdvanced &&
           !audio.ended &&
           this.status === 'playing'
         ) {
@@ -668,10 +761,7 @@ class PronunciationManagerClass {
       };
 
       audio.onended = () => {
-        if (this.playbackToken === token && this.currentPlayingId === id) {
-          this.currentPlaylistIndex++;
-          playCurrentSegment();
-        }
+        advanceSegmentOnce();
       };
 
       audio.onerror = () => {

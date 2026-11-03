@@ -282,6 +282,46 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
                 />
               </label>
+
+              {/* Focus Timer Toggle (OFF by default) */}
+              <div className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                <div className="pr-3">
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white font-malayalam">
+                    Focus Timer (ശ്രദ്ധ കേന്ദ്രീകരിക്കാൻ ടൈമർ)
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 font-malayalam mt-0.5">
+                    Show countdown timer on adhkar cards / ദിക്റുകൾക്ക് ടൈമർ കാണിക്കുക
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  data-testid="toggle-focus-timer-switch"
+                  aria-checked={Boolean(settings.showFocusTimer)}
+                  aria-label="Focus Timer (ശ്രദ്ധ കേന്ദ്രീകരിക്കാൻ ടൈമർ)"
+                  onClick={() => {
+                    const nextVal = !settings.showFocusTimer;
+                    try {
+                      localStorage.setItem('adhkar_show_focus_timer', String(nextVal));
+                    } catch {
+                      // ignore storage error
+                    }
+                    onUpdateSettings((s) => ({
+                      ...s,
+                      showFocusTimer: nextVal,
+                    }));
+                  }}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer shrink-0 focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+                    settings.showFocusTimer ? 'bg-teal-600' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
+                >
+                  <span
+                    className={`block w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-150 ${
+                      settings.showFocusTimer ? 'translate-x-5' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -371,7 +411,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
             </div>
 
-            {/* Direct Google Calendar Daily Alarms — Replaces .ics Download */}
+            {/* Direct Google Calendar Daily Alarms */}
             <div
               data-testid="calendar-alarms-card"
               className="mb-3 p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/30 border-2 border-amber-600 dark:border-amber-700/80 space-y-2.5"
@@ -383,7 +423,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span>Direct Google Calendar Alarms (ഫോൺ കലണ്ടർ അലാറം)</span>
                   </div>
                   <div className="text-[11px] font-bold text-black dark:text-slate-300 mt-1 leading-relaxed font-malayalam">
-                    ആപ്പ് ക്ലോസ് ചെയ്താലും കൃത്യസമയത്ത് ഓർമ്മിപ്പിക്കാൻ ഗൂഗിൾ കലണ്ടറിലേക്ക് നേരിട്ട് അലാറം ചേർക്കുക. അലാറം അടിക്കുമ്പോൾ നോട്ടിഫിക്കേഷനിലെ ലിങ്കിൽ തൊട്ട് ആപ്പ് നേരിട്ട് തുറക്കാം:
+                    ആപ്പ് ക്ലോസ് ചെയ്താലും കൃത്യസമയത്ത് ഓർമ്മിപ്പിക്കാൻ ഗൂഗിൾ കലണ്ടറിലേക്ക് നേരിട്ട് അലാറം ചേർക്കുക:
                   </div>
                 </div>
               </div>
@@ -434,11 +474,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </a>
               </div>
 
-              <div className="text-[10px] font-mono font-bold text-black dark:text-slate-300 flex items-center justify-between gap-2 pt-0.5">
-                <span>🔁 Recurrence: RRULE:FREQ=DAILY</span>
-                <span className="truncate">🔗 App Link Included: {getAppLaunchUrl()}</span>
-              </div>
-
               {calendarDownloaded && (
                 <div
                   data-testid="calendar-ics-instructions"
@@ -451,74 +486,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
             {settings.remindersEnabled && (
               <div className="space-y-4 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/40 border border-teal-600 dark:border-slate-800">
-                {/* Dual-Trigger Notification Architecture Status Card */}
-                <div
-                  data-testid="mobile-notification-status-card"
-                  className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-teal-600 dark:border-slate-800 space-y-2"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-                      <span className="text-xs font-extrabold text-black dark:text-white">
-                        Dual-Trigger Notification Engine:
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 dark:border-emerald-700">
-                        {swReady ? 'SW + Native + In-App ✓' : 'Native + In-App ✓'}
-                      </span>
-                    </div>
-
-                    {permStatus !== 'granted' && permStatus !== 'unsupported' && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const perm = await requestNotificationPermission(1500);
-                          setPermStatus(perm);
-                        }}
-                        className="px-2.5 py-1 text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
-                      >
-                        Allow System Push
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="text-[11px] font-bold text-black dark:text-slate-300 leading-relaxed">
-                    <span>
-                      1. <strong>Service Worker (500ms timeout)</strong>:{' '}
-                      <code>navigator.serviceWorker.ready.then(reg =&gt; reg.showNotification(...))</code>
-                      <br />
-                      2. <strong>Native Fallback</strong>:{' '}
-                      <code>new Notification(&apos;Daily Adhkar&apos;, &#123; ... &#125;)</code> if SW takes &gt;500ms or is unavailable
-                      <br />
-                      3. <strong>Guaranteed In-App Toast + Chime</strong>: Displays{' '}
-                      <span className="font-malayalam font-black">നോട്ടിഫിക്കേഷൻ അയച്ചു!</span> immediately even if WebView blocks OS notifications.
+                {permStatus !== 'granted' && permStatus !== 'unsupported' && (
+                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-teal-500/60 dark:border-slate-700">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 font-malayalam">
+                      ഫോൺ നോട്ടിഫിക്കേഷൻ അനുമതി നൽകുക (Enable Notifications)
                     </span>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const perm = await requestNotificationPermission(1500);
+                        setPermStatus(perm);
+                      }}
+                      className="px-2.5 py-1 text-xs font-bold bg-teal-800 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer shrink-0"
+                    >
+                      Allow
+                    </button>
                   </div>
-                </div>
+                )}
 
-                {/* Preferred Times Grid (Morning Fajr & Evening Asr) */}
+                {/* Preferred Times Grid (Morning, Evening & Sleep) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Morning (Fajr) Reminder Time */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                  {/* Morning Reminder Time */}
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1 font-malayalam">
                         <Sun className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                        <span>Morning (Fajr)</span>
+                        <span>Morning / പ്രഭാതം</span>
                       </span>
                       <span
                         data-testid="morning-formatted-time"
                         className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold"
                       >
                         {formatTimeDisplay(settings.morningReminderTime)}
-                      </span>
-                    </div>
-
-                    <div
-                      data-testid="morning-next-countdown"
-                      className="text-[10px] font-mono font-extrabold text-emerald-900 dark:text-emerald-400 mb-1.5 flex items-center justify-between"
-                    >
-                      <span> Exact :00s Timer Armed</span>
-                      <span>
-                        in {formatMsUntilNextTrigger(getMsUntilNextTime(settings.morningReminderTime, nowTick))}
                       </span>
                     </div>
 
@@ -533,10 +532,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           morningReminderTime: e.target.value,
                         }))
                       }
-                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
-                    {/* Quick Presets + Instant Next-Minute Test Pill */}
+                    {/* Quick Presets */}
                     <div className="flex gap-1 mt-2">
                       {['05:30', '06:00', '07:00'].map((time) => (
                         <button
@@ -557,46 +556,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           {time}
                         </button>
                       ))}
-                      <button
-                        type="button"
-                        data-testid="morning-plus-1m-pill"
-                        title="Set Morning reminder to next minute (:00s) to test auto-trigger"
-                        onClick={() => {
-                          const nextMin = getNextMinuteTimeString(new Date());
-                          onUpdateSettings((s) => ({
-                            ...s,
-                            morningReminderTime: nextMin,
-                          }));
-                        }}
-                        className="px-1.5 py-1 text-[10px] font-mono font-extrabold rounded bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 hover:bg-emerald-200 transition-colors cursor-pointer"
-                      >
-                        +1m
-                      </button>
                     </div>
                   </div>
 
-                  {/* Evening (Asr) Reminder Time */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                  {/* Evening Reminder Time */}
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1 font-malayalam">
                         <Moon className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                        <span>Evening (Asr)</span>
+                        <span>Evening / പ്രദോഷം</span>
                       </span>
                       <span
                         data-testid="evening-formatted-time"
                         className="text-[11px] font-mono text-teal-900 dark:text-teal-400 font-extrabold"
                       >
                         {formatTimeDisplay(settings.eveningReminderTime)}
-                      </span>
-                    </div>
-
-                    <div
-                      data-testid="evening-next-countdown"
-                      className="text-[10px] font-mono font-extrabold text-emerald-900 dark:text-emerald-400 mb-1.5 flex items-center justify-between"
-                    >
-                      <span>Exact :00s Timer Armed</span>
-                      <span>
-                        in {formatMsUntilNextTrigger(getMsUntilNextTime(settings.eveningReminderTime, nowTick))}
                       </span>
                     </div>
 
@@ -611,10 +585,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           eveningReminderTime: e.target.value,
                         }))
                       }
-                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
-                    {/* Quick Presets + Instant Next-Minute Test Pill */}
+                    {/* Quick Presets */}
                     <div className="flex gap-1 mt-2">
                       {['16:30', '17:30', '18:30'].map((time) => (
                         <button
@@ -635,30 +609,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           {time}
                         </button>
                       ))}
-                      <button
-                        type="button"
-                        data-testid="evening-plus-1m-pill"
-                        title="Set Evening reminder to next minute (:00s) to test auto-trigger"
-                        onClick={() => {
-                          const nextMin = getNextMinuteTimeString(new Date());
-                          onUpdateSettings((s) => ({
-                            ...s,
-                            eveningReminderTime: nextMin,
-                          }));
-                        }}
-                        className="px-1.5 py-1 text-[10px] font-mono font-extrabold rounded bg-emerald-100 dark:bg-emerald-950/70 text-black dark:text-emerald-300 border border-emerald-700 hover:bg-emerald-200 transition-colors cursor-pointer"
-                      >
-                        +1m
-                      </button>
                     </div>
                   </div>
 
-                  {/* Sleep (Bedtime) Reminder Time */}
-                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-800 sm:col-span-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1">
+                  {/* Sleep Reminder Time */}
+                  <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 sm:col-span-2">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-extrabold text-black dark:text-slate-200 flex items-center gap-1 font-malayalam">
                         <Moon className="w-3.5 h-3.5 text-purple-700 dark:text-purple-400" />
-                        <span>Sleep (Bedtime • ഉറങ്ങാൻ നേരം)</span>
+                        <span>Sleep / ഉറക്കം</span>
                       </span>
                       <span
                         data-testid="sleep-formatted-time"
@@ -679,7 +638,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           sleepReminderTime: e.target.value,
                         }))
                       }
-                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
+                      className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
                     {/* Quick Presets for Bedtime */}
@@ -764,7 +723,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             dailyGoalReminderTime: e.target.value,
                           }))
                         }
-                        className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-400 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       />
 
                       {/* Quick Presets for Goal Reminder */}
@@ -793,11 +752,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Dual-Trigger Test Notification & Screen-Off Catch-Up Alert */}
+                {/* User-Friendly Test Notification Buttons */}
                 <div className="pt-1 space-y-2">
-                  <div className="text-xs font-bold text-black dark:text-slate-300">
-                    Test Dual-Trigger Notification (SW 500ms &rarr; Native &rarr; In-App Toast):
-                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button
                       type="button"
@@ -830,14 +786,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <Send className="w-3.5 h-3.5" />
                       <span className="font-malayalam">
                         {testSent
-                          ? `നോട്ടിഫിക്കേഷൻ അയച്ചു! (${
-                              lastTestChannel === 'service-worker'
-                                ? 'SW Push'
-                                : lastTestChannel === 'notification-api'
-                                ? 'Native Push'
-                                : 'In-App Toast'
-                            }) ✓`
-                          : 'Send Test Notification'}
+                          ? 'നോട്ടിഫിക്കേഷൻ അയച്ചു! ✓'
+                          : 'Send Test Notification / ടെസ്റ്റ് ചെയ്യുക'}
                       </span>
                     </button>
 
@@ -849,27 +799,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         const isEveningHour = new Date().getHours() >= 15;
                         const channel = await dispatchMobileSafeNotification(
                           isEveningHour
-                            ? '🌙 Missed Evening (Asr) Adhkar • Catch-Up Alert'
-                            : '🌅 Missed Morning (Fajr) Adhkar • Catch-Up Alert',
+                            ? '🌙 Evening Adhkar Reminder'
+                            : '🌅 Morning Adhkar Reminder',
                           isEveningHour
-                            ? `വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙 • Scheduled Asr Adhkar (${formatTimeDisplay(
+                            ? `വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙 (${formatTimeDisplay(
                                 settings.eveningReminderTime
-                              )}) was missed while screen was off.`
-                            : `രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅 • Scheduled Fajr Adhkar (${formatTimeDisplay(
+                              )})`
+                            : `രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅 (${formatTimeDisplay(
                                 settings.morningReminderTime
-                              )}) was missed while screen was off.`,
+                              )})`,
                           undefined,
                           {
                             arabicSubtitle: isEveningHour
-                              ? 'أَذْكَارُ الْمَسَاءِ (العصر)'
-                              : 'أَذْكَارُ الصَّبَاحِ (الفجر)',
+                              ? 'أَذْكَارُ الْمَسَاءِ'
+                              : 'أَذْكَارُ الصَّبَاحِ',
                             malayalamSubtitle: isEveningHour
-                              ? 'സായാഹ്ന ദിക്റുകൾ (അസർ) • Screen-Off Catch-Up'
-                              : 'പ്രഭാത ദിക്റുകൾ (ഫജ്റ്) • Screen-Off Catch-Up',
+                              ? 'സായാഹ്ന ദിക്റുകൾ • Evening Adhkar'
+                              : 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
                             targetTab: isEveningHour ? 'evening' : 'morning',
                             actionLabel: isEveningHour
-                              ? 'Recite Evening (Asr) Adhkar'
-                              : 'Recite Morning (Fajr) Adhkar',
+                              ? 'Recite Evening Adhkar'
+                              : 'Recite Morning Adhkar',
                             tag: 'adhkar-catchup-test',
                             icon: 'icon.png',
                             isCatchUp: true,
@@ -881,24 +831,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }}
                       className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-extrabold rounded-xl bg-amber-100 hover:bg-amber-200 text-black border border-amber-700 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 dark:text-amber-300 dark:border-amber-600 transition-colors cursor-pointer shadow-xs"
                     >
-                      <span>⚡ Test Screen-Off Catch-Up</span>
+                      <span>Test Catch-Up</span>
                     </button>
                   </div>
 
                   {testSent && (
                     <div
                       data-testid="settings-debug-feedback"
-                      className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-700 text-xs font-extrabold text-black dark:text-emerald-200 flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-700 text-xs font-extrabold text-black dark:text-emerald-200 flex items-center justify-center gap-2"
                     >
                       <span className="font-malayalam">നോട്ടിഫിക്കേഷൻ അയച്ചു! ✓</span>
-                      <span className="font-mono text-[11px]">
-                        Channel:{' '}
-                        {lastTestChannel === 'service-worker'
-                          ? 'Service Worker (reg.showNotification)'
-                          : lastTestChannel === 'notification-api'
-                          ? 'Native new Notification()'
-                          : 'In-App Toast + Audio Chime'}
-                      </span>
                     </div>
                   )}
                 </div>
