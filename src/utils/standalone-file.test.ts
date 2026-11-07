@@ -397,27 +397,17 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
     );
   }
 
-  // 2. Verify 12-Hour (AM/PM) preset chips & dropdown options for Morning, Evening, Sleep, and Daily Goal
-  for (const chip12h of [
-    '05:30 AM',
-    '06:00 AM',
-    '07:00 AM',
-    '04:30 PM',
-    '05:30 PM',
-    '06:30 PM',
-    '09:30 PM',
-    '10:00 PM',
-    '10:30 PM',
-    '07:00 PM',
-    '08:00 PM',
-    '09:00 PM',
-    '10:00 PM',
-  ]) {
-    assert.ok(
-      indexHtml.includes(`data-time="${chip12h}"`) && indexHtml.includes(`>${chip12h}</button>`),
-      `index.html must include 12-hour AM/PM preset chip for "${chip12h}"`
-    );
-  }
+  // 2. Verify minimal single 12-Hour interactive clock inputs (all preset chips deleted)
+  assert.ok(indexHtml.includes('id="morningReminderInput"'), 'Must include single morningReminderInput');
+  assert.ok(indexHtml.includes('id="eveningReminderInput"'), 'Must include single eveningReminderInput');
+  assert.ok(indexHtml.includes('id="sleepReminderInput"'), 'Must include single sleepReminderInput');
+  assert.ok(indexHtml.includes('id="goalReminderInput"'), 'Must include single goalReminderInput');
+  assert.ok(indexHtml.includes('id="morningFormattedTime"'), 'Must include morning 12h display');
+  assert.ok(indexHtml.includes('id="eveningFormattedTime"'), 'Must include evening 12h display');
+  assert.ok(indexHtml.includes('id="sleepFormattedTime"'), 'Must include sleep 12h display');
+  assert.ok(indexHtml.includes('id="goalFormattedTime"'), 'Must include goal 12h display');
+  assert.ok(!indexHtml.includes('reminder-preset-btn'), 'All preset time chip buttons must be removed');
+  assert.ok(!indexHtml.includes('data-reminder-preset'), 'All data-reminder-preset attributes must be removed');
 
   // 3. Verify 12h <-> 24h conversion helpers & localStorage persistence keys
   assert.ok(indexHtml.includes('function normalizeTo24HourTime('), 'Must include normalizeTo24HourTime helper');
