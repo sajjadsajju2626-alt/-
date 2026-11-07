@@ -5,6 +5,7 @@ import {
   getNotificationPermissionStatus,
   requestNotificationPermission,
   formatTimeDisplay,
+  normalizeTo24HourTime,
   dispatchMobileSafeNotification,
   getMobileNotificationDiagnostics,
   registerAdhkarServiceWorker,
@@ -529,7 +530,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
                           ...s,
-                          morningReminderTime: e.target.value,
+                          morningReminderTime: normalizeTo24HourTime(e.target.value, 'morning'),
                         }))
                       }
                       className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
@@ -544,7 +545,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           onClick={() =>
                             onUpdateSettings((s) => ({
                               ...s,
-                              morningReminderTime: time,
+                              morningReminderTime: normalizeTo24HourTime(time, 'morning'),
                             }))
                           }
                           className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
@@ -582,22 +583,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
                           ...s,
-                          eveningReminderTime: e.target.value,
+                          eveningReminderTime: normalizeTo24HourTime(e.target.value, 'evening'),
                         }))
                       }
                       className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
                     />
 
-                    {/* Quick Presets */}
+                    {/* Quick Presets (Includes 14:17 matching 2:17 PM) */}
                     <div className="flex gap-1 mt-2">
-                      {['16:30', '17:30', '18:30'].map((time) => (
+                      {['14:17', '16:30', '17:30', '18:30'].map((time) => (
                         <button
                           key={time}
                           type="button"
                           onClick={() =>
                             onUpdateSettings((s) => ({
                               ...s,
-                              eveningReminderTime: time,
+                              eveningReminderTime: normalizeTo24HourTime(time, 'evening'),
                             }))
                           }
                           className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${
@@ -635,7 +636,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={(e) =>
                         onUpdateSettings((s) => ({
                           ...s,
-                          sleepReminderTime: e.target.value,
+                          sleepReminderTime: normalizeTo24HourTime(e.target.value, 'sleep'),
                         }))
                       }
                       className="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
@@ -650,7 +651,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                           onClick={() =>
                             onUpdateSettings((s) => ({
                               ...s,
-                              sleepReminderTime: time,
+                              sleepReminderTime: normalizeTo24HourTime(time, 'sleep'),
                             }))
                           }
                           className={`flex-1 py-1 text-[10px] font-mono rounded transition-colors cursor-pointer ${

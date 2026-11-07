@@ -375,3 +375,37 @@ test('After Prayer Adhkar cards have distinct itemNumbers, unique audio segment 
   assert.ok(html.includes('audio.dataset.startTime = String(startTime)'), 'Must tag audio instance with startTime');
   assert.ok(html.includes('audio.dataset.endTime = String(endTime)'), 'Must tag audio instance with endTime');
 });
+
+test('index.html and single-file HTML embed dynamic Service Worker registration with Blob fallback, high-priority FCM options, and in-app toast', () => {
+  const indexHtmlPath = path.resolve(process.cwd(), 'index.html');
+  assert.ok(fs.existsSync(indexHtmlPath), 'index.html must exist');
+  const indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
+
+  // Verify index.html embeds dynamic Service Worker registration
+  assert.ok(indexHtml.includes('new Blob([swCode]'), 'index.html must create Blob URL from swCode');
+  assert.ok(indexHtml.includes("navigator.serviceWorker.register('./firebase-messaging-sw.js')"), 'index.html must register ./firebase-messaging-sw.js with catch fallback');
+  assert.ok(indexHtml.includes('navigator.serviceWorker.register(swUrl)'), 'index.html must fall back to registering swUrl Blob');
+  assert.ok(indexHtml.includes('tag: \'mudawama-reminder\''), 'index.html must specify tag: mudawama-reminder');
+  assert.ok(indexHtml.includes('requireInteraction: true'), 'index.html must set requireInteraction: true for wake-up persistence');
+  assert.ok(indexHtml.includes('vibrate: [200, 100, 200]'), 'index.html must specify vibrate pattern [200, 100, 200]');
+  assert.ok(indexHtml.includes('messaging.useServiceWorker(reg)'), 'index.html must bind messaging to registered SW');
+  assert.ok(indexHtml.includes('messaging.onMessage'), 'index.html must configure messaging.onMessage foreground listener');
+  assert.ok(indexHtml.includes('showInAppNotificationToast'), 'index.html must include showInAppNotificationToast celebration handler');
+  assert.ok(indexHtml.includes('id="root"'), 'index.html must preserve root div for React');
+  assert.ok(indexHtml.includes('/src/main.tsx'), 'index.html must preserve Vite main.tsx entry');
+
+  // Verify public/firebase-messaging-sw.js exists
+  const swPath = path.resolve(process.cwd(), 'public/firebase-messaging-sw.js');
+  assert.ok(fs.existsSync(swPath), 'public/firebase-messaging-sw.js must exist on disk');
+  const swContent = fs.readFileSync(swPath, 'utf8');
+  assert.ok(swContent.includes('self.addEventListener(\'push\''), 'firebase-messaging-sw.js must listen for push events');
+  assert.ok(swContent.includes('self.registration.showNotification'), 'firebase-messaging-sw.js must show notification');
+  assert.ok(swContent.includes('self.addEventListener(\'notificationclick\''), 'firebase-messaging-sw.js must listen for notificationclick');
+
+  // Verify single-file generator embeds SW and FCM logic
+  const singleHtml = generateSingleFileHtml();
+  assert.ok(singleHtml.includes('new Blob([swCode]'), 'Single-file HTML must create Blob URL from swCode');
+  assert.ok(singleHtml.includes('requireInteraction: true'), 'Single-file HTML must specify requireInteraction: true');
+  assert.ok(singleHtml.includes('tag: tag || \'mudawama-reminder\''), 'Single-file HTML must tag notifications');
+});
+

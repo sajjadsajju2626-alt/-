@@ -1143,6 +1143,7 @@
                 </div>
                 <input type="time" id="eveningReminderInput" value="17:30" aria-label="Evening Reminder Time" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
                 <div class="flex gap-1 pt-0.5">
+                  <button type="button" data-reminder-preset="evening" data-time="14:17" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">14:17</button>
                   <button type="button" data-reminder-preset="evening" data-time="16:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">16:30</button>
                   <button type="button" data-reminder-preset="evening" data-time="17:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">17:30</button>
                   <button type="button" data-reminder-preset="evening" data-time="18:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">18:30</button>
@@ -4844,16 +4845,708 @@
         });
       }
 
-      // Service Worker + Native Notification + In-App Toast + Audio Chime Engine (kept 100% active)
-      async function registerReminderServiceWorker() {
-        if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
+      // 24-Hour Normalization Helper for Standalone Single-File
+      function normalizeTo24HourTime(timeStr, periodHint) {
+        if (!timeStr || typeof timeStr !== 'string') {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+        const trimmed = timeStr.trim();
+        const isPM = /pm|വൈകുന്നേരം|രാത്രി/i.test(trimmed);
+        const isAM = /am|രാവിലെ|പ്രഭാതം/i.test(trimmed);
+        const match = trimmed.match(/(d{1,2})[:.](d{1,2})/);
+        if (!match) {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        if (isNaN(hours) || isNaN(minutes)) {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+
+        if (isPM) {
+          if (hours < 12) hours += 12;
+        } else if (isAM) {
+          if (hours === 12) hours = 0;
+        } else if (periodHint === 'evening') {
+          if (hours > 0 && hours < 12) hours += 12;
+        } else if (periodHint === 'sleep') {
+          if (hours >= 7 && hours < 12) hours += 12;
+        }
+
+        const safeHours = Math.min(23, Math.max(0, hours));
+        const safeMinutes = Math.min(59, Math.max(0, minutes));
+        return String(safeHours).padStart(2, '0') + ':' + String(safeMinutes).padStart(2, '0');
+      }
+
+      // IndexedDB persistence for Standalone Single-File
+      const REMINDER_DB_NAME = 'mudawama_reminders_db';
+      const REMINDER_STORE_NAME = 'reminder_schedule';
+      const REMINDER_SCHEDULE_KEY = 'current_schedule';
+
+      function openReminderDB() {
+        if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+        return new Promise(function(resolve) {
+          try {
+            const req = indexedDB.open(REMINDER_DB_NAME, 1);
+            req.onupgradeneeded = function() {
+              const db = req.result;
+              if (!db.objectStoreNames.contains(REMINDER_STORE_NAME)) {
+                db.createObjectStore(REMINDER_STORE_NAME);
+              }
+            };
+            req.onsuccess = function() { resolve(req.result); };
+            req.onerror = function() { resolve(null); };
+          } catch (e) {
+            resolve(null);
+          }
+        });
+      }
+
+      async function saveScheduleToIndexedDB(scheduleData) {
         try {
-          const existing = await navigator.serviceWorker.getRegistration('/adhkar-reminder-sw.js');
-          if (existing) return existing;
-          return await navigator.serviceWorker.register('/adhkar-reminder-sw.js');
-        } catch (err) {
+          const db = await openReminderDB();
+          if (!db) return false;
+          return new Promise(function(resolve) {
+            try {
+              const tx = db.transaction(REMINDER_STORE_NAME, 'readwrite');
+              const store = tx.objectStore(REMINDER_STORE_NAME);
+              store.put(scheduleData, REMINDER_SCHEDULE_KEY);
+              tx.oncomplete = function() { db.close(); resolve(true); };
+              tx.onerror = function() { db.close(); resolve(false); };
+            } catch (e) {
+              db.close();
+              resolve(false);
+            }
+          });
+        } catch (e) {
+          return false;
+        }
+      }
+
+      async function syncReminderSchedule() {
+        const schedule = {
+          remindersEnabled: Boolean(state.settings.remindersEnabled),
+          morningReminderTime: normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning'),
+          eveningReminderTime: normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening'),
+          sleepReminderTime: normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep'),
+          goalReminderEnabled: Boolean(state.settings.goalReminderEnabled),
+          dailyGoalReminderTime: normalizeTo24HourTime(state.settings.goalReminderTime || '21:00', 'goal'),
+          lastFiredMorningDate: localStorage.getItem('adhkar_last_morning_notif_date') || '',
+          lastFiredEveningDate: localStorage.getItem('adhkar_last_evening_notif_date') || '',
+          lastFiredSleepDate: localStorage.getItem('adhkar_last_sleep_notif_date') || '',
+          lastFiredGoalDate: localStorage.getItem('adhkar_last_goal_notif_date') || '',
+        };
+
+        void saveScheduleToIndexedDB(schedule);
+
+        if (activeServiceWorkerRegistration) {
+          const target = activeServiceWorkerRegistration.active || activeServiceWorkerRegistration.waiting || activeServiceWorkerRegistration.installing;
+          if (target && typeof target.postMessage === 'function') {
+            target.postMessage({ type: 'SYNC_REMINDER_SCHEDULE', schedule: schedule });
+          }
+        }
+      }
+
+      // Embedded / Dynamic Service Worker Registration for Background Reminders & Push (Single-File Compatible)
+      const swCode = `
+        const DB_NAME = 'mudawama_reminders_db';
+        const STORE_NAME = 'reminder_schedule';
+        const SCHEDULE_KEY = 'current_schedule';
+        const SCHEDULE_CACHE_NAME = 'adhkar-sw-schedule-cache-v1';
+        const SCHEDULE_CACHE_KEY = '/__adhkar_sw_schedule__.json';
+
+        let scheduleState = {
+          remindersEnabled: true,
+          morningReminderTime: '06:00',
+          eveningReminderTime: '17:30',
+          sleepReminderTime: '22:00',
+          goalReminderEnabled: false,
+          dailyGoalReminderTime: '20:00',
+          morningCompleted: false,
+          eveningCompleted: false,
+          sleepCompleted: false,
+          goalCompleted: false,
+          overallDailyProgress: 0,
+          lastFiredMorningDate: '',
+          lastFiredEveningDate: '',
+          lastFiredSleepDate: '',
+          lastFiredGoalDate: '',
+        };
+
+        let checkIntervalId = null;
+        let morningTimeoutId = null;
+        let eveningTimeoutId = null;
+        let sleepTimeoutId = null;
+        let goalTimeoutId = null;
+        const hasRunMinuteFlags = new Set();
+
+        function getTodayDateString(date) {
+          const d = date || new Date();
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return year + '-' + month + '-' + day;
+        }
+
+        function normalizeTo24HourTime(timeStr, periodHint) {
+          if (!timeStr || typeof timeStr !== 'string') {
+            if (periodHint === 'morning') return '06:00';
+            if (periodHint === 'evening') return '17:30';
+            if (periodHint === 'sleep') return '22:00';
+            if (periodHint === 'goal') return '20:00';
+            return '00:00';
+          }
+          const trimmed = timeStr.trim();
+          const isPM = /pm|വൈകുന്നേരം|രാത്രി/i.test(trimmed);
+          const isAM = /am|രാവിലെ|പ്രഭാതം/i.test(trimmed);
+          const match = trimmed.match(/(\\d{1,2})[:.](\\d{1,2})/);
+          if (!match) {
+            if (periodHint === 'morning') return '06:00';
+            if (periodHint === 'evening') return '17:30';
+            if (periodHint === 'sleep') return '22:00';
+            if (periodHint === 'goal') return '20:00';
+            return '00:00';
+          }
+
+          let hours = parseInt(match[1], 10);
+          const minutes = parseInt(match[2], 10);
+          if (isNaN(hours) || isNaN(minutes)) {
+            if (periodHint === 'morning') return '06:00';
+            if (periodHint === 'evening') return '17:30';
+            if (periodHint === 'sleep') return '22:00';
+            if (periodHint === 'goal') return '20:00';
+            return '00:00';
+          }
+
+          if (isPM) {
+            if (hours < 12) hours += 12;
+          } else if (isAM) {
+            if (hours === 12) hours = 0;
+          } else if (periodHint === 'evening') {
+            if (hours > 0 && hours < 12) hours += 12;
+          } else if (periodHint === 'sleep') {
+            if (hours >= 7 && hours < 12) hours += 12;
+          }
+
+          const safeHours = Math.min(23, Math.max(0, hours));
+          const safeMinutes = Math.min(59, Math.max(0, minutes));
+          return String(safeHours).padStart(2, '0') + ':' + String(safeMinutes).padStart(2, '0');
+        }
+
+        function parseTimeString(timeStr, periodHint) {
+          const normalized = normalizeTo24HourTime(timeStr, periodHint);
+          const parts = normalized.split(':');
+          const hours = parseInt(parts[0] || '0', 10);
+          const minutes = parseInt(parts[1] || '0', 10);
+          return {
+            hours: isNaN(hours) ? 0 : Math.min(23, Math.max(0, hours)),
+            minutes: isNaN(minutes) ? 0 : Math.min(59, Math.max(0, minutes)),
+          };
+        }
+
+        function getMsUntilNextTime(timeStr, fromDate, periodHint) {
+          const parsed = parseTimeString(timeStr, periodHint);
+          const targetDate = new Date(fromDate.getTime());
+          targetDate.setHours(parsed.hours, parsed.minutes, 0, 0);
+          if (targetDate.getTime() <= fromDate.getTime()) {
+            targetDate.setDate(targetDate.getDate() + 1);
+          }
+          return targetDate.getTime() - fromDate.getTime();
+        }
+
+        function buildMinuteFlag(period, dateStr, timeStr, periodHint) {
+          const parsed = parseTimeString(timeStr, periodHint);
+          const hh = String(parsed.hours).padStart(2, '0');
+          const mm = String(parsed.minutes).padStart(2, '0');
+          return 'hasRun_' + period + '_' + dateStr + '_' + hh + '_' + mm;
+        }
+
+        function openDB() {
+          if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+          return new Promise(function(resolve) {
+            try {
+              const req = indexedDB.open(DB_NAME, 1);
+              req.onupgradeneeded = function() {
+                const db = req.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                  db.createObjectStore(STORE_NAME);
+                }
+              };
+              req.onsuccess = function() { resolve(req.result); };
+              req.onerror = function() { resolve(null); };
+            } catch (e) {
+              resolve(null);
+            }
+          });
+        }
+
+        async function loadScheduleFromIndexedDB() {
+          try {
+            const db = await openDB();
+            if (!db) return null;
+            return new Promise(function(resolve) {
+              try {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.get(SCHEDULE_KEY);
+                req.onsuccess = function() {
+                  db.close();
+                  if (req.result && typeof req.result === 'object') {
+                    scheduleState = Object.assign({}, scheduleState, req.result);
+                    resolve(scheduleState);
+                  } else {
+                    resolve(null);
+                  }
+                };
+                req.onerror = function() { db.close(); resolve(null); };
+              } catch (e) {
+                db.close();
+                resolve(null);
+              }
+            });
+          } catch (e) {
+            return null;
+          }
+        }
+
+        async function saveScheduleToIndexedDB(state) {
+          try {
+            const db = await openDB();
+            if (!db) return false;
+            return new Promise(function(resolve) {
+              try {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                store.put(state, SCHEDULE_KEY);
+                tx.oncomplete = function() { db.close(); resolve(true); };
+                tx.onerror = function() { db.close(); resolve(false); };
+              } catch (e) {
+                db.close();
+                resolve(false);
+              }
+            });
+          } catch (e) {
+            return false;
+          }
+        }
+
+        async function saveScheduleToCache(state) {
+          try {
+            if (typeof caches === 'undefined') return;
+            const cache = await caches.open(SCHEDULE_CACHE_NAME);
+            const response = new Response(JSON.stringify(state), {
+              headers: { 'Content-Type': 'application/json' },
+            });
+            await cache.put(SCHEDULE_CACHE_KEY, response);
+          } catch (e) {}
+        }
+
+        async function loadScheduleFromCache() {
+          try {
+            if (typeof caches === 'undefined') return null;
+            const cache = await caches.open(SCHEDULE_CACHE_NAME);
+            const res = await cache.match(SCHEDULE_CACHE_KEY);
+            if (!res) return null;
+            const data = await res.json();
+            if (data && typeof data === 'object') {
+              scheduleState = Object.assign({}, scheduleState, data);
+              return scheduleState;
+            }
+          } catch (e) {}
           return null;
         }
+
+        async function persistSchedule(state) {
+          await Promise.all([
+            saveScheduleToIndexedDB(state),
+            saveScheduleToCache(state),
+          ]);
+        }
+
+        async function restoreSchedule() {
+          const fromDB = await loadScheduleFromIndexedDB();
+          if (fromDB) return fromDB;
+          return await loadScheduleFromCache();
+        }
+
+        async function displayServiceWorkerNotification(payload) {
+          if (!self.registration || typeof self.registration.showNotification !== 'function') {
+            return false;
+          }
+          const title = payload.title || 'മുദാവമ • Mudawamah';
+          const options = {
+            body: payload.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
+            icon: './icon.png',
+            badge: './badge.png',
+            tag: payload.tag || 'mudawama-reminder',
+            renotify: true,
+            requireInteraction: true,
+            vibrate: [200, 100, 200],
+            silent: false,
+            timestamp: Date.now(),
+            data: {
+              url: payload.url || ('./?tab=' + encodeURIComponent(payload.targetTab || 'morning')),
+              tab: payload.targetTab || 'morning',
+              period: payload.period || 'morning',
+              time: Date.now(),
+              ...payload.data,
+            },
+            actions: [
+              { action: 'open', title: 'തുറക്കുക (Open)' }
+            ]
+          };
+          try {
+            await self.registration.showNotification(title, options);
+            return true;
+          } catch (e) {
+            return false;
+          }
+        }
+
+        async function broadcastReminderToClients(eventPayload) {
+          try {
+            const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+            for (const client of clientList) {
+              client.postMessage(Object.assign({ type: 'SW_REMINDER_FIRED' }, eventPayload));
+            }
+          } catch (e) {}
+        }
+
+        async function firePeriodNotification(period, timeStr) {
+          const now = new Date();
+          const todayStr = getTodayDateString(now);
+          const flagKey = buildMinuteFlag(period, todayStr, timeStr, period);
+          if (hasRunMinuteFlags.has(flagKey)) return;
+          hasRunMinuteFlags.add(flagKey);
+
+          if (period === 'morning') {
+            if (scheduleState.lastFiredMorningDate === todayStr) return;
+            scheduleState.lastFiredMorningDate = todayStr;
+            await persistSchedule(scheduleState);
+            const payload = {
+              period: 'morning',
+              title: 'Daily Adhkar — Morning (Fajr)',
+              body: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+              targetTab: 'morning',
+              tag: 'mudawama-morning-' + todayStr,
+              icon: './icon.png',
+              badge: './badge.png',
+            };
+            await displayServiceWorkerNotification(payload);
+            await broadcastReminderToClients(payload);
+          } else if (period === 'evening') {
+            if (scheduleState.lastFiredEveningDate === todayStr) return;
+            scheduleState.lastFiredEveningDate = todayStr;
+            await persistSchedule(scheduleState);
+            const payload = {
+              period: 'evening',
+              title: 'Daily Adhkar — Evening (Asr)',
+              body: 'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+              targetTab: 'evening',
+              tag: 'mudawama-evening-' + todayStr,
+              icon: './icon.png',
+              badge: './badge.png',
+            };
+            await displayServiceWorkerNotification(payload);
+            await broadcastReminderToClients(payload);
+          } else if (period === 'sleep') {
+            if (scheduleState.lastFiredSleepDate === todayStr) return;
+            scheduleState.lastFiredSleepDate = todayStr;
+            await persistSchedule(scheduleState);
+            const payload = {
+              period: 'sleep',
+              title: 'Daily Adhkar — Sleep (ഉറങ്ങാൻ നേരം)',
+              body: 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+              targetTab: 'sleep',
+              tag: 'mudawama-sleep-' + todayStr,
+              icon: './icon.png',
+              badge: './badge.png',
+            };
+            await displayServiceWorkerNotification(payload);
+            await broadcastReminderToClients(payload);
+          } else if (period === 'goal') {
+            if (scheduleState.lastFiredGoalDate === todayStr) return;
+            if (scheduleState.goalCompleted) return;
+            scheduleState.lastFiredGoalDate = todayStr;
+            await persistSchedule(scheduleState);
+            const payload = {
+              period: 'goal',
+              title: 'Daily Adhkar — Goal Reminder',
+              body: 'ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯',
+              targetTab: 'morning',
+              tag: 'mudawama-goal-' + todayStr,
+              icon: './icon.png',
+              badge: './badge.png',
+            };
+            await displayServiceWorkerNotification(payload);
+            await broadcastReminderToClients(payload);
+          }
+        }
+
+        function clearPrecisionTimeouts() {
+          if (morningTimeoutId !== null) { clearTimeout(morningTimeoutId); morningTimeoutId = null; }
+          if (eveningTimeoutId !== null) { clearTimeout(eveningTimeoutId); eveningTimeoutId = null; }
+          if (sleepTimeoutId !== null) { clearTimeout(sleepTimeoutId); sleepTimeoutId = null; }
+          if (goalTimeoutId !== null) { clearTimeout(goalTimeoutId); goalTimeoutId = null; }
+        }
+
+        function armPrecisionTimeouts() {
+          clearPrecisionTimeouts();
+          if (scheduleState.remindersEnabled) {
+            const morningTime = normalizeTo24HourTime(scheduleState.morningReminderTime || '06:00', 'morning');
+            const msMorning = getMsUntilNextTime(morningTime, new Date(), 'morning');
+            morningTimeoutId = setTimeout(async function() {
+              await firePeriodNotification('morning', morningTime);
+              armPrecisionTimeouts();
+            }, msMorning);
+
+            const eveningTime = normalizeTo24HourTime(scheduleState.eveningReminderTime || '17:30', 'evening');
+            const msEvening = getMsUntilNextTime(eveningTime, new Date(), 'evening');
+            eveningTimeoutId = setTimeout(async function() {
+              await firePeriodNotification('evening', eveningTime);
+              armPrecisionTimeouts();
+            }, msEvening);
+
+            const sleepTime = normalizeTo24HourTime(scheduleState.sleepReminderTime || '22:00', 'sleep');
+            const msSleep = getMsUntilNextTime(sleepTime, new Date(), 'sleep');
+            sleepTimeoutId = setTimeout(async function() {
+              await firePeriodNotification('sleep', sleepTime);
+              armPrecisionTimeouts();
+            }, msSleep);
+          }
+
+          if (scheduleState.goalReminderEnabled) {
+            const goalTime = normalizeTo24HourTime(scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+            const msGoal = getMsUntilNextTime(goalTime, new Date(), 'goal');
+            goalTimeoutId = setTimeout(async function() {
+              await firePeriodNotification('goal', goalTime);
+              armPrecisionTimeouts();
+            }, msGoal);
+          }
+        }
+
+        function checkEverySecond() {
+          const now = new Date();
+          const h = now.getHours();
+          const m = now.getMinutes();
+          const s = now.getSeconds();
+
+          if (scheduleState.remindersEnabled) {
+            const morningParsed = parseTimeString(scheduleState.morningReminderTime || '06:00', 'morning');
+            if (h === morningParsed.hours && m === morningParsed.minutes && s === 0) {
+              firePeriodNotification('morning', scheduleState.morningReminderTime || '06:00').catch(function() {});
+            }
+            const eveningParsed = parseTimeString(scheduleState.eveningReminderTime || '17:30', 'evening');
+            if (h === eveningParsed.hours && m === eveningParsed.minutes && s === 0) {
+              firePeriodNotification('evening', scheduleState.eveningReminderTime || '17:30').catch(function() {});
+            }
+            const sleepParsed = parseTimeString(scheduleState.sleepReminderTime || '22:00', 'sleep');
+            if (h === sleepParsed.hours && m === sleepParsed.minutes && s === 0) {
+              firePeriodNotification('sleep', scheduleState.sleepReminderTime || '22:00').catch(function() {});
+            }
+          }
+
+          if (scheduleState.goalReminderEnabled) {
+            const goalParsed = parseTimeString(scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+            if (h === goalParsed.hours && m === goalParsed.minutes && s === 0) {
+              firePeriodNotification('goal', scheduleState.dailyGoalReminderTime || '20:00').catch(function() {});
+            }
+          }
+        }
+
+        function ensureBackgroundCheckLoop() {
+          if (checkIntervalId !== null) clearInterval(checkIntervalId);
+          checkIntervalId = setInterval(checkEverySecond, 1000);
+        }
+
+        self.addEventListener('install', function(event) {
+          self.skipWaiting();
+        });
+
+        self.addEventListener('activate', function(event) {
+          event.waitUntil(
+            (async function() {
+              await self.clients.claim();
+              await restoreSchedule();
+              armPrecisionTimeouts();
+              ensureBackgroundCheckLoop();
+            })()
+          );
+        });
+
+        self.addEventListener('push', function(event) {
+          let data = {};
+          if (event.data) {
+            try {
+              data = event.data.json();
+            } catch (e) {
+              data = { notification: { title: 'മുദാവമ • Mudawamah', body: event.data.text() } };
+            }
+          }
+
+          const title = data.notification?.title || data.data?.title || 'മുദാവമ • Mudawamah';
+          const body = data.notification?.body || data.data?.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി';
+          const clickUrl = data.notification?.click_action || data.data?.url || './';
+
+          const options = {
+            body: body,
+            icon: './icon.png',
+            badge: './badge.png',
+            tag: 'mudawama-reminder',
+            renotify: true,
+            requireInteraction: true,
+            vibrate: [200, 100, 200],
+            silent: false,
+            timestamp: Date.now(),
+            data: Object.assign({
+              url: clickUrl,
+              time: Date.now(),
+            }, data),
+            actions: [
+              { action: 'open', title: 'തുറക്കുക (Open)' }
+            ]
+          };
+
+          const broadcastPromise = self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+            clientList.forEach(function(client) {
+              client.postMessage({
+                type: 'FCM_FOREGROUND_PUSH',
+                title: title,
+                body: body,
+                data: data
+              });
+            });
+          }).catch(function() {});
+
+          event.waitUntil(
+            Promise.all([
+              self.registration.showNotification(title, options),
+              broadcastPromise
+            ])
+          );
+        });
+
+        self.addEventListener('notificationclick', function(event) {
+          event.notification.close();
+          const targetTab = (event.notification.data && event.notification.data.tab) || 'morning';
+          const clickUrl = (event.notification.data && event.notification.data.url) || ('./?tab=' + encodeURIComponent(targetTab));
+          event.waitUntil(
+            self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+              for (let i = 0; i < clientList.length; i++) {
+                const client = clientList[i];
+                if ('focus' in client) {
+                  client.postMessage({
+                    type: 'ADHKAR_NOTIFICATION_CLICK',
+                    data: event.notification.data,
+                    tab: targetTab
+                  });
+                  return client.focus();
+                }
+              }
+              if (self.clients.openWindow) {
+                return self.clients.openWindow(clickUrl);
+              }
+            })
+          );
+        });
+
+        self.addEventListener('message', function(event) {
+          const data = event.data;
+          if (!data || typeof data !== 'object') return;
+
+          if (data.type === 'SYNC_REMINDER_SCHEDULE') {
+            event.waitUntil(
+              (async function() {
+                await restoreSchedule();
+                const incoming = data.schedule || {};
+                if (incoming.morningReminderTime && incoming.morningReminderTime !== scheduleState.morningReminderTime) {
+                  hasRunMinuteFlags.clear();
+                }
+                if (incoming.eveningReminderTime && incoming.eveningReminderTime !== scheduleState.eveningReminderTime) {
+                  hasRunMinuteFlags.clear();
+                }
+                if (incoming.sleepReminderTime && incoming.sleepReminderTime !== scheduleState.sleepReminderTime) {
+                  hasRunMinuteFlags.clear();
+                }
+
+                scheduleState = Object.assign({}, scheduleState, incoming, {
+                  morningReminderTime: normalizeTo24HourTime(incoming.morningReminderTime || scheduleState.morningReminderTime, 'morning'),
+                  eveningReminderTime: normalizeTo24HourTime(incoming.eveningReminderTime || scheduleState.eveningReminderTime, 'evening'),
+                  sleepReminderTime: normalizeTo24HourTime(incoming.sleepReminderTime || scheduleState.sleepReminderTime || '22:00', 'sleep'),
+                  dailyGoalReminderTime: normalizeTo24HourTime(incoming.dailyGoalReminderTime || scheduleState.dailyGoalReminderTime || '20:00', 'goal'),
+                });
+
+                await persistSchedule(scheduleState);
+                armPrecisionTimeouts();
+                ensureBackgroundCheckLoop();
+              })()
+            );
+            return;
+          }
+
+          if (data.type === 'SHOW_NOTIFICATION') {
+            event.waitUntil(displayServiceWorkerNotification(data));
+          }
+        });
+      `;
+
+      let activeServiceWorkerRegistration = null;
+
+      async function registerReminderServiceWorker() {
+        if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
+        if (activeServiceWorkerRegistration) return activeServiceWorkerRegistration;
+        try {
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(blob);
+          const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js').catch(function() {
+            return navigator.serviceWorker.register(swUrl);
+          });
+          activeServiceWorkerRegistration = reg;
+          console.log('Background SW registered:', reg.scope);
+          void syncReminderSchedule();
+
+          if (window.firebase && firebase.messaging) {
+            try {
+              const messaging = firebase.messaging();
+              messaging.useServiceWorker(reg);
+              messaging.onMessage(function(payload) {
+                console.log('Foreground FCM message received:', payload);
+                const title = payload.notification?.title || payload.data?.title || 'മുദാവമ • Mudawamah';
+                const body = payload.notification?.body || payload.data?.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി';
+                dispatchMobileSafeNotification(title, body, 'fcm-foreground');
+              });
+            } catch (fcmErr) {
+              console.warn('FCM registration error:', fcmErr);
+            }
+          }
+          return reg;
+        } catch (err) {
+          console.error('SW registration error:', err);
+          return null;
+        }
+      }
+
+      // Initialize background SW registration immediately
+      if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+        registerReminderServiceWorker().catch(function() {});
+        navigator.serviceWorker.addEventListener('message', function(event) {
+          if (event.data && event.data.type === 'FCM_FOREGROUND_PUSH') {
+            dispatchMobileSafeNotification(event.data.title, event.data.body, 'fcm-foreground-msg');
+          }
+        });
       }
 
       async function dispatchMobileSafeNotification(title, body, tag) {
@@ -4870,26 +5563,17 @@
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           if ('serviceWorker' in navigator) {
             try {
-              await registerReminderServiceWorker();
-              const swReadyWithTimeout = Promise.race([
-                navigator.serviceWorker.ready,
-                new Promise(function(_, reject) {
-                  setTimeout(function() { reject(new Error('SW ready timeout (500ms)')); }, 500);
-                })
-              ]);
-              const reg = await swReadyWithTimeout;
+              const reg = await registerReminderServiceWorker();
               if (reg && typeof reg.showNotification === 'function') {
-                await Promise.race([
-                  reg.showNotification(title, {
-                    body: body,
-                    tag: tag,
-                    renotify: true,
-                    requireInteraction: false
-                  }),
-                  new Promise(function(_, reject) {
-                    setTimeout(function() { reject(new Error('SW showNotification timeout (500ms)')); }, 500);
-                  })
-                ]);
+                await reg.showNotification(title, {
+                  body: body,
+                  icon: './icon.png',
+                  badge: './badge.png',
+                  tag: tag || 'mudawama-reminder',
+                  renotify: true,
+                  requireInteraction: true,
+                  vibrate: [200, 100, 200]
+                });
                 deliveredViaSW = true;
               }
             } catch (swErr) {
@@ -4899,7 +5583,7 @@
 
           if (!deliveredViaSW) {
             try {
-              new Notification(title, { body: body, tag: tag });
+              new Notification(title, { body: body, tag: tag, icon: './icon.png' });
               deliveredViaNative = true;
             } catch (nativeErr) {
               deliveredViaNative = false;
@@ -4936,40 +5620,45 @@
           state.settings.remindersEnabled = nextState;
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
 
       if (els.morningReminderInput) {
         els.morningReminderInput.addEventListener('change', function() {
-          state.settings.morningReminderTime = this.value || '06:00';
+          state.settings.morningReminderTime = normalizeTo24HourTime(this.value || '06:00', 'morning');
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
       if (els.eveningReminderInput) {
         els.eveningReminderInput.addEventListener('change', function() {
-          state.settings.eveningReminderTime = this.value || '17:30';
+          state.settings.eveningReminderTime = normalizeTo24HourTime(this.value || '17:30', 'evening');
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
       if (els.sleepReminderInput) {
         els.sleepReminderInput.addEventListener('change', function() {
-          state.settings.sleepReminderTime = this.value || '22:00';
+          state.settings.sleepReminderTime = normalizeTo24HourTime(this.value || '22:00', 'sleep');
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
 
       document.querySelectorAll('.reminder-preset-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
-          const period = this.dataset.period;
+          const period = this.dataset.period || this.dataset.reminderPreset;
           const timeVal = this.dataset.time;
-          if (period === 'morning') state.settings.morningReminderTime = timeVal;
-          else if (period === 'evening') state.settings.eveningReminderTime = timeVal;
-          else if (period === 'sleep') state.settings.sleepReminderTime = timeVal;
+          if (period === 'morning') state.settings.morningReminderTime = normalizeTo24HourTime(timeVal, 'morning');
+          else if (period === 'evening') state.settings.eveningReminderTime = normalizeTo24HourTime(timeVal, 'evening');
+          else if (period === 'sleep') state.settings.sleepReminderTime = normalizeTo24HourTime(timeVal, 'sleep');
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       });
 
@@ -4978,14 +5667,16 @@
           state.settings.goalReminderEnabled = !Boolean(state.settings.goalReminderEnabled);
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
 
       if (els.goalReminderInput) {
         els.goalReminderInput.addEventListener('change', function() {
-          state.settings.goalReminderTime = this.value || '21:00';
+          state.settings.goalReminderTime = normalizeTo24HourTime(this.value || '21:00', 'goal');
           saveState();
           syncSettingsModalUI();
+          void syncReminderSchedule();
         });
       }
 

@@ -158,10 +158,11 @@ export const StreakModal: React.FC<StreakModalProps> = ({
       Boolean(completionTimestamps[dateStr]) ||
       Boolean(
         histRec &&
-          histRec.morningPercent === 100 &&
-          histRec.eveningPercent === 100 &&
-          histRec.prayerPercent === 100 &&
-          histRec.sleepPercent === 100
+          histRec.sections &&
+          histRec.sections.morning === 100 &&
+          histRec.sections.evening === 100 &&
+          histRec.sections.prayer === 100 &&
+          histRec.sections.sleep === 100
       );
 
     return {

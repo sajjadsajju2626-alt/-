@@ -363,3 +363,38 @@ test('Dual-Trigger Step 2: falls back to native new Notification("Daily Adhkar",
     });
   }
 });
+
+test('normalizeTo24HourTime accurately handles 12-hour/24-hour strings, PM suffixes, and evening/sleep contextual hints', () => {
+  // 1. Evening context with 2:17 PM or 2:17 (matching user test case 2:17 PM / 14:17)
+  assert.equal(parseTimeString('2:17 PM', 'evening').hours, 14);
+  assert.equal(parseTimeString('2:17 PM', 'evening').minutes, 17);
+  assert.equal(parseTimeString('02:17 PM', 'evening').hours, 14);
+  assert.equal(parseTimeString('2:17', 'evening').hours, 14);
+  assert.equal(parseTimeString('2:17', 'evening').minutes, 17);
+  assert.equal(parseTimeString('14:17', 'evening').hours, 14);
+  assert.equal(parseTimeString('14:17', 'evening').minutes, 17);
+
+  // 2. Midnight / Noon edge cases
+  assert.equal(parseTimeString('12:15 PM').hours, 12);
+  assert.equal(parseTimeString('12:15 PM').minutes, 15);
+  assert.equal(parseTimeString('12:30 AM').hours, 0);
+  assert.equal(parseTimeString('12:30 AM').minutes, 30);
+
+  // 3. Sleep context with 10:00 -> 22:00
+  assert.equal(parseTimeString('10:00', 'sleep').hours, 22);
+  assert.equal(parseTimeString('10:00', 'sleep').minutes, 0);
+  assert.equal(parseTimeString('22:00', 'sleep').hours, 22);
+  assert.equal(parseTimeString('9:30 PM', 'sleep').hours, 21);
+  assert.equal(parseTimeString('9:30 PM', 'sleep').minutes, 30);
+
+  // 4. Morning context with 05:30 -> 05:30
+  assert.equal(parseTimeString('05:30', 'morning').hours, 5);
+  assert.equal(parseTimeString('05:30', 'morning').minutes, 30);
+  assert.equal(parseTimeString('5:30 AM', 'morning').hours, 5);
+  assert.equal(parseTimeString('5:30 AM', 'morning').minutes, 30);
+
+  // 5. Sleep period minute run flag & message
+  const sleepFlag = buildMinuteRunFlagKey('22:00', 'sleep', '2026-11-07');
+  assert.equal(sleepFlag, 'hasRun_sleep_2026-11-07_22_00');
+  assert.ok(LOCAL_ADHKAR_REMINDER_MESSAGES.sleep.includes('ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകൾ'));
+});

@@ -545,9 +545,55 @@ export default function App() {
             onOpenSettings: () => setIsSettingsOpen(true),
           });
         }
+
+        if (event.data.type === 'FCM_FOREGROUND_PUSH') {
+          const { title, body } = event.data;
+          emitInAppNotification({
+            id: `fcm-${Date.now()}`,
+            title: title || 'മുദാവമ • Mudawamah',
+            body: body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
+            debugToastText: 'പുഷ് നോട്ടിഫിക്കേഷൻ എത്തി! ✓',
+            debugReason: 'Delivered via FCM / Background Service Worker',
+            arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ وَالْمَسَاءِ',
+            malayalamSubtitle: 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
+            targetTab: 'morning',
+            actionLabel: 'Open Daily Adhkar',
+            channel: 'service-worker',
+            timestamp: Date.now(),
+            onClick: () => setCurrentTab('morning'),
+            onOpenSettings: () => setIsSettingsOpen(true),
+          });
+        }
       };
       navigator.serviceWorker.addEventListener('message', handleSwMessage);
-      return () => navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+
+      const handleFcmCustomEvent = (e: Event) => {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail) {
+          const { title, body } = customEvent.detail;
+          emitInAppNotification({
+            id: `fcm-${Date.now()}`,
+            title: title || 'മുദാവമ • Mudawamah',
+            body: body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
+            debugToastText: 'പുഷ് നോട്ടിഫിക്കേഷൻ എത്തി! ✓',
+            debugReason: 'Delivered via FCM Foreground Push',
+            arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ وَالْمَسَاءِ',
+            malayalamSubtitle: 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
+            targetTab: 'morning',
+            actionLabel: 'Open Daily Adhkar',
+            channel: 'service-worker',
+            timestamp: Date.now(),
+            onClick: () => setCurrentTab('morning'),
+            onOpenSettings: () => setIsSettingsOpen(true),
+          });
+        }
+      };
+      window.addEventListener('fcm-foreground-message', handleFcmCustomEvent);
+
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleSwMessage);
+        window.removeEventListener('fcm-foreground-message', handleFcmCustomEvent);
+      };
     }
     return undefined;
   }, []);
@@ -608,10 +654,12 @@ export default function App() {
   const prevReminderTimesRef = useRef<{
     morning: string;
     evening: string;
+    sleep: string;
     goal: string;
   }>({
     morning: settings.morningReminderTime,
     evening: settings.eveningReminderTime,
+    sleep: settings.sleepReminderTime || '22:00',
     goal: settings.dailyGoalReminderTime || '20:00',
   });
 
@@ -619,6 +667,7 @@ export default function App() {
   useEffect(() => {
     const todayStr = getTodayDateString(new Date());
     const goalTimeStr = settings.dailyGoalReminderTime || '20:00';
+    const sleepTimeStr = settings.sleepReminderTime || '22:00';
 
     // Detect if the user changed any reminder time (via input or quick preset pill)
     const prevTimes = prevReminderTimesRef.current;
@@ -638,6 +687,14 @@ export default function App() {
       );
       prevTimes.evening = settings.eveningReminderTime;
     }
+    if (prevTimes.sleep !== sleepTimeStr) {
+      localStorage.removeItem('adhkar_last_sleep_notif_date');
+      hasRunMinuteFlagsRef.current.delete(buildMinuteRunFlagKey(sleepTimeStr));
+      hasRunMinuteFlagsRef.current.delete(
+        buildMinuteRunFlagKey(sleepTimeStr, 'sleep', todayStr)
+      );
+      prevTimes.sleep = sleepTimeStr;
+    }
     if (prevTimes.goal !== goalTimeStr) {
       localStorage.removeItem('adhkar_last_goal_notif_date');
       hasRunMinuteFlagsRef.current.delete(buildMinuteRunFlagKey(goalTimeStr));
@@ -649,21 +706,25 @@ export default function App() {
 
     const lastMorningNotif = localStorage.getItem('adhkar_last_morning_notif_date') || '';
     const lastEveningNotif = localStorage.getItem('adhkar_last_evening_notif_date') || '';
+    const lastSleepNotif = localStorage.getItem('adhkar_last_sleep_notif_date') || '';
     const lastGoalNotif = localStorage.getItem('adhkar_last_goal_notif_date') || '';
 
-    // 1. Sync schedule state with lightweight Service Worker (/sw.js)
+    // 1. Sync schedule state with lightweight Service Worker (/sw.js) & IndexedDB
     void syncScheduleWithServiceWorker({
       remindersEnabled: settings.remindersEnabled,
       morningReminderTime: settings.morningReminderTime,
       eveningReminderTime: settings.eveningReminderTime,
+      sleepReminderTime: sleepTimeStr,
       goalReminderEnabled: settings.goalReminderEnabled,
       dailyGoalReminderTime: goalTimeStr,
       morningCompleted: morningProgress.percent >= 100,
       eveningCompleted: eveningProgress.percent >= 100,
+      sleepCompleted: sleepProgress.percent >= 100,
       goalCompleted: overallDailyProgress >= 100,
       overallDailyProgress,
       lastFiredMorningDate: lastMorningNotif === todayStr ? todayStr : '',
       lastFiredEveningDate: lastEveningNotif === todayStr ? todayStr : '',
+      lastFiredSleepDate: lastSleepNotif === todayStr ? todayStr : '',
       lastFiredGoalDate: lastGoalNotif === todayStr ? todayStr : '',
     });
 
@@ -671,7 +732,7 @@ export default function App() {
 
     // Helper that fires a scheduled reminder once per target minute (gated by hasRun_HH_mm)
     const fireExactScheduledReminder = (
-      period: 'morning' | 'evening' | 'goal',
+      period: 'morning' | 'evening' | 'sleep' | 'goal',
       targetTimeStr: string
     ) => {
       const now = new Date();
@@ -699,6 +760,8 @@ export default function App() {
         localStorage.setItem('adhkar_last_morning_notif_date', currentTodayStr);
       } else if (period === 'evening') {
         localStorage.setItem('adhkar_last_evening_notif_date', currentTodayStr);
+      } else if (period === 'sleep') {
+        localStorage.setItem('adhkar_last_sleep_notif_date', currentTodayStr);
       } else {
         localStorage.setItem('adhkar_last_goal_notif_date', currentTodayStr);
       }
@@ -708,14 +771,17 @@ export default function App() {
         remindersEnabled: settings.remindersEnabled,
         morningReminderTime: settings.morningReminderTime,
         eveningReminderTime: settings.eveningReminderTime,
+        sleepReminderTime: sleepTimeStr,
         goalReminderEnabled: settings.goalReminderEnabled,
         dailyGoalReminderTime: goalTimeStr,
         morningCompleted: morningProgress.percent >= 100,
         eveningCompleted: eveningProgress.percent >= 100,
+        sleepCompleted: sleepProgress.percent >= 100,
         goalCompleted: overallDailyProgress >= 100,
         overallDailyProgress,
         lastFiredMorningDate: localStorage.getItem('adhkar_last_morning_notif_date') || '',
         lastFiredEveningDate: localStorage.getItem('adhkar_last_evening_notif_date') || '',
+        lastFiredSleepDate: localStorage.getItem('adhkar_last_sleep_notif_date') || '',
         lastFiredGoalDate: localStorage.getItem('adhkar_last_goal_notif_date') || '',
       });
 
@@ -753,6 +819,23 @@ export default function App() {
             period: 'evening',
           }
         );
+      } else if (period === 'sleep') {
+        void dispatchMobileSafeNotification(
+          'Daily Adhkar — Sleep (ഉറങ്ങാൻ നേരം)',
+          LOCAL_ADHKAR_REMINDER_MESSAGES.sleep,
+          () => setCurrentTab('sleep'),
+          {
+            arabicSubtitle: 'أَذْكَارُ النَّوْمِ',
+            malayalamSubtitle: 'ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ • Sleep Adhkar',
+            targetTab: 'sleep',
+            actionLabel: 'Recite Sleep Adhkar',
+            tag: `sleep-adhkar-${currentTodayStr}-${targetTimeStr}`,
+            icon: 'icon.png',
+            isCatchUp: false,
+            minutesLate: 0,
+            period: 'sleep',
+          }
+        );
       } else {
         void dispatchMobileSafeNotification(
           'Daily Adhkar — Goal Reminder',
@@ -776,6 +859,7 @@ export default function App() {
     // 2. Precision Millisecond Delay (setTimeout) for exact :00 second execution
     let morningTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let eveningTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let sleepTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let goalTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const armMorningPrecisionTimeout = (referenceNow: Date) => {
@@ -784,7 +868,6 @@ export default function App() {
       const delayMs = getMsUntilNextTime(settings.morningReminderTime, referenceNow);
       morningTimeoutId = setTimeout(() => {
         fireExactScheduledReminder('morning', settings.morningReminderTime);
-        // Immediately reset timer for the same time tomorrow
         armMorningPrecisionTimeout(new Date(Date.now() + 1500));
       }, delayMs);
     };
@@ -795,8 +878,17 @@ export default function App() {
       const delayMs = getMsUntilNextTime(settings.eveningReminderTime, referenceNow);
       eveningTimeoutId = setTimeout(() => {
         fireExactScheduledReminder('evening', settings.eveningReminderTime);
-        // Immediately reset timer for the same time tomorrow
         armEveningPrecisionTimeout(new Date(Date.now() + 1500));
+      }, delayMs);
+    };
+
+    const armSleepPrecisionTimeout = (referenceNow: Date) => {
+      if (sleepTimeoutId !== null) clearTimeout(sleepTimeoutId);
+      if (!settings.remindersEnabled) return;
+      const delayMs = getMsUntilNextTime(sleepTimeStr, referenceNow);
+      sleepTimeoutId = setTimeout(() => {
+        fireExactScheduledReminder('sleep', sleepTimeStr);
+        armSleepPrecisionTimeout(new Date(Date.now() + 1500));
       }, delayMs);
     };
 
@@ -806,7 +898,6 @@ export default function App() {
       const delayMs = getMsUntilNextTime(goalTimeStr, referenceNow);
       goalTimeoutId = setTimeout(() => {
         fireExactScheduledReminder('goal', goalTimeStr);
-        // Immediately reset timer for the same time tomorrow
         armGoalPrecisionTimeout(new Date(Date.now() + 1500));
       }, delayMs);
     };
@@ -814,6 +905,7 @@ export default function App() {
     const initialNow = new Date();
     armMorningPrecisionTimeout(initialNow);
     armEveningPrecisionTimeout(initialNow);
+    armSleepPrecisionTimeout(initialNow);
     armGoalPrecisionTimeout(initialNow);
 
     // 3. High-Frequency Background Fallback (setInterval every 1,000 ms)
@@ -829,6 +921,9 @@ export default function App() {
         }
         if (isExactSecondReminderDue(settings.eveningReminderTime, h, m, s)) {
           fireExactScheduledReminder('evening', settings.eveningReminderTime);
+        }
+        if (isExactSecondReminderDue(sleepTimeStr, h, m, s)) {
+          fireExactScheduledReminder('sleep', sleepTimeStr);
         }
       }
 
@@ -861,8 +956,6 @@ export default function App() {
         isAppReopen: true,
       });
 
-      // Only fire catch-up if the scheduled minute is strictly in the past (minutesLate >= 1)
-      // Exact :00 second triggers are handled by the precision setTimeout + 1,000ms setInterval
       if (!catchUpResult || catchUpResult.minutesLate < 1) return;
 
       if (catchUpResult.period === 'morning') {
@@ -877,14 +970,17 @@ export default function App() {
         remindersEnabled: settings.remindersEnabled,
         morningReminderTime: settings.morningReminderTime,
         eveningReminderTime: settings.eveningReminderTime,
+        sleepReminderTime: sleepTimeStr,
         goalReminderEnabled: settings.goalReminderEnabled,
         dailyGoalReminderTime: goalTimeStr,
         morningCompleted: morningProgress.percent >= 100,
         eveningCompleted: eveningProgress.percent >= 100,
+        sleepCompleted: sleepProgress.percent >= 100,
         goalCompleted: overallDailyProgress >= 100,
         overallDailyProgress,
         lastFiredMorningDate: localStorage.getItem('adhkar_last_morning_notif_date') || '',
         lastFiredEveningDate: localStorage.getItem('adhkar_last_evening_notif_date') || '',
+        lastFiredSleepDate: localStorage.getItem('adhkar_last_sleep_notif_date') || '',
         lastFiredGoalDate: localStorage.getItem('adhkar_last_goal_notif_date') || '',
       });
 
@@ -908,10 +1004,10 @@ export default function App() {
 
     const handleAppReopen = () => {
       if (typeof document === 'undefined' || document.visibilityState === 'visible') {
-        // Re-arm precision timeouts on wake from sleep and check missed periods
         const wakeNow = new Date();
         armMorningPrecisionTimeout(wakeNow);
         armEveningPrecisionTimeout(wakeNow);
+        armSleepPrecisionTimeout(wakeNow);
         armGoalPrecisionTimeout(wakeNow);
         checkMissedCatchUpOnReopen();
       }
@@ -924,6 +1020,7 @@ export default function App() {
     return () => {
       if (morningTimeoutId !== null) clearTimeout(morningTimeoutId);
       if (eveningTimeoutId !== null) clearTimeout(eveningTimeoutId);
+      if (sleepTimeoutId !== null) clearTimeout(sleepTimeoutId);
       if (goalTimeoutId !== null) clearTimeout(goalTimeoutId);
       clearInterval(oneSecondInterval);
       document.removeEventListener('visibilitychange', handleAppReopen);
@@ -934,6 +1031,7 @@ export default function App() {
     settings.remindersEnabled,
     settings.morningReminderTime,
     settings.eveningReminderTime,
+    settings.sleepReminderTime,
     settings.goalReminderEnabled,
     settings.dailyGoalReminderTime,
     morningProgress.percent,

@@ -34,14 +34,81 @@ export function withTimeout<T>(promise: Promise<T>, timeoutMs = 500, timeoutReas
 }
 
 /**
- * Parses "HH:mm" time string into hours and minutes numbers.
+ * Normalizes any 12-hour or 24-hour time string into standard 24-hour "HH:mm" format.
+ * - Handles AM/PM designations: "2:17 PM" -> "14:17", "12:15 PM" -> "12:15", "12:30 AM" -> "00:30"
+ * - In Evening/Sleep contexts without AM/PM: "2:17" -> "14:17", "5:30" -> "17:30", "10:00" -> "22:00"
+ * - Ensures AM/PM mismatches can never suppress reminders.
+ */
+export function normalizeTo24HourTime(
+  timeStr: string,
+  periodHint?: 'morning' | 'evening' | 'sleep' | 'goal'
+): string {
+  if (!timeStr || typeof timeStr !== 'string') {
+    if (periodHint === 'morning') return '06:00';
+    if (periodHint === 'evening') return '17:30';
+    if (periodHint === 'sleep') return '22:00';
+    if (periodHint === 'goal') return '20:00';
+    return '00:00';
+  }
+
+  const trimmed = timeStr.trim();
+  const isPM = /pm|വൈകുന്നേരം|രാത്രി/i.test(trimmed);
+  const isAM = /am|രാവിലെ|പ്രഭാതം/i.test(trimmed);
+
+  const match = trimmed.match(/(\d{1,2})[:.](\d{1,2})/);
+  if (!match) {
+    if (periodHint === 'morning') return '06:00';
+    if (periodHint === 'evening') return '17:30';
+    if (periodHint === 'sleep') return '22:00';
+    if (periodHint === 'goal') return '20:00';
+    return '00:00';
+  }
+
+  let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+
+  if (isNaN(hours) || isNaN(minutes)) {
+    if (periodHint === 'morning') return '06:00';
+    if (periodHint === 'evening') return '17:30';
+    if (periodHint === 'sleep') return '22:00';
+    if (periodHint === 'goal') return '20:00';
+    return '00:00';
+  }
+
+  if (isPM) {
+    if (hours < 12) hours += 12;
+  } else if (isAM) {
+    if (hours === 12) hours = 0;
+  } else if (periodHint === 'evening') {
+    // If entered in Evening context without AM/PM and hours is 1..11 (e.g. 2:17 or 5:30),
+    // it refers to standard afternoon/evening PM time (2:17 -> 14:17, 5:30 -> 17:30)
+    if (hours > 0 && hours < 12) {
+      hours += 12;
+    }
+  } else if (periodHint === 'sleep') {
+    // If entered in Sleep context without AM/PM and hours is 7..11 (e.g. 9:30 or 10:00),
+    // it refers to night PM time (10:00 -> 22:00)
+    if (hours >= 7 && hours < 12) {
+      hours += 12;
+    }
+  }
+
+  const safeHours = Math.min(23, Math.max(0, hours));
+  const safeMinutes = Math.min(59, Math.max(0, minutes));
+
+  return `${String(safeHours).padStart(2, '0')}:${String(safeMinutes).padStart(2, '0')}`;
+}
+
+/**
+ * Parses any time string into hours and minutes numbers, normalized to 24-hour format.
  * Defaults to 00:00 if invalid.
  */
-export function parseTimeString(timeStr: string): ParsedTime {
-  if (!timeStr || typeof timeStr !== 'string') {
-    return { hours: 0, minutes: 0 };
-  }
-  const parts = timeStr.split(':');
+export function parseTimeString(
+  timeStr: string,
+  periodHint?: 'morning' | 'evening' | 'sleep' | 'goal'
+): ParsedTime {
+  const normalized = normalizeTo24HourTime(timeStr, periodHint);
+  const parts = normalized.split(':');
   const hours = parseInt(parts[0] || '0', 10);
   const minutes = parseInt(parts[1] || '0', 10);
 
@@ -101,7 +168,7 @@ export function isExactSecondReminderDue(
  */
 export function buildMinuteRunFlagKey(
   targetTimeStr: string,
-  period?: 'morning' | 'evening' | 'goal',
+  period?: 'morning' | 'evening' | 'sleep' | 'goal',
   dateStr?: string
 ): string {
   const { hours, minutes } = parseTimeString(targetTimeStr);
@@ -175,6 +242,7 @@ export function formatTimeDisplay(timeStr: string): string {
 export const LOCAL_ADHKAR_REMINDER_MESSAGES = {
   morning: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
   evening: 'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+  sleep: 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
   goal: 'ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯',
 } as const;
 
@@ -359,7 +427,7 @@ export interface InAppNotificationEvent {
   channel: NotificationDeliveryChannel;
   isCatchUp?: boolean;
   minutesLate?: number;
-  period?: 'morning' | 'evening' | 'goal';
+  period?: 'morning' | 'evening' | 'sleep' | 'goal';
   timestamp: number;
   onClick?: () => void;
   onOpenSettings?: () => void;
@@ -487,25 +555,132 @@ export interface SwReminderSchedulePayload {
   remindersEnabled: boolean;
   morningReminderTime: string;
   eveningReminderTime: string;
+  sleepReminderTime?: string;
   goalReminderEnabled: boolean;
   dailyGoalReminderTime: string;
   morningCompleted: boolean;
   eveningCompleted: boolean;
+  sleepCompleted?: boolean;
   goalCompleted: boolean;
   overallDailyProgress: number;
   lastFiredMorningDate?: string;
   lastFiredEveningDate?: string;
+  lastFiredSleepDate?: string;
   lastFiredGoalDate?: string;
 }
 
+export const REMINDER_DB_NAME = 'mudawama_reminders_db';
+export const REMINDER_STORE_NAME = 'reminder_schedule';
+export const REMINDER_SCHEDULE_KEY = 'current_schedule';
+
 /**
- * Synchronizes the user's Morning (Fajr) and Evening (Asr) Adhkar schedule with sw.js.
+ * Opens the IndexedDB database for background reminder schedule persistence.
+ * Accessible in both Window and ServiceWorker scopes.
+ */
+export function openReminderDB(): Promise<IDBDatabase | null> {
+  if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open(REMINDER_DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(REMINDER_STORE_NAME)) {
+          db.createObjectStore(REMINDER_STORE_NAME);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/**
+ * Persists the reminder schedule directly into IndexedDB so Service Workers
+ * can read timestamps without depending on active window or postMessage.
+ */
+export async function saveScheduleToIndexedDB(
+  schedule: SwReminderSchedulePayload
+): Promise<boolean> {
+  try {
+    const db = await openReminderDB();
+    if (!db) return false;
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(REMINDER_STORE_NAME, 'readwrite');
+        const store = tx.objectStore(REMINDER_STORE_NAME);
+        store.put(schedule, REMINDER_SCHEDULE_KEY);
+        tx.oncomplete = () => {
+          db.close();
+          resolve(true);
+        };
+        tx.onerror = () => {
+          db.close();
+          resolve(false);
+        };
+      } catch {
+        db.close();
+        resolve(false);
+      }
+    });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Reads the latest reminder schedule from IndexedDB.
+ */
+export async function getScheduleFromIndexedDB(): Promise<SwReminderSchedulePayload | null> {
+  try {
+    const db = await openReminderDB();
+    if (!db) return null;
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(REMINDER_STORE_NAME, 'readonly');
+        const store = tx.objectStore(REMINDER_STORE_NAME);
+        const req = store.get(REMINDER_SCHEDULE_KEY);
+        req.onsuccess = () => {
+          db.close();
+          resolve(req.result || null);
+        };
+        req.onerror = () => {
+          db.close();
+          resolve(null);
+        };
+      } catch {
+        db.close();
+        resolve(null);
+      }
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Synchronizes the user's Morning, Evening, Sleep, and Goal schedule with both
+ * IndexedDB (for persistent background access) and Service Worker via postMessage.
  * Wrapped in a 500ms timeout so it never hangs if sw.js is missing.
  */
 export async function syncScheduleWithServiceWorker(
   schedule: SwReminderSchedulePayload,
   evaluateImmediately = false
 ): Promise<boolean> {
+  // Normalize all reminder times to 24-hour format
+  const normalizedSchedule: SwReminderSchedulePayload = {
+    ...schedule,
+    morningReminderTime: normalizeTo24HourTime(schedule.morningReminderTime, 'morning'),
+    eveningReminderTime: normalizeTo24HourTime(schedule.eveningReminderTime, 'evening'),
+    sleepReminderTime: normalizeTo24HourTime(schedule.sleepReminderTime || '22:00', 'sleep'),
+    dailyGoalReminderTime: normalizeTo24HourTime(schedule.dailyGoalReminderTime || '20:00', 'goal'),
+  };
+
+  // 1. Persist directly to IndexedDB
+  void saveScheduleToIndexedDB(normalizedSchedule);
+
+  // 2. Transmit to Service Worker
   try {
     const reg = await getReadyServiceWorkerWithin500ms(500);
     const targetWorker =
@@ -519,7 +694,7 @@ export async function syncScheduleWithServiceWorker(
     if (targetWorker && typeof targetWorker.postMessage === 'function') {
       targetWorker.postMessage({
         type: 'SYNC_REMINDER_SCHEDULE',
-        schedule,
+        schedule: normalizedSchedule,
         evaluateImmediately,
       });
       return true;
@@ -657,7 +832,7 @@ export interface AdhkarNotificationOptions {
   icon?: string;
   isCatchUp?: boolean;
   minutesLate?: number;
-  period?: 'morning' | 'evening' | 'goal';
+  period?: 'morning' | 'evening' | 'sleep' | 'goal';
   onOpenSettings?: () => void;
 }
 
