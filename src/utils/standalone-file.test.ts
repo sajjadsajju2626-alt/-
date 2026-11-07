@@ -429,7 +429,13 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
 
   // 4. Verify Service Worker registration, postMessage sync, and 24-hour HH:mm clock comparison
   assert.ok(indexHtml.includes('new Blob([swCode]'), 'index.html must create Blob URL fallback from swCode');
-  assert.ok(indexHtml.includes("navigator.serviceWorker.register('./firebase-messaging-sw.js')"), 'index.html must register ./firebase-messaging-sw.js with Blob fallback');
+  assert.ok(
+    indexHtml.includes("navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now())"),
+    'index.html must register ./firebase-messaging-sw.js with cache-busting query parameter'
+  );
+  assert.ok(indexHtml.includes("const APP_VERSION = 'v1.0.2-' + Date.now();"), 'index.html must define APP_VERSION constant');
+  assert.ok(indexHtml.includes('reg.update()'), 'index.html must call reg.update() to force fetch latest Service Worker file');
+  assert.ok(indexHtml.includes('http-equiv="Cache-Control"'), 'index.html must specify cache control meta header');
   assert.ok(indexHtml.includes("type: 'SYNC_REMINDER_SCHEDULE'"), 'index.html must sync reminder schedule to Service Worker via postMessage');
   assert.ok(indexHtml.includes('now.toTimeString().slice(0, 5)'), 'Must compare current clock time via toTimeString().slice(0, 5)');
 

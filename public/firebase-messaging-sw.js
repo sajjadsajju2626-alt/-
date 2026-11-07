@@ -9,7 +9,7 @@
  * - Wakes up Android / background workers even after swipe away from recent apps
  */
 
-const SW_VERSION = 'mudawama-sw-v4';
+const SW_VERSION = 'mudawama-sw-v1.0.2';
 const DB_NAME = 'mudawama_reminders_db';
 const STORE_NAME = 'reminder_schedule';
 const SCHEDULE_KEY = 'current_schedule';

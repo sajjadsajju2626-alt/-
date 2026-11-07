@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Daily Adhkar (مداومة) - Morning, Evening & Daily Remembrances</title>
   <meta name="description" content="Authentic daily morning and evening adhkar, after-prayer remembrances, sleep adhkar, daily Islamic tasks with weekly/monthly audit, and digital tasbih with Arabic text, transliteration, English & Malayalam translations. Single-file offline version.">
   <meta name="theme-color" content="#064e3b">
@@ -1350,6 +1353,12 @@
           <p class="text-[11px] text-slate-500 text-center mt-1.5">Saves this complete app as a single .html file that runs 100% offline with zero dependencies on any phone or computer.</p>
         </div>
 
+        <div class="pt-3 text-center border-t border-slate-100 dark:border-slate-800">
+          <p class="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+            മുദാവമ • Mudawamah <span id="appVersionBadge">v1.0.2</span>
+          </p>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1513,6 +1522,9 @@
   <!-- APP CLIENT SCRIPT -->
   <script>
     (function() {
+      const APP_VERSION = 'v1.0.2-' + Date.now();
+      window.APP_VERSION = APP_VERSION;
+
       // 1. Audio Synthesizer (Zero External Audio Files Required)
       let audioCtx = null;
       function getAudioContext() {
@@ -5099,6 +5111,10 @@
       }
 
       function syncSettingsModalUI() {
+        const verBadge = document.getElementById('appVersionBadge');
+        if (verBadge && typeof APP_VERSION !== 'undefined') {
+          verBadge.textContent = APP_VERSION;
+        }
         els.toggleTranslit.checked = state.settings.showTransliteration;
         els.toggleTrans.checked = state.settings.showTranslation;
         els.toggleVirtues.checked = state.settings.showVirtues;
@@ -5780,13 +5796,20 @@
 
         swRegistrationPromise = (async function() {
           try {
-            const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js');
+            const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now());
+            if (reg && typeof reg.update === 'function') {
+              reg.update().catch(function() {}); // Forces browser to fetch the newest worker file
+            }
             return reg;
           } catch (fileErr) {
             try {
               const blob = new Blob([swCode], { type: 'application/javascript' });
               const swBlobUrl = URL.createObjectURL(blob);
-              return await navigator.serviceWorker.register(swBlobUrl);
+              const reg = await navigator.serviceWorker.register(swBlobUrl);
+              if (reg && typeof reg.update === 'function') {
+                reg.update().catch(function() {});
+              }
+              return reg;
             } catch (blobErr) {
               return null;
             }
@@ -5797,11 +5820,21 @@
       }
 
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          registerReminderServiceWorker().then(function() {
-            syncRemindersWithServiceWorker();
-          });
-        });
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now())
+            .then((reg) => {
+              reg.update(); // Forces browser to fetch the newest worker file
+              syncRemindersWithServiceWorker();
+            })
+            .catch(function() {
+              registerReminderServiceWorker().then(function(reg) {
+                if (reg && typeof reg.update === 'function') {
+                  reg.update().catch(function() {});
+                }
+                syncRemindersWithServiceWorker();
+              });
+            });
+        }
 
         navigator.serviceWorker.addEventListener('message', function(event) {
           const data = event.data || {};
