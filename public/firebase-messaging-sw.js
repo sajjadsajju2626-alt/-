@@ -263,7 +263,7 @@ async function displayServiceWorkerNotification(payload) {
     body: payload.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
     icon: payload.icon || './icon.png',
     badge: payload.badge || './badge.png',
-    tag: payload.tag || 'mudawama-reminder',
+    tag: payload.tag || 'adhkar-scheduled',
     renotify: true,
     requireInteraction: true,
     vibrate: [200, 100, 200],
@@ -316,64 +316,72 @@ async function firePeriodNotification(period, timeStr) {
   }
   hasRunMinuteFlags.add(flagKey);
 
+  if (!scheduleState.lastNotified || typeof scheduleState.lastNotified !== 'object') {
+    scheduleState.lastNotified = { morning: '', evening: '', sleep: '', goal: '' };
+  }
+
   if (period === 'morning') {
-    if (scheduleState.lastFiredMorningDate === todayStr) return;
+    if (scheduleState.lastFiredMorningDate === todayStr || scheduleState.lastNotified.morning === todayStr) return;
     scheduleState.lastFiredMorningDate = todayStr;
+    scheduleState.lastNotified.morning = todayStr;
     await persistSchedule(scheduleState);
 
     const notifPayload = {
       period: 'morning',
-      title: 'Daily Adhkar — Morning (Fajr)',
-      body: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+      title: 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
+      body: 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
       arabicSubtitle: 'أَذْكَارُ الصَّبَاحِ (الفجر)',
-      malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ (ഫജ്റ്) • Morning Adhkar',
+      malayalamSubtitle: 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
       targetTab: 'morning',
-      tag: `mudawama-morning-${todayStr}`,
+      tag: 'adhkar-scheduled',
       icon: './icon.png',
       badge: './badge.png',
     };
     await displayServiceWorkerNotification(notifPayload);
     await broadcastReminderToClients(notifPayload);
   } else if (period === 'evening') {
-    if (scheduleState.lastFiredEveningDate === todayStr) return;
+    if (scheduleState.lastFiredEveningDate === todayStr || scheduleState.lastNotified.evening === todayStr) return;
     scheduleState.lastFiredEveningDate = todayStr;
+    scheduleState.lastNotified.evening = todayStr;
     await persistSchedule(scheduleState);
 
     const notifPayload = {
       period: 'evening',
-      title: 'Daily Adhkar — Evening (Asr)',
-      body: 'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+      title: 'പ്രദോഷ ദിക്റുകൾ • Evening Adhkar',
+      body: 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
       arabicSubtitle: 'أَذْكَارُ الْمَسَاءِ (العصر)',
-      malayalamSubtitle: 'സായാഹ്ന ദിക്റുകൾ (അസർ) • Evening Adhkar',
+      malayalamSubtitle: 'പ്രദോഷ ദിക്റുകൾ • Evening Adhkar',
       targetTab: 'evening',
-      tag: `mudawama-evening-${todayStr}`,
+      tag: 'adhkar-scheduled',
       icon: './icon.png',
       badge: './badge.png',
     };
     await displayServiceWorkerNotification(notifPayload);
     await broadcastReminderToClients(notifPayload);
   } else if (period === 'sleep') {
-    if (scheduleState.lastFiredSleepDate === todayStr) return;
+    if (scheduleState.lastFiredSleepDate === todayStr || scheduleState.lastNotified.sleep === todayStr) return;
     scheduleState.lastFiredSleepDate = todayStr;
+    scheduleState.lastNotified.sleep = todayStr;
     await persistSchedule(scheduleState);
 
     const notifPayload = {
       period: 'sleep',
-      title: 'Daily Adhkar — Sleep (ഉറങ്ങാൻ നേരം)',
-      body: 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+      title: 'ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar',
+      body: 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.',
       arabicSubtitle: 'أَذْكَارُ النَّوْمِ',
-      malayalamSubtitle: 'ഉറങ്ങാൻ നേരമുള്ള ദിക്റുകൾ • Sleep Adhkar',
+      malayalamSubtitle: 'ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar',
       targetTab: 'sleep',
-      tag: `mudawama-sleep-${todayStr}`,
+      tag: 'adhkar-scheduled',
       icon: './icon.png',
       badge: './badge.png',
     };
     await displayServiceWorkerNotification(notifPayload);
     await broadcastReminderToClients(notifPayload);
   } else if (period === 'goal') {
-    if (scheduleState.lastFiredGoalDate === todayStr) return;
+    if (scheduleState.lastFiredGoalDate === todayStr || scheduleState.lastNotified.goal === todayStr) return;
     if (scheduleState.goalCompleted) return;
     scheduleState.lastFiredGoalDate = todayStr;
+    scheduleState.lastNotified.goal = todayStr;
     await persistSchedule(scheduleState);
 
     const notifPayload = {
@@ -383,7 +391,7 @@ async function firePeriodNotification(period, timeStr) {
       arabicSubtitle: 'تَذْكِيرُ الْأَهْدَافِ الْيَوْمِيَّةِ',
       malayalamSubtitle: 'ഇന്നത്തെ ലക്ഷ്യം പൂർത്തിയാക്കാം',
       targetTab: 'morning',
-      tag: `mudawama-goal-${todayStr}`,
+      tag: 'adhkar-scheduled',
       icon: './icon.png',
       badge: './badge.png',
     };
@@ -450,33 +458,32 @@ function armPrecisionTimeouts() {
   }
 }
 
-function checkEverySecond() {
-  const now = new Date();
-  const h = now.getHours();
-  const m = now.getMinutes();
-  const s = now.getSeconds();
+function checkScheduledAlarms() {
+  const currentTime = new Date().toTimeString().slice(0, 5);
+  const rem = scheduleState.adhkar_reminders || {};
+  const isEnabled = typeof rem.enabled === 'boolean' ? rem.enabled : Boolean(scheduleState.remindersEnabled);
 
-  if (scheduleState.remindersEnabled) {
-    const morningParsed = parseTimeString(scheduleState.morningReminderTime || '06:00', 'morning');
-    if (h === morningParsed.hours && m === morningParsed.minutes && s === 0) {
-      firePeriodNotification('morning', scheduleState.morningReminderTime || '06:00').catch(() => {});
+  if (isEnabled) {
+    const morningTarget = normalizeTo24HourTime(rem.morning || scheduleState.morningReminderTime || '06:00', 'morning');
+    if (currentTime === morningTarget) {
+      firePeriodNotification('morning', morningTarget).catch(() => {});
     }
 
-    const eveningParsed = parseTimeString(scheduleState.eveningReminderTime || '17:30', 'evening');
-    if (h === eveningParsed.hours && m === eveningParsed.minutes && s === 0) {
-      firePeriodNotification('evening', scheduleState.eveningReminderTime || '17:30').catch(() => {});
+    const eveningTarget = normalizeTo24HourTime(rem.evening || scheduleState.eveningReminderTime || '17:30', 'evening');
+    if (currentTime === eveningTarget) {
+      firePeriodNotification('evening', eveningTarget).catch(() => {});
     }
 
-    const sleepParsed = parseTimeString(scheduleState.sleepReminderTime || '22:00', 'sleep');
-    if (h === sleepParsed.hours && m === sleepParsed.minutes && s === 0) {
-      firePeriodNotification('sleep', scheduleState.sleepReminderTime || '22:00').catch(() => {});
+    const sleepTarget = normalizeTo24HourTime(rem.sleep || scheduleState.sleepReminderTime || '22:00', 'sleep');
+    if (currentTime === sleepTarget) {
+      firePeriodNotification('sleep', sleepTarget).catch(() => {});
     }
   }
 
-  if (scheduleState.goalReminderEnabled) {
-    const goalParsed = parseTimeString(scheduleState.dailyGoalReminderTime || '20:00', 'goal');
-    if (h === goalParsed.hours && m === goalParsed.minutes && s === 0) {
-      firePeriodNotification('goal', scheduleState.dailyGoalReminderTime || '20:00').catch(() => {});
+  if (scheduleState.goalReminderEnabled || rem.goalEnabled) {
+    const goalTarget = normalizeTo24HourTime(rem.goal || scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+    if (currentTime === goalTarget) {
+      firePeriodNotification('goal', goalTarget).catch(() => {});
     }
   }
 }
@@ -485,7 +492,8 @@ function ensureBackgroundCheckLoop() {
   if (checkIntervalId !== null) {
     clearInterval(checkIntervalId);
   }
-  checkIntervalId = setInterval(checkEverySecond, 1000);
+  checkScheduledAlarms();
+  checkIntervalId = setInterval(checkScheduledAlarms, 15000);
 }
 
 self.addEventListener('install', () => {
@@ -501,6 +509,17 @@ self.addEventListener('activate', (event) => {
       ensureBackgroundCheckLoop();
     })()
   );
+});
+
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'adhkar-scheduled-check' || event.tag === 'mudawama-reminder-sync') {
+    event.waitUntil(
+      (async () => {
+        await restoreSchedule();
+        checkScheduledAlarms();
+      })()
+    );
+  }
 });
 
 self.addEventListener('push', function(event) {
@@ -588,37 +607,55 @@ self.addEventListener('message', (event) => {
   const data = event.data;
   if (!data || typeof data !== 'object') return;
 
-  if (data.type === 'SYNC_REMINDER_SCHEDULE') {
+  if (data.type === 'SYNC_REMINDER_SCHEDULE' || data.type === 'UPDATE_ADHKAR_REMINDERS') {
     event.waitUntil(
       (async () => {
         await restoreSchedule();
         const incoming = data.schedule || {};
-        if (
-          incoming.morningReminderTime &&
-          incoming.morningReminderTime !== scheduleState.morningReminderTime
-        ) {
+        const incomingRem = data.adhkar_reminders || incoming.adhkar_reminders || {};
+        const incomingLastNotified = data.lastNotified || incoming.lastNotified || {};
+
+        const nextMorning = normalizeTo24HourTime(incomingRem.morning || incoming.morningReminderTime || scheduleState.morningReminderTime, 'morning');
+        const nextEvening = normalizeTo24HourTime(incomingRem.evening || incoming.eveningReminderTime || scheduleState.eveningReminderTime, 'evening');
+        const nextSleep = normalizeTo24HourTime(incomingRem.sleep || incoming.sleepReminderTime || scheduleState.sleepReminderTime || '22:00', 'sleep');
+        const nextGoal = normalizeTo24HourTime(incomingRem.goal || incoming.dailyGoalReminderTime || scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+
+        if (nextMorning !== scheduleState.morningReminderTime) {
           hasRunMinuteFlags.clear();
+          scheduleState.lastFiredMorningDate = '';
         }
-        if (
-          incoming.eveningReminderTime &&
-          incoming.eveningReminderTime !== scheduleState.eveningReminderTime
-        ) {
+        if (nextEvening !== scheduleState.eveningReminderTime) {
           hasRunMinuteFlags.clear();
+          scheduleState.lastFiredEveningDate = '';
         }
-        if (
-          incoming.sleepReminderTime &&
-          incoming.sleepReminderTime !== scheduleState.sleepReminderTime
-        ) {
+        if (nextSleep !== scheduleState.sleepReminderTime) {
           hasRunMinuteFlags.clear();
+          scheduleState.lastFiredSleepDate = '';
+        }
+        if (nextGoal !== scheduleState.dailyGoalReminderTime) {
+          hasRunMinuteFlags.clear();
+          scheduleState.lastFiredGoalDate = '';
         }
 
         scheduleState = {
           ...scheduleState,
           ...incoming,
-          morningReminderTime: normalizeTo24HourTime(incoming.morningReminderTime || scheduleState.morningReminderTime, 'morning'),
-          eveningReminderTime: normalizeTo24HourTime(incoming.eveningReminderTime || scheduleState.eveningReminderTime, 'evening'),
-          sleepReminderTime: normalizeTo24HourTime(incoming.sleepReminderTime || scheduleState.sleepReminderTime || '22:00', 'sleep'),
-          dailyGoalReminderTime: normalizeTo24HourTime(incoming.dailyGoalReminderTime || scheduleState.dailyGoalReminderTime || '20:00', 'goal'),
+          morningReminderTime: nextMorning,
+          eveningReminderTime: nextEvening,
+          sleepReminderTime: nextSleep,
+          dailyGoalReminderTime: nextGoal,
+          adhkar_reminders: {
+            morning: nextMorning,
+            evening: nextEvening,
+            sleep: nextSleep,
+            goal: nextGoal,
+            enabled: typeof incomingRem.enabled === 'boolean' ? incomingRem.enabled : Boolean(incoming.remindersEnabled),
+            goalEnabled: typeof incomingRem.goalEnabled === 'boolean' ? incomingRem.goalEnabled : Boolean(incoming.goalReminderEnabled),
+          },
+          lastNotified: {
+            ...(scheduleState.lastNotified || {}),
+            ...incomingLastNotified,
+          },
         };
 
         await persistSchedule(scheduleState);

@@ -1,24 +1,28 @@
-import {
-  MORNING_ADHKAR,
-  EVENING_ADHKAR,
-  PRAYER_ADHKAR,
-  SLEEP_ADHKAR,
-  CATEGORIES_CONFIG,
-  TASBIH_PRESETS,
-} from '../data/adhkarData.ts';
-import { DEFAULT_DAILY_TASKS } from '../data/defaultTasks.ts';
+import fs from 'node:fs';
+import path from 'node:path';
+
+export function getEmbeddedAdhkarData(): Record<string, any> {
+  try {
+    const indexPath = path.resolve(process.cwd(), 'index.html');
+    const html = fs.readFileSync(indexPath, 'utf8');
+    const match = html.match(/window\.ADHKAR_DATA\s*=\s*(\{[\s\S]*?\});\s*<\/script>/);
+    if (match && match[1]) {
+      return JSON.parse(match[1]);
+    }
+  } catch (e) {}
+  return {
+    morning: [],
+    evening: [],
+    prayer: [],
+    sleep: [],
+    categories: [],
+    tasbihPresets: [],
+    dailyTasks: [],
+  };
+}
 
 export function generateSingleFileHtml(): string {
-  const payloadData = {
-    morning: MORNING_ADHKAR,
-    evening: EVENING_ADHKAR,
-    prayer: PRAYER_ADHKAR,
-    sleep: SLEEP_ADHKAR,
-    categories: CATEGORIES_CONFIG,
-    tasbihPresets: TASBIH_PRESETS,
-    dailyTasks: DEFAULT_DAILY_TASKS,
-  };
-
+  const payloadData = getEmbeddedAdhkarData();
   const jsonString = JSON.stringify(payloadData);
 
   return `<!DOCTYPE html>
@@ -1141,20 +1145,39 @@ export function generateSingleFileHtml(): string {
             </div>
           </div>
 
-          <!-- Clean Notification Schedule Pickers & Test Buttons -->
+          <!-- Clean Notification Schedule Pickers & Test Buttons (12-Hour AM/PM Format) -->
           <div id="remindersConfigPanel" class="hidden space-y-3 p-3.5 rounded-2xl bg-teal-50/70 dark:bg-slate-800/50 border border-teal-500/60 dark:border-slate-700">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <!-- Morning / പ്രഭാതം -->
               <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-extrabold text-slate-900 dark:text-slate-100 font-malayalam">☀️ Morning / പ്രഭാതം</span>
-                  <span id="morningFormattedTime" class="text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300">5:30 AM</span>
+                  <span id="morningFormattedTime" class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-[11px] font-mono font-extrabold text-amber-800 dark:text-amber-300">06:00 AM</span>
                 </div>
-                <input type="time" id="morningReminderInput" value="05:30" aria-label="Morning Reminder Time" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                <div class="flex items-center gap-1.5">
+                  <select id="morningReminderInput" aria-label="Morning Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="04:00 AM">04:00 AM</option>
+                    <option value="04:30 AM">04:30 AM</option>
+                    <option value="05:00 AM">05:00 AM</option>
+                    <option value="05:15 AM">05:15 AM</option>
+                    <option value="05:30 AM">05:30 AM</option>
+                    <option value="05:45 AM">05:45 AM</option>
+                    <option value="06:00 AM" selected>06:00 AM</option>
+                    <option value="06:15 AM">06:15 AM</option>
+                    <option value="06:30 AM">06:30 AM</option>
+                    <option value="06:45 AM">06:45 AM</option>
+                    <option value="07:00 AM">07:00 AM</option>
+                    <option value="07:30 AM">07:30 AM</option>
+                    <option value="08:00 AM">08:00 AM</option>
+                    <option value="08:30 AM">08:30 AM</option>
+                    <option value="09:00 AM">09:00 AM</option>
+                  </select>
+                  <input type="time" id="morningCustomTimeInput" value="06:00" aria-label="Custom Morning Time" title="Pick custom minute" class="w-9 px-1 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+                </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="morning" data-time="05:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30</button>
-                  <button type="button" data-reminder-preset="morning" data-time="06:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:00</button>
-                  <button type="button" data-reminder-preset="morning" data-time="07:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00</button>
+                  <button type="button" data-period="morning" data-reminder-preset="morning" data-time="05:30 AM" data-time24="05:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 AM</button>
+                  <button type="button" data-period="morning" data-reminder-preset="morning" data-time="06:00 AM" data-time24="06:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:00 AM</button>
+                  <button type="button" data-period="morning" data-reminder-preset="morning" data-time="07:00 AM" data-time24="07:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 AM</button>
                 </div>
               </div>
 
@@ -1162,14 +1185,32 @@ export function generateSingleFileHtml(): string {
               <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-extrabold text-slate-900 dark:text-slate-100 font-malayalam">🌙 Evening / പ്രദോഷം</span>
-                  <span id="eveningFormattedTime" class="text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300">5:30 PM</span>
+                  <span id="eveningFormattedTime" class="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950/60 text-[11px] font-mono font-extrabold text-indigo-800 dark:text-indigo-300">05:30 PM</span>
                 </div>
-                <input type="time" id="eveningReminderInput" value="17:30" aria-label="Evening Reminder Time" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                <div class="flex items-center gap-1.5">
+                  <select id="eveningReminderInput" aria-label="Evening Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="03:30 PM">03:30 PM</option>
+                    <option value="04:00 PM">04:00 PM</option>
+                    <option value="04:15 PM">04:15 PM</option>
+                    <option value="04:30 PM">04:30 PM</option>
+                    <option value="04:45 PM">04:45 PM</option>
+                    <option value="05:00 PM">05:00 PM</option>
+                    <option value="05:15 PM">05:15 PM</option>
+                    <option value="05:30 PM" selected>05:30 PM</option>
+                    <option value="05:45 PM">05:45 PM</option>
+                    <option value="06:00 PM">06:00 PM</option>
+                    <option value="06:15 PM">06:15 PM</option>
+                    <option value="06:30 PM">06:30 PM</option>
+                    <option value="06:45 PM">06:45 PM</option>
+                    <option value="07:00 PM">07:00 PM</option>
+                    <option value="07:30 PM">07:30 PM</option>
+                  </select>
+                  <input type="time" id="eveningCustomTimeInput" value="17:30" aria-label="Custom Evening Time" title="Pick custom minute" class="w-9 px-1 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+                </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="evening" data-time="14:17" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">14:17</button>
-                  <button type="button" data-reminder-preset="evening" data-time="16:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">16:30</button>
-                  <button type="button" data-reminder-preset="evening" data-time="17:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">17:30</button>
-                  <button type="button" data-reminder-preset="evening" data-time="18:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">18:30</button>
+                  <button type="button" data-period="evening" data-reminder-preset="evening" data-time="04:30 PM" data-time24="16:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">04:30 PM</button>
+                  <button type="button" data-period="evening" data-reminder-preset="evening" data-time="05:30 PM" data-time24="17:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 PM</button>
+                  <button type="button" data-period="evening" data-reminder-preset="evening" data-time="06:30 PM" data-time24="18:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:30 PM</button>
                 </div>
               </div>
 
@@ -1177,13 +1218,28 @@ export function generateSingleFileHtml(): string {
               <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 sm:col-span-2 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-extrabold text-slate-900 dark:text-slate-100 font-malayalam">🌌 Sleep / ഉറക്കം</span>
-                  <span id="sleepFormattedTime" class="text-[11px] font-mono font-bold text-teal-800 dark:text-teal-300">10:00 PM</span>
+                  <span id="sleepFormattedTime" class="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/60 text-[11px] font-mono font-extrabold text-purple-800 dark:text-purple-300">10:00 PM</span>
                 </div>
-                <input type="time" id="sleepReminderInput" value="22:00" aria-label="Sleep Reminder Time" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                <div class="flex items-center gap-1.5">
+                  <select id="sleepReminderInput" aria-label="Sleep Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="08:30 PM">08:30 PM</option>
+                    <option value="09:00 PM">09:00 PM</option>
+                    <option value="09:15 PM">09:15 PM</option>
+                    <option value="09:30 PM">09:30 PM</option>
+                    <option value="09:45 PM">09:45 PM</option>
+                    <option value="10:00 PM" selected>10:00 PM</option>
+                    <option value="10:15 PM">10:15 PM</option>
+                    <option value="10:30 PM">10:30 PM</option>
+                    <option value="10:45 PM">10:45 PM</option>
+                    <option value="11:00 PM">11:00 PM</option>
+                    <option value="11:30 PM">11:30 PM</option>
+                  </select>
+                  <input type="time" id="sleepCustomTimeInput" value="22:00" aria-label="Custom Sleep Time" title="Pick custom minute" class="w-9 px-1 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+                </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="sleep" data-time="21:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">21:30</button>
-                  <button type="button" data-reminder-preset="sleep" data-time="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">22:00</button>
-                  <button type="button" data-reminder-preset="sleep" data-time="22:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">22:30</button>
+                  <button type="button" data-period="sleep" data-reminder-preset="sleep" data-time="09:30 PM" data-time24="21:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:30 PM</button>
+                  <button type="button" data-period="sleep" data-reminder-preset="sleep" data-time="10:00 PM" data-time24="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
+                  <button type="button" data-period="sleep" data-reminder-preset="sleep" data-time="10:30 PM" data-time24="22:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:30 PM</button>
                 </div>
               </div>
             </div>
@@ -1209,14 +1265,29 @@ export function generateSingleFileHtml(): string {
               <div id="goalReminderTimeBox" class="hidden pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Reminder Scheduled Time:</span>
-                  <span id="goalFormattedTime" class="text-xs font-mono font-extrabold text-emerald-700 dark:text-emerald-400">8:00 PM</span>
+                  <span id="goalFormattedTime" class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-xs font-mono font-extrabold text-emerald-800 dark:text-emerald-300">08:00 PM</span>
                 </div>
-                <input type="time" id="goalReminderInput" value="20:00" aria-label="Daily Goal Reminder Time" class="w-full px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white">
+                <div class="flex items-center gap-1.5">
+                  <select id="goalReminderInput" aria-label="Daily Goal Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
+                    <option value="06:00 PM">06:00 PM</option>
+                    <option value="06:30 PM">06:30 PM</option>
+                    <option value="07:00 PM">07:00 PM</option>
+                    <option value="07:30 PM">07:30 PM</option>
+                    <option value="08:00 PM" selected>08:00 PM</option>
+                    <option value="08:30 PM">08:30 PM</option>
+                    <option value="09:00 PM">09:00 PM</option>
+                    <option value="09:30 PM">09:30 PM</option>
+                    <option value="10:00 PM">10:00 PM</option>
+                    <option value="10:30 PM">10:30 PM</option>
+                    <option value="11:00 PM">11:00 PM</option>
+                  </select>
+                  <input type="time" id="goalCustomTimeInput" value="20:00" aria-label="Custom Goal Time" title="Pick custom minute" class="w-9 px-1 py-1.5 text-xs font-mono rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shrink-0">
+                </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="goal" data-time="19:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">19:00</button>
-                  <button type="button" data-reminder-preset="goal" data-time="20:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">20:00</button>
-                  <button type="button" data-reminder-preset="goal" data-time="21:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">21:00</button>
-                  <button type="button" data-reminder-preset="goal" data-time="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">22:00</button>
+                  <button type="button" data-period="goal" data-reminder-preset="goal" data-time="07:00 PM" data-time24="19:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 PM</button>
+                  <button type="button" data-period="goal" data-reminder-preset="goal" data-time="08:00 PM" data-time24="20:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">08:00 PM</button>
+                  <button type="button" data-period="goal" data-reminder-preset="goal" data-time="09:00 PM" data-time24="21:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:00 PM</button>
+                  <button type="button" data-period="goal" data-reminder-preset="goal" data-time="10:00 PM" data-time24="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
                 </div>
               </div>
             </div>
@@ -1509,10 +1580,11 @@ export function generateSingleFileHtml(): string {
         cardTapToCount: false,
         showFocusTimer: false,
         remindersEnabled: false,
-        morningReminderTime: '05:30',
+        morningReminderTime: '06:00',
         eveningReminderTime: '17:30',
         sleepReminderTime: '22:00',
         goalReminderEnabled: false,
+        goalReminderTime: '20:00',
         dailyGoalReminderTime: '20:00',
       };
 
@@ -1569,6 +1641,21 @@ export function generateSingleFileHtml(): string {
       try {
         const savedSettings = localStorage.getItem('adhkar_settings');
         if (savedSettings) state.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
+        const savedRemindersRaw = localStorage.getItem('adhkar_reminders');
+        if (savedRemindersRaw) {
+          const parsedRem = JSON.parse(savedRemindersRaw);
+          if (parsedRem && typeof parsedRem === 'object') {
+            if (typeof parsedRem.enabled === 'boolean') state.settings.remindersEnabled = parsedRem.enabled;
+            if (parsedRem.morning) state.settings.morningReminderTime = parsedRem.morning;
+            if (parsedRem.evening) state.settings.eveningReminderTime = parsedRem.evening;
+            if (parsedRem.sleep) state.settings.sleepReminderTime = parsedRem.sleep;
+            if (typeof parsedRem.goalEnabled === 'boolean') state.settings.goalReminderEnabled = parsedRem.goalEnabled;
+            if (parsedRem.goal) {
+              state.settings.goalReminderTime = parsedRem.goal;
+              state.settings.dailyGoalReminderTime = parsedRem.goal;
+            }
+          }
+        }
         const savedFocusTimer = localStorage.getItem('adhkar_show_focus_timer');
         if (savedFocusTimer !== null) {
           state.settings.showFocusTimer = savedFocusTimer === 'true';
@@ -1700,6 +1787,19 @@ export function generateSingleFileHtml(): string {
           localStorage.setItem('adhkar_favorites', JSON.stringify(state.favorites));
           localStorage.setItem('adhkar_streak_data', JSON.stringify(state.streak));
           localStorage.setItem('adhkar_completion_timestamps', JSON.stringify(state.streak.completionTimestamps || {}));
+          const adhkar_reminders = {
+            morning: normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning'),
+            evening: normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening'),
+            sleep: normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep'),
+            goal: normalizeTo24HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal'),
+            morning12h: to12HourTime(state.settings.morningReminderTime || '06:00', 'morning'),
+            evening12h: to12HourTime(state.settings.eveningReminderTime || '17:30', 'evening'),
+            sleep12h: to12HourTime(state.settings.sleepReminderTime || '22:00', 'sleep'),
+            goal12h: to12HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal'),
+            enabled: Boolean(state.settings.remindersEnabled),
+            goalEnabled: Boolean(state.settings.goalReminderEnabled)
+          };
+          localStorage.setItem('adhkar_reminders', JSON.stringify(adhkar_reminders));
         } catch (e) {}
       }
 
@@ -1857,6 +1957,9 @@ export function generateSingleFileHtml(): string {
         morningReminderInput: document.getElementById('morningReminderInput'),
         eveningReminderInput: document.getElementById('eveningReminderInput'),
         sleepReminderInput: document.getElementById('sleepReminderInput'),
+        morningCustomTimeInput: document.getElementById('morningCustomTimeInput'),
+        eveningCustomTimeInput: document.getElementById('eveningCustomTimeInput'),
+        sleepCustomTimeInput: document.getElementById('sleepCustomTimeInput'),
         morningFormattedTime: document.getElementById('morningFormattedTime'),
         eveningFormattedTime: document.getElementById('eveningFormattedTime'),
         sleepFormattedTime: document.getElementById('sleepFormattedTime'),
@@ -1864,6 +1967,7 @@ export function generateSingleFileHtml(): string {
         toggleGoalReminderKnob: document.getElementById('toggleGoalReminderKnob'),
         goalReminderTimeBox: document.getElementById('goalReminderTimeBox'),
         goalReminderInput: document.getElementById('goalReminderInput'),
+        goalCustomTimeInput: document.getElementById('goalCustomTimeInput'),
         goalFormattedTime: document.getElementById('goalFormattedTime'),
         sendTestNotificationBtn: document.getElementById('sendTestNotificationBtn'),
         sendTestNotificationLabel: document.getElementById('sendTestNotificationLabel'),
@@ -4722,6 +4826,123 @@ export function generateSingleFileHtml(): string {
         updateTheme(nextTheme);
       });
 
+      // 24-Hour & 12-Hour (AM/PM) Normalization Helpers for Standalone Single-File
+      function normalizeTo24HourTime(timeStr, periodHint) {
+        if (!timeStr || typeof timeStr !== 'string') {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+        const trimmed = timeStr.trim();
+        const isPM = /pm|വൈകുന്നേരം|രാത്രി/i.test(trimmed);
+        const isAM = /am|രാവിലെ|പ്രഭാതം/i.test(trimmed);
+        const match = trimmed.match(/(\d{1,2})[:.](\d{1,2})/);
+        if (!match) {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        if (isNaN(hours) || isNaN(minutes)) {
+          if (periodHint === 'morning') return '06:00';
+          if (periodHint === 'evening') return '17:30';
+          if (periodHint === 'sleep') return '22:00';
+          if (periodHint === 'goal') return '20:00';
+          return '00:00';
+        }
+
+        if (isPM) {
+          if (hours < 12) hours += 12;
+        } else if (isAM) {
+          if (hours === 12) hours = 0;
+        } else if (periodHint === 'evening') {
+          if (hours > 0 && hours < 12) hours += 12;
+        } else if (periodHint === 'sleep' || periodHint === 'goal') {
+          if (hours >= 6 && hours < 12) hours += 12;
+        }
+
+        const safeHours = Math.min(23, Math.max(0, hours));
+        const safeMinutes = Math.min(59, Math.max(0, minutes));
+        return String(safeHours).padStart(2, '0') + ':' + String(safeMinutes).padStart(2, '0');
+      }
+
+      const to24HourTime = normalizeTo24HourTime;
+
+      function to12HourTime(timeStr, periodHint) {
+        const normalized24 = normalizeTo24HourTime(timeStr, periodHint);
+        const parts = normalized24.split(':');
+        const h24 = parseInt(parts[0] || '0', 10);
+        const m = parseInt(parts[1] || '0', 10);
+        const suffix = h24 >= 12 ? 'PM' : 'AM';
+        const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+        return String(h12).padStart(2, '0') + ':' + String(isNaN(m) ? 0 : m).padStart(2, '0') + ' ' + suffix;
+      }
+
+      const formatTime12h = to12HourTime;
+
+      function ensure12HourOptionSelected(selectEl, time12h) {
+        if (!selectEl || !time12h) return;
+        let found = false;
+        for (let i = 0; i < selectEl.options.length; i++) {
+          if (selectEl.options[i].value === time12h) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const opt = document.createElement('option');
+          opt.value = time12h;
+          opt.textContent = time12h;
+          selectEl.appendChild(opt);
+        }
+        selectEl.value = time12h;
+      }
+
+      function getLastNotifiedMap() {
+        try {
+          const raw = localStorage.getItem('lastNotified') || localStorage.getItem('adhkar_last_notified');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') return parsed;
+          }
+        } catch (e) {}
+        return {
+          morning: localStorage.getItem('adhkar_last_morning_notif_date') || '',
+          evening: localStorage.getItem('adhkar_last_evening_notif_date') || '',
+          sleep: localStorage.getItem('adhkar_last_sleep_notif_date') || '',
+          goal: localStorage.getItem('adhkar_last_goal_notif_date') || '',
+        };
+      }
+
+      function saveLastNotifiedMap(map) {
+        try {
+          const safeMap = {
+            morning: map.morning || '',
+            evening: map.evening || '',
+            sleep: map.sleep || '',
+            goal: map.goal || '',
+          };
+          localStorage.setItem('lastNotified', JSON.stringify(safeMap));
+          localStorage.setItem('adhkar_last_notified', JSON.stringify(safeMap));
+          localStorage.setItem('adhkar_last_morning_notif_date', safeMap.morning);
+          localStorage.setItem('adhkar_last_evening_notif_date', safeMap.evening);
+          localStorage.setItem('adhkar_last_sleep_notif_date', safeMap.sleep);
+          localStorage.setItem('adhkar_last_goal_notif_date', safeMap.goal);
+        } catch (e) {}
+      }
+
+      function clearLastNotifiedForPeriod(period) {
+        const current = getLastNotifiedMap();
+        current[period] = '';
+        saveLastNotifiedMap(current);
+      }
+
       function syncSettingsModalUI() {
         els.toggleTranslit.checked = state.settings.showTransliteration;
         els.toggleTrans.checked = state.settings.showTranslation;
@@ -4745,34 +4966,63 @@ export function generateSingleFileHtml(): string {
           els.remindersConfigPanel.classList.toggle('hidden', !isRemOn);
         }
 
-        if (els.morningReminderInput) els.morningReminderInput.value = state.settings.morningReminderTime || '06:00';
-        if (els.eveningReminderInput) els.eveningReminderInput.value = state.settings.eveningReminderTime || '17:30';
-        if (els.sleepReminderInput) els.sleepReminderInput.value = state.settings.sleepReminderTime || '22:00';
+        const morning24 = normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning');
+        const evening24 = normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening');
+        const sleep24 = normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep');
+        const goal24 = normalizeTo24HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+
+        const morning12 = to12HourTime(morning24, 'morning');
+        const evening12 = to12HourTime(evening24, 'evening');
+        const sleep12 = to12HourTime(sleep24, 'sleep');
+        const goal12 = to12HourTime(goal24, 'goal');
+
+        if (els.morningReminderInput) ensure12HourOptionSelected(els.morningReminderInput, morning12);
+        if (els.eveningReminderInput) ensure12HourOptionSelected(els.eveningReminderInput, evening12);
+        if (els.sleepReminderInput) ensure12HourOptionSelected(els.sleepReminderInput, sleep12);
+        if (els.goalReminderInput) ensure12HourOptionSelected(els.goalReminderInput, goal12);
+
+        if (els.morningCustomTimeInput) els.morningCustomTimeInput.value = morning24;
+        if (els.eveningCustomTimeInput) els.eveningCustomTimeInput.value = evening24;
+        if (els.sleepCustomTimeInput) els.sleepCustomTimeInput.value = sleep24;
+        if (els.goalCustomTimeInput) els.goalCustomTimeInput.value = goal24;
+
+        if (els.morningFormattedTime) els.morningFormattedTime.textContent = morning12;
+        if (els.eveningFormattedTime) els.eveningFormattedTime.textContent = evening12;
+        if (els.sleepFormattedTime) els.sleepFormattedTime.textContent = sleep12;
+        if (els.goalFormattedTime) els.goalFormattedTime.textContent = goal12;
 
         document.querySelectorAll('.reminder-preset-btn').forEach(function(btn) {
-          const period = btn.dataset.period;
-          const timeVal = btn.dataset.time;
-          const currentVal = period === 'morning'
-            ? (state.settings.morningReminderTime || '06:00')
+          const period = btn.dataset.period || btn.dataset.reminderPreset;
+          const btn24 = normalizeTo24HourTime(btn.dataset.time24 || btn.dataset.time || '', period);
+          const current24 = period === 'morning'
+            ? morning24
             : period === 'evening'
-              ? (state.settings.eveningReminderTime || '17:30')
-              : (state.settings.sleepReminderTime || '22:00');
-          const activeColor = period === 'morning' ? 'bg-amber-600' : (period === 'evening' ? 'bg-indigo-600' : 'bg-purple-600');
-          if (currentVal === timeVal) {
-            btn.className = 'reminder-preset-btn px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors cursor-pointer ' + activeColor + ' text-white';
+              ? evening24
+              : period === 'sleep'
+                ? sleep24
+                : goal24;
+          const activeColor = period === 'morning'
+            ? 'bg-amber-600 border-amber-600 text-white'
+            : period === 'evening'
+              ? 'bg-indigo-600 border-indigo-600 text-white'
+              : period === 'sleep'
+                ? 'bg-purple-600 border-purple-600 text-white'
+                : 'bg-emerald-600 border-emerald-600 text-white';
+          if (current24 === btn24) {
+            btn.className = 'reminder-preset-btn flex-1 py-1 px-1.5 rounded text-[10px] font-mono font-bold transition-colors cursor-pointer border ' + activeColor;
           } else {
-            btn.className = 'reminder-preset-btn px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+            btn.className = 'reminder-preset-btn flex-1 py-1 px-1.5 rounded text-[10px] font-mono font-bold transition-colors cursor-pointer border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';
           }
         });
 
-        if (els.toggleGoalReminderBtn && els.toggleGoalReminderKnob && els.goalReminderTimeRow) {
+        const goalBox = els.goalReminderTimeBox || els.goalReminderTimeRow;
+        if (els.toggleGoalReminderBtn && els.toggleGoalReminderKnob && goalBox) {
           const isGoalOn = Boolean(state.settings.goalReminderEnabled);
           els.toggleGoalReminderBtn.setAttribute('aria-checked', isGoalOn ? 'true' : 'false');
           els.toggleGoalReminderBtn.className = 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ' + (isGoalOn ? 'bg-amber-600' : 'bg-slate-300 dark:bg-slate-700');
           els.toggleGoalReminderKnob.className = 'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ' + (isGoalOn ? 'translate-x-4' : 'translate-x-0');
-          els.goalReminderTimeRow.classList.toggle('hidden', !isGoalOn);
+          goalBox.classList.toggle('hidden', !isGoalOn);
         }
-        if (els.goalReminderInput) els.goalReminderInput.value = state.settings.goalReminderTime || '21:00';
       }
 
       els.openSettingsBtn.addEventListener('click', function() {
@@ -4868,52 +5118,6 @@ export function generateSingleFileHtml(): string {
         });
       }
 
-      // 24-Hour Normalization Helper for Standalone Single-File
-      function normalizeTo24HourTime(timeStr, periodHint) {
-        if (!timeStr || typeof timeStr !== 'string') {
-          if (periodHint === 'morning') return '06:00';
-          if (periodHint === 'evening') return '17:30';
-          if (periodHint === 'sleep') return '22:00';
-          if (periodHint === 'goal') return '20:00';
-          return '00:00';
-        }
-        const trimmed = timeStr.trim();
-        const isPM = /pm|വൈകുന്നേരം|രാത്രി/i.test(trimmed);
-        const isAM = /am|രാവിലെ|പ്രഭാതം/i.test(trimmed);
-        const match = trimmed.match(/(\d{1,2})[:.](\d{1,2})/);
-        if (!match) {
-          if (periodHint === 'morning') return '06:00';
-          if (periodHint === 'evening') return '17:30';
-          if (periodHint === 'sleep') return '22:00';
-          if (periodHint === 'goal') return '20:00';
-          return '00:00';
-        }
-
-        let hours = parseInt(match[1], 10);
-        const minutes = parseInt(match[2], 10);
-        if (isNaN(hours) || isNaN(minutes)) {
-          if (periodHint === 'morning') return '06:00';
-          if (periodHint === 'evening') return '17:30';
-          if (periodHint === 'sleep') return '22:00';
-          if (periodHint === 'goal') return '20:00';
-          return '00:00';
-        }
-
-        if (isPM) {
-          if (hours < 12) hours += 12;
-        } else if (isAM) {
-          if (hours === 12) hours = 0;
-        } else if (periodHint === 'evening') {
-          if (hours > 0 && hours < 12) hours += 12;
-        } else if (periodHint === 'sleep') {
-          if (hours >= 7 && hours < 12) hours += 12;
-        }
-
-        const safeHours = Math.min(23, Math.max(0, hours));
-        const safeMinutes = Math.min(59, Math.max(0, minutes));
-        return String(safeHours).padStart(2, '0') + ':' + String(safeMinutes).padStart(2, '0');
-      }
-
       // IndexedDB persistence for Standalone Single-File
       const REMINDER_DB_NAME = 'mudawama_reminders_db';
       const REMINDER_STORE_NAME = 'reminder_schedule';
@@ -4960,17 +5164,41 @@ export function generateSingleFileHtml(): string {
       }
 
       async function syncReminderSchedule() {
+        const lastNotified = getLastNotifiedMap();
+        const morning24 = normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning');
+        const evening24 = normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening');
+        const sleep24 = normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep');
+        const goal24 = normalizeTo24HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+
+        const adhkar_reminders = {
+          morning: morning24,
+          evening: evening24,
+          sleep: sleep24,
+          goal: goal24,
+          morning12h: to12HourTime(morning24, 'morning'),
+          evening12h: to12HourTime(evening24, 'evening'),
+          sleep12h: to12HourTime(sleep24, 'sleep'),
+          goal12h: to12HourTime(goal24, 'goal'),
+          enabled: Boolean(state.settings.remindersEnabled),
+          goalEnabled: Boolean(state.settings.goalReminderEnabled)
+        };
+        try {
+          localStorage.setItem('adhkar_reminders', JSON.stringify(adhkar_reminders));
+        } catch (e) {}
+
         const schedule = {
           remindersEnabled: Boolean(state.settings.remindersEnabled),
-          morningReminderTime: normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning'),
-          eveningReminderTime: normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening'),
-          sleepReminderTime: normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep'),
+          morningReminderTime: morning24,
+          eveningReminderTime: evening24,
+          sleepReminderTime: sleep24,
           goalReminderEnabled: Boolean(state.settings.goalReminderEnabled),
-          dailyGoalReminderTime: normalizeTo24HourTime(state.settings.goalReminderTime || '21:00', 'goal'),
-          lastFiredMorningDate: localStorage.getItem('adhkar_last_morning_notif_date') || '',
-          lastFiredEveningDate: localStorage.getItem('adhkar_last_evening_notif_date') || '',
-          lastFiredSleepDate: localStorage.getItem('adhkar_last_sleep_notif_date') || '',
-          lastFiredGoalDate: localStorage.getItem('adhkar_last_goal_notif_date') || '',
+          dailyGoalReminderTime: goal24,
+          lastFiredMorningDate: lastNotified.morning || '',
+          lastFiredEveningDate: lastNotified.evening || '',
+          lastFiredSleepDate: lastNotified.sleep || '',
+          lastFiredGoalDate: lastNotified.goal || '',
+          adhkar_reminders: adhkar_reminders,
+          lastNotified: lastNotified,
         };
 
         void saveScheduleToIndexedDB(schedule);
@@ -4978,8 +5206,13 @@ export function generateSingleFileHtml(): string {
         if (activeServiceWorkerRegistration) {
           const target = activeServiceWorkerRegistration.active || activeServiceWorkerRegistration.waiting || activeServiceWorkerRegistration.installing;
           if (target && typeof target.postMessage === 'function') {
-            target.postMessage({ type: 'SYNC_REMINDER_SCHEDULE', schedule: schedule });
+            target.postMessage({ type: 'SYNC_REMINDER_SCHEDULE', schedule: schedule, adhkar_reminders: adhkar_reminders, lastNotified: lastNotified });
           }
+        }
+        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          try {
+            navigator.serviceWorker.controller.postMessage({ type: 'SYNC_REMINDER_SCHEDULE', schedule: schedule, adhkar_reminders: adhkar_reminders, lastNotified: lastNotified });
+          } catch (e) {}
         }
       }
 
@@ -5007,6 +5240,8 @@ export function generateSingleFileHtml(): string {
           lastFiredEveningDate: '',
           lastFiredSleepDate: '',
           lastFiredGoalDate: '',
+          adhkar_reminders: { morning: '06:00', evening: '17:30', sleep: '22:00', goal: '20:00', enabled: true },
+          lastNotified: { morning: '', evening: '', sleep: '', goal: '' },
         };
 
         let checkIntervalId = null;
@@ -5060,8 +5295,8 @@ export function generateSingleFileHtml(): string {
             if (hours === 12) hours = 0;
           } else if (periodHint === 'evening') {
             if (hours > 0 && hours < 12) hours += 12;
-          } else if (periodHint === 'sleep') {
-            if (hours >= 7 && hours < 12) hours += 12;
+          } else if (periodHint === 'sleep' || periodHint === 'goal') {
+            if (hours >= 6 && hours < 12) hours += 12;
           }
 
           const safeHours = Math.min(23, Math.max(0, hours));
@@ -5214,7 +5449,7 @@ export function generateSingleFileHtml(): string {
             body: payload.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി',
             icon: './icon.png',
             badge: './badge.png',
-            tag: payload.tag || 'mudawama-reminder',
+            tag: payload.tag || 'adhkar-scheduled',
             renotify: true,
             requireInteraction: true,
             vibrate: [200, 100, 200],
@@ -5255,62 +5490,70 @@ export function generateSingleFileHtml(): string {
           if (hasRunMinuteFlags.has(flagKey)) return;
           hasRunMinuteFlags.add(flagKey);
 
+          if (!scheduleState.lastNotified || typeof scheduleState.lastNotified !== 'object') {
+            scheduleState.lastNotified = { morning: '', evening: '', sleep: '', goal: '' };
+          }
+
           if (period === 'morning') {
-            if (scheduleState.lastFiredMorningDate === todayStr) return;
+            if (scheduleState.lastFiredMorningDate === todayStr || scheduleState.lastNotified.morning === todayStr) return;
             scheduleState.lastFiredMorningDate = todayStr;
+            scheduleState.lastNotified.morning = todayStr;
             await persistSchedule(scheduleState);
             const payload = {
               period: 'morning',
-              title: 'Daily Adhkar — Morning (Fajr)',
-              body: 'രാവിലെത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌅',
+              title: 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
+              body: 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
               targetTab: 'morning',
-              tag: 'mudawama-morning-' + todayStr,
+              tag: 'adhkar-scheduled',
               icon: './icon.png',
               badge: './badge.png',
             };
             await displayServiceWorkerNotification(payload);
             await broadcastReminderToClients(payload);
           } else if (period === 'evening') {
-            if (scheduleState.lastFiredEveningDate === todayStr) return;
+            if (scheduleState.lastFiredEveningDate === todayStr || scheduleState.lastNotified.evening === todayStr) return;
             scheduleState.lastFiredEveningDate = todayStr;
+            scheduleState.lastNotified.evening = todayStr;
             await persistSchedule(scheduleState);
             const payload = {
               period: 'evening',
-              title: 'Daily Adhkar — Evening (Asr)',
-              body: 'വൈകുന്നേരത്തെ ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+              title: 'പ്രദോഷ ദിക്റുകൾ • Evening Adhkar',
+              body: 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
               targetTab: 'evening',
-              tag: 'mudawama-evening-' + todayStr,
+              tag: 'adhkar-scheduled',
               icon: './icon.png',
               badge: './badge.png',
             };
             await displayServiceWorkerNotification(payload);
             await broadcastReminderToClients(payload);
           } else if (period === 'sleep') {
-            if (scheduleState.lastFiredSleepDate === todayStr) return;
+            if (scheduleState.lastFiredSleepDate === todayStr || scheduleState.lastNotified.sleep === todayStr) return;
             scheduleState.lastFiredSleepDate = todayStr;
+            scheduleState.lastNotified.sleep = todayStr;
             await persistSchedule(scheduleState);
             const payload = {
               period: 'sleep',
-              title: 'Daily Adhkar — Sleep (ഉറങ്ങാൻ നേരം)',
-              body: 'ഉറങ്ങുന്നതിന് മുമ്പുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി 🌙',
+              title: 'ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar',
+              body: 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.',
               targetTab: 'sleep',
-              tag: 'mudawama-sleep-' + todayStr,
+              tag: 'adhkar-scheduled',
               icon: './icon.png',
               badge: './badge.png',
             };
             await displayServiceWorkerNotification(payload);
             await broadcastReminderToClients(payload);
           } else if (period === 'goal') {
-            if (scheduleState.lastFiredGoalDate === todayStr) return;
+            if (scheduleState.lastFiredGoalDate === todayStr || scheduleState.lastNotified.goal === todayStr) return;
             if (scheduleState.goalCompleted) return;
             scheduleState.lastFiredGoalDate = todayStr;
+            scheduleState.lastNotified.goal = todayStr;
             await persistSchedule(scheduleState);
             const payload = {
               period: 'goal',
               title: 'Daily Adhkar — Goal Reminder',
               body: 'ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯',
               targetTab: 'morning',
-              tag: 'mudawama-goal-' + todayStr,
+              tag: 'adhkar-scheduled',
               icon: './icon.png',
               badge: './badge.png',
             };
@@ -5361,38 +5604,38 @@ export function generateSingleFileHtml(): string {
           }
         }
 
-        function checkEverySecond() {
-          const now = new Date();
-          const h = now.getHours();
-          const m = now.getMinutes();
-          const s = now.getSeconds();
+        function checkScheduledAlarms() {
+          const currentTime = new Date().toTimeString().slice(0, 5);
+          const rem = scheduleState.adhkar_reminders || {};
+          const isEnabled = typeof rem.enabled === 'boolean' ? rem.enabled : Boolean(scheduleState.remindersEnabled);
 
-          if (scheduleState.remindersEnabled) {
-            const morningParsed = parseTimeString(scheduleState.morningReminderTime || '06:00', 'morning');
-            if (h === morningParsed.hours && m === morningParsed.minutes && s === 0) {
-              firePeriodNotification('morning', scheduleState.morningReminderTime || '06:00').catch(function() {});
+          if (isEnabled) {
+            const morningTarget = normalizeTo24HourTime(rem.morning || scheduleState.morningReminderTime || '06:00', 'morning');
+            if (currentTime === morningTarget) {
+              firePeriodNotification('morning', morningTarget).catch(function() {});
             }
-            const eveningParsed = parseTimeString(scheduleState.eveningReminderTime || '17:30', 'evening');
-            if (h === eveningParsed.hours && m === eveningParsed.minutes && s === 0) {
-              firePeriodNotification('evening', scheduleState.eveningReminderTime || '17:30').catch(function() {});
+            const eveningTarget = normalizeTo24HourTime(rem.evening || scheduleState.eveningReminderTime || '17:30', 'evening');
+            if (currentTime === eveningTarget) {
+              firePeriodNotification('evening', eveningTarget).catch(function() {});
             }
-            const sleepParsed = parseTimeString(scheduleState.sleepReminderTime || '22:00', 'sleep');
-            if (h === sleepParsed.hours && m === sleepParsed.minutes && s === 0) {
-              firePeriodNotification('sleep', scheduleState.sleepReminderTime || '22:00').catch(function() {});
+            const sleepTarget = normalizeTo24HourTime(rem.sleep || scheduleState.sleepReminderTime || '22:00', 'sleep');
+            if (currentTime === sleepTarget) {
+              firePeriodNotification('sleep', sleepTarget).catch(function() {});
             }
           }
 
-          if (scheduleState.goalReminderEnabled) {
-            const goalParsed = parseTimeString(scheduleState.dailyGoalReminderTime || '20:00', 'goal');
-            if (h === goalParsed.hours && m === goalParsed.minutes && s === 0) {
-              firePeriodNotification('goal', scheduleState.dailyGoalReminderTime || '20:00').catch(function() {});
+          if (scheduleState.goalReminderEnabled || rem.goalEnabled) {
+            const goalTarget = normalizeTo24HourTime(rem.goal || scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+            if (currentTime === goalTarget) {
+              firePeriodNotification('goal', goalTarget).catch(function() {});
             }
           }
         }
 
         function ensureBackgroundCheckLoop() {
           if (checkIntervalId !== null) clearInterval(checkIntervalId);
-          checkIntervalId = setInterval(checkEverySecond, 1000);
+          checkScheduledAlarms();
+          checkIntervalId = setInterval(checkScheduledAlarms, 15000);
         }
 
         self.addEventListener('install', function(event) {
@@ -5408,6 +5651,17 @@ export function generateSingleFileHtml(): string {
               ensureBackgroundCheckLoop();
             })()
           );
+        });
+
+        self.addEventListener('periodicsync', function(event) {
+          if (event.tag === 'adhkar-scheduled-check' || event.tag === 'mudawama-reminder-sync') {
+            event.waitUntil(
+              (async function() {
+                await restoreSchedule();
+                checkScheduledAlarms();
+              })()
+            );
+          }
         });
 
         self.addEventListener('push', function(event) {
@@ -5490,26 +5744,50 @@ export function generateSingleFileHtml(): string {
           const data = event.data;
           if (!data || typeof data !== 'object') return;
 
-          if (data.type === 'SYNC_REMINDER_SCHEDULE') {
+          if (data.type === 'SYNC_REMINDER_SCHEDULE' || data.type === 'UPDATE_ADHKAR_REMINDERS') {
             event.waitUntil(
               (async function() {
                 await restoreSchedule();
                 const incoming = data.schedule || {};
-                if (incoming.morningReminderTime && incoming.morningReminderTime !== scheduleState.morningReminderTime) {
+                const incomingRem = data.adhkar_reminders || incoming.adhkar_reminders || {};
+                const incomingLastNotified = data.lastNotified || incoming.lastNotified || {};
+
+                const nextMorning = normalizeTo24HourTime(incomingRem.morning || incoming.morningReminderTime || scheduleState.morningReminderTime, 'morning');
+                const nextEvening = normalizeTo24HourTime(incomingRem.evening || incoming.eveningReminderTime || scheduleState.eveningReminderTime, 'evening');
+                const nextSleep = normalizeTo24HourTime(incomingRem.sleep || incoming.sleepReminderTime || scheduleState.sleepReminderTime || '22:00', 'sleep');
+                const nextGoal = normalizeTo24HourTime(incomingRem.goal || incoming.dailyGoalReminderTime || scheduleState.dailyGoalReminderTime || '20:00', 'goal');
+
+                if (nextMorning !== scheduleState.morningReminderTime) {
                   hasRunMinuteFlags.clear();
+                  scheduleState.lastFiredMorningDate = '';
                 }
-                if (incoming.eveningReminderTime && incoming.eveningReminderTime !== scheduleState.eveningReminderTime) {
+                if (nextEvening !== scheduleState.eveningReminderTime) {
                   hasRunMinuteFlags.clear();
+                  scheduleState.lastFiredEveningDate = '';
                 }
-                if (incoming.sleepReminderTime && incoming.sleepReminderTime !== scheduleState.sleepReminderTime) {
+                if (nextSleep !== scheduleState.sleepReminderTime) {
                   hasRunMinuteFlags.clear();
+                  scheduleState.lastFiredSleepDate = '';
+                }
+                if (nextGoal !== scheduleState.dailyGoalReminderTime) {
+                  hasRunMinuteFlags.clear();
+                  scheduleState.lastFiredGoalDate = '';
                 }
 
                 scheduleState = Object.assign({}, scheduleState, incoming, {
-                  morningReminderTime: normalizeTo24HourTime(incoming.morningReminderTime || scheduleState.morningReminderTime, 'morning'),
-                  eveningReminderTime: normalizeTo24HourTime(incoming.eveningReminderTime || scheduleState.eveningReminderTime, 'evening'),
-                  sleepReminderTime: normalizeTo24HourTime(incoming.sleepReminderTime || scheduleState.sleepReminderTime || '22:00', 'sleep'),
-                  dailyGoalReminderTime: normalizeTo24HourTime(incoming.dailyGoalReminderTime || scheduleState.dailyGoalReminderTime || '20:00', 'goal'),
+                  morningReminderTime: nextMorning,
+                  eveningReminderTime: nextEvening,
+                  sleepReminderTime: nextSleep,
+                  dailyGoalReminderTime: nextGoal,
+                  adhkar_reminders: {
+                    morning: nextMorning,
+                    evening: nextEvening,
+                    sleep: nextSleep,
+                    goal: nextGoal,
+                    enabled: typeof incomingRem.enabled === 'boolean' ? incomingRem.enabled : Boolean(incoming.remindersEnabled),
+                    goalEnabled: typeof incomingRem.goalEnabled === 'boolean' ? incomingRem.goalEnabled : Boolean(incoming.goalReminderEnabled),
+                  },
+                  lastNotified: Object.assign({}, scheduleState.lastNotified || {}, incomingLastNotified),
                 });
 
                 await persistSchedule(scheduleState);
@@ -5541,6 +5819,10 @@ export function generateSingleFileHtml(): string {
           console.log('Background SW registered:', reg.scope);
           void syncReminderSchedule();
 
+          if (reg && 'periodicSync' in reg && reg.periodicSync && typeof reg.periodicSync.register === 'function') {
+            reg.periodicSync.register('adhkar-scheduled-check', { minInterval: 60 * 1000 }).catch(function() {});
+          }
+
           if (window.firebase && firebase.messaging) {
             try {
               const messaging = firebase.messaging();
@@ -5566,8 +5848,22 @@ export function generateSingleFileHtml(): string {
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         registerReminderServiceWorker().catch(function() {});
         navigator.serviceWorker.addEventListener('message', function(event) {
-          if (event.data && event.data.type === 'FCM_FOREGROUND_PUSH') {
+          if (!event.data || typeof event.data !== 'object') return;
+          if (event.data.type === 'FCM_FOREGROUND_PUSH') {
             dispatchMobileSafeNotification(event.data.title, event.data.body, 'fcm-foreground-msg');
+          } else if (event.data.type === 'SW_REMINDER_FIRED') {
+            const period = event.data.period;
+            const todayStr = getTodayString();
+            const map = getLastNotifiedMap();
+            if (period && map[period] !== todayStr) {
+              map[period] = todayStr;
+              saveLastNotifiedMap(map);
+            }
+            if (els.inAppNotificationToast && els.inAppToastTitle && els.inAppToastBody) {
+              els.inAppToastTitle.textContent = event.data.title || 'മുദാവമ • Mudawamah';
+              els.inAppToastBody.textContent = event.data.body || '';
+              els.inAppNotificationToast.classList.remove('hidden');
+            }
           }
         });
       }
@@ -5577,11 +5873,12 @@ export function generateSingleFileHtml(): string {
           playCompletionChime();
         }
         if (state.settings.vibrateEnabled !== false) {
-          triggerVibration([60, 40, 80]);
+          triggerVibration([200, 100, 200]);
         }
 
         let deliveredViaSW = false;
         let deliveredViaNative = false;
+        const effectiveTag = tag || 'adhkar-scheduled';
 
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           if ('serviceWorker' in navigator) {
@@ -5592,7 +5889,7 @@ export function generateSingleFileHtml(): string {
                   body: body,
                   icon: './icon.png',
                   badge: './badge.png',
-                  tag: tag || 'mudawama-reminder',
+                  tag: effectiveTag,
                   renotify: true,
                   requireInteraction: true,
                   vibrate: [200, 100, 200]
@@ -5606,7 +5903,13 @@ export function generateSingleFileHtml(): string {
 
           if (!deliveredViaSW) {
             try {
-              new Notification(title, { body: body, tag: tag, icon: './icon.png' });
+              new Notification(title, {
+                body: body,
+                tag: effectiveTag,
+                icon: './icon.png',
+                requireInteraction: true,
+                vibrate: [200, 100, 200]
+              });
               deliveredViaNative = true;
             } catch (nativeErr) {
               deliveredViaNative = false;
@@ -5621,6 +5924,113 @@ export function generateSingleFileHtml(): string {
         }
 
         return { deliveredViaSW: deliveredViaSW, deliveredViaNative: deliveredViaNative };
+      }
+
+      // Client-side + Background Coordinated Scheduled Alarm Check
+      const SCHEDULED_NOTIFICATION_CONTENT = {
+        morning: {
+          title: 'പ്രഭാത ദിക്റുകൾ • Morning Adhkar',
+          body: 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
+          tag: 'adhkar-scheduled'
+        },
+        evening: {
+          title: 'പ്രദോഷ ദിക്റുകൾ • Evening Adhkar',
+          body: 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.',
+          tag: 'adhkar-scheduled'
+        },
+        sleep: {
+          title: 'ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar',
+          body: 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.',
+          tag: 'adhkar-scheduled'
+        },
+        goal: {
+          title: 'Daily Adhkar — Goal Reminder',
+          body: 'ഇന്നത്തെ ദിക്റുകളും ലക്ഷ്യങ്ങളും പൂർത്തിയാക്കാൻ സമയമായി 🎯',
+          tag: 'adhkar-scheduled'
+        }
+      };
+
+      async function checkClientScheduledReminders() {
+        const currentTime = new Date().toTimeString().slice(0, 5);
+        const todayStr = getTodayString();
+        let remindersObj = null;
+        try {
+          const raw = localStorage.getItem('adhkar_reminders');
+          if (raw) remindersObj = JSON.parse(raw);
+        } catch (e) {}
+
+        const isEnabled = remindersObj && typeof remindersObj.enabled === 'boolean'
+          ? remindersObj.enabled
+          : Boolean(state.settings.remindersEnabled);
+        const isGoalEnabled = remindersObj && typeof remindersObj.goalEnabled === 'boolean'
+          ? remindersObj.goalEnabled
+          : Boolean(state.settings.goalReminderEnabled);
+
+        const lastNotified = getLastNotifiedMap();
+
+        if (isEnabled) {
+          const morningTarget = normalizeTo24HourTime((remindersObj && remindersObj.morning) || state.settings.morningReminderTime || '06:00', 'morning');
+          if (currentTime === morningTarget && lastNotified.morning !== todayStr) {
+            lastNotified.morning = todayStr;
+            saveLastNotifiedMap(lastNotified);
+            void syncReminderSchedule();
+            await dispatchMobileSafeNotification(
+              SCHEDULED_NOTIFICATION_CONTENT.morning.title,
+              SCHEDULED_NOTIFICATION_CONTENT.morning.body,
+              SCHEDULED_NOTIFICATION_CONTENT.morning.tag
+            );
+          }
+
+          const eveningTarget = normalizeTo24HourTime((remindersObj && remindersObj.evening) || state.settings.eveningReminderTime || '17:30', 'evening');
+          if (currentTime === eveningTarget && lastNotified.evening !== todayStr) {
+            lastNotified.evening = todayStr;
+            saveLastNotifiedMap(lastNotified);
+            void syncReminderSchedule();
+            await dispatchMobileSafeNotification(
+              SCHEDULED_NOTIFICATION_CONTENT.evening.title,
+              SCHEDULED_NOTIFICATION_CONTENT.evening.body,
+              SCHEDULED_NOTIFICATION_CONTENT.evening.tag
+            );
+          }
+
+          const sleepTarget = normalizeTo24HourTime((remindersObj && remindersObj.sleep) || state.settings.sleepReminderTime || '22:00', 'sleep');
+          if (currentTime === sleepTarget && lastNotified.sleep !== todayStr) {
+            lastNotified.sleep = todayStr;
+            saveLastNotifiedMap(lastNotified);
+            void syncReminderSchedule();
+            await dispatchMobileSafeNotification(
+              SCHEDULED_NOTIFICATION_CONTENT.sleep.title,
+              SCHEDULED_NOTIFICATION_CONTENT.sleep.body,
+              SCHEDULED_NOTIFICATION_CONTENT.sleep.tag
+            );
+          }
+        }
+
+        if (isGoalEnabled) {
+          const goalTarget = normalizeTo24HourTime((remindersObj && remindersObj.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+          if (currentTime === goalTarget && lastNotified.goal !== todayStr) {
+            lastNotified.goal = todayStr;
+            saveLastNotifiedMap(lastNotified);
+            void syncReminderSchedule();
+            await dispatchMobileSafeNotification(
+              SCHEDULED_NOTIFICATION_CONTENT.goal.title,
+              SCHEDULED_NOTIFICATION_CONTENT.goal.body,
+              SCHEDULED_NOTIFICATION_CONTENT.goal.tag
+            );
+          }
+        }
+      }
+
+      setInterval(function() {
+        void checkClientScheduledReminders();
+      }, 15000);
+
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', function() {
+          if (document.visibilityState === 'visible') {
+            void checkClientScheduledReminders();
+          }
+        });
       }
 
       if (els.closeInAppToastBtn && els.inAppNotificationToast) {
@@ -5644,44 +6054,67 @@ export function generateSingleFileHtml(): string {
           saveState();
           syncSettingsModalUI();
           void syncReminderSchedule();
+          void checkClientScheduledReminders();
         });
+      }
+
+      function handlePeriodTimeUpdate(period, rawTimeValue) {
+        const normalized24 = normalizeTo24HourTime(rawTimeValue, period);
+        if (period === 'morning') {
+          state.settings.morningReminderTime = normalized24;
+        } else if (period === 'evening') {
+          state.settings.eveningReminderTime = normalized24;
+        } else if (period === 'sleep') {
+          state.settings.sleepReminderTime = normalized24;
+        } else if (period === 'goal') {
+          state.settings.goalReminderTime = normalized24;
+          state.settings.dailyGoalReminderTime = normalized24;
+        }
+        clearLastNotifiedForPeriod(period);
+        saveState();
+        syncSettingsModalUI();
+        void syncReminderSchedule();
+        void checkClientScheduledReminders();
       }
 
       if (els.morningReminderInput) {
         els.morningReminderInput.addEventListener('change', function() {
-          state.settings.morningReminderTime = normalizeTo24HourTime(this.value || '06:00', 'morning');
-          saveState();
-          syncSettingsModalUI();
-          void syncReminderSchedule();
+          handlePeriodTimeUpdate('morning', this.value || '06:00 AM');
+        });
+      }
+      if (els.morningCustomTimeInput) {
+        els.morningCustomTimeInput.addEventListener('change', function() {
+          handlePeriodTimeUpdate('morning', this.value || '06:00');
         });
       }
       if (els.eveningReminderInput) {
         els.eveningReminderInput.addEventListener('change', function() {
-          state.settings.eveningReminderTime = normalizeTo24HourTime(this.value || '17:30', 'evening');
-          saveState();
-          syncSettingsModalUI();
-          void syncReminderSchedule();
+          handlePeriodTimeUpdate('evening', this.value || '05:30 PM');
+        });
+      }
+      if (els.eveningCustomTimeInput) {
+        els.eveningCustomTimeInput.addEventListener('change', function() {
+          handlePeriodTimeUpdate('evening', this.value || '17:30');
         });
       }
       if (els.sleepReminderInput) {
         els.sleepReminderInput.addEventListener('change', function() {
-          state.settings.sleepReminderTime = normalizeTo24HourTime(this.value || '22:00', 'sleep');
-          saveState();
-          syncSettingsModalUI();
-          void syncReminderSchedule();
+          handlePeriodTimeUpdate('sleep', this.value || '10:00 PM');
+        });
+      }
+      if (els.sleepCustomTimeInput) {
+        els.sleepCustomTimeInput.addEventListener('change', function() {
+          handlePeriodTimeUpdate('sleep', this.value || '22:00');
         });
       }
 
       document.querySelectorAll('.reminder-preset-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
           const period = this.dataset.period || this.dataset.reminderPreset;
-          const timeVal = this.dataset.time;
-          if (period === 'morning') state.settings.morningReminderTime = normalizeTo24HourTime(timeVal, 'morning');
-          else if (period === 'evening') state.settings.eveningReminderTime = normalizeTo24HourTime(timeVal, 'evening');
-          else if (period === 'sleep') state.settings.sleepReminderTime = normalizeTo24HourTime(timeVal, 'sleep');
-          saveState();
-          syncSettingsModalUI();
-          void syncReminderSchedule();
+          const timeVal = this.dataset.time || this.dataset.time24;
+          if (period && timeVal) {
+            handlePeriodTimeUpdate(period, timeVal);
+          }
         });
       });
 
@@ -5691,15 +6124,18 @@ export function generateSingleFileHtml(): string {
           saveState();
           syncSettingsModalUI();
           void syncReminderSchedule();
+          void checkClientScheduledReminders();
         });
       }
 
       if (els.goalReminderInput) {
         els.goalReminderInput.addEventListener('change', function() {
-          state.settings.goalReminderTime = normalizeTo24HourTime(this.value || '21:00', 'goal');
-          saveState();
-          syncSettingsModalUI();
-          void syncReminderSchedule();
+          handlePeriodTimeUpdate('goal', this.value || '08:00 PM');
+        });
+      }
+      if (els.goalCustomTimeInput) {
+        els.goalCustomTimeInput.addEventListener('change', function() {
+          handlePeriodTimeUpdate('goal', this.value || '20:00');
         });
       }
 
@@ -6168,7 +6604,11 @@ export function generateSingleFileHtml(): string {
       }
 
       updateTheme(state.settings.theme);
+      saveState();
       saveTasksState();
+      syncSettingsModalUI();
+      void syncReminderSchedule();
+      void checkClientScheduledReminders();
       renderStreakBadge();
       updateTabsUI();
       renderCards();

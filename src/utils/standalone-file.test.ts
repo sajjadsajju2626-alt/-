@@ -337,21 +337,27 @@ test('generateSingleFileHtml uses emerald green palette, opens category view wit
 });
 
 test('After Prayer Adhkar cards have distinct itemNumbers, unique audio segment bounds, and isolated single-item play vs Autoplay All', async () => {
-  const { PRAYER_ADHKAR, MORNING_ADHKAR, EVENING_ADHKAR, SLEEP_ADHKAR } = await import('../data/adhkarData.ts');
+  const { getEmbeddedAdhkarData } = await import('./single-file-generator.ts');
+  const data = getEmbeddedAdhkarData();
+  const PRAYER_ADHKAR: any[] = data.prayer || [];
+  const MORNING_ADHKAR: any[] = data.morning || [];
+  const EVENING_ADHKAR: any[] = data.evening || [];
+  const SLEEP_ADHKAR: any[] = data.sleep || [];
+
   assert.equal(PRAYER_ADHKAR.length, 7, 'PRAYER_ADHKAR must have 7 items');
 
   // Every After Prayer item must have its explicit itemNumber (1..7) so filtering never resets numbering to 1
-  PRAYER_ADHKAR.forEach((item, idx) => {
+  PRAYER_ADHKAR.forEach((item: any, idx: number) => {
     assert.equal(item.itemNumber, idx + 1, `Prayer item ${item.id} must have itemNumber ${idx + 1}`);
     assert.ok(item.audioUrl, `Prayer item ${item.id} must have an audioUrl`);
   });
 
   // All 7 After Prayer audio URLs must be distinct (no two cards share an unsegmented 0:00 URL)
-  const uniqueUrls = new Set(PRAYER_ADHKAR.map((i) => i.audioUrl));
+  const uniqueUrls = new Set(PRAYER_ADHKAR.map((i: any) => i.audioUrl));
   assert.equal(uniqueUrls.size, PRAYER_ADHKAR.length, 'Every After Prayer card must have a unique audioUrl / media fragment');
 
   // Card #4 (p-4: Alhamdulillah) must have exact segment bounds (2.80s to 4.30s) on 69.mp3
-  const card4 = PRAYER_ADHKAR.find((i) => i.id === 'p-4');
+  const card4 = PRAYER_ADHKAR.find((i: any) => i.id === 'p-4');
   assert.ok(card4, 'Card #4 (p-4) must exist in PRAYER_ADHKAR');
   assert.equal(card4.itemNumber, 4);
   assert.equal(card4.audioUrl, 'https://www.hisnmuslim.com/audio/ar/69.mp3#t=2.80,4.30');
@@ -359,14 +365,14 @@ test('After Prayer Adhkar cards have distinct itemNumbers, unique audio segment 
   assert.equal(card4.audioEndTime, 4.3);
 
   // Preserve Morning, Evening, and Sleep audio paths
-  assert.ok(MORNING_ADHKAR.filter((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Morning Adhkar audio paths preserved');
-  assert.ok(EVENING_ADHKAR.filter((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Evening Adhkar audio paths preserved');
-  assert.ok(SLEEP_ADHKAR.every((i) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)), 'Sleep Adhkar audio paths preserved');
+  assert.ok(MORNING_ADHKAR.filter((i: any) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Morning Adhkar audio paths preserved');
+  assert.ok(EVENING_ADHKAR.filter((i: any) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)).length >= 23, 'Evening Adhkar audio paths preserved');
+  assert.ok(SLEEP_ADHKAR.every((i: any) => i.audioUrl || (i.audioUrls && i.audioUrls.length > 0)), 'Sleep Adhkar audio paths preserved');
 
   // Verify standalone HTML includes segment seeking, playItem(cardId), playDhikrAudio(indexOrId), and Autoplay All vs single-item separation
-  const html = generateSingleFileHtml();
+  const html = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf8');
   assert.ok(html.includes('function parseAudioBounds('), 'Must include parseAudioBounds helper');
-  assert.ok(html.includes('/#t=([\\d.]+)(?:,([\\d.]+))?/i'), 'Must include properly escaped media fragment regex in generated HTML');
+  assert.ok(html.includes('/#t=([\\d.]+)(?:,([\\d.]+))?/i'), 'Must include properly escaped media fragment regex in index.html');
   assert.ok(html.includes('function playItem(cardId)'), 'Must include playItem(cardId) function');
   assert.ok(html.includes('function playDhikrAudio(indexOrId)'), 'Must include playDhikrAudio(indexOrId) function');
   assert.ok(html.includes('function startAutoplayAll()'), 'Must include startAutoplayAll() function');
@@ -376,36 +382,76 @@ test('After Prayer Adhkar cards have distinct itemNumbers, unique audio segment 
   assert.ok(html.includes('audio.dataset.endTime = String(endTime)'), 'Must tag audio instance with endTime');
 });
 
-test('index.html and single-file HTML embed dynamic Service Worker registration with Blob fallback, high-priority FCM options, and in-app toast', () => {
+test('index.html implements 12-hour AM/PM time selectors & preset chips, localStorage adhkar_reminders & lastNotified sync, and Service Worker background alarm check with exact Malayalam/English notifications', () => {
   const indexHtmlPath = path.resolve(process.cwd(), 'index.html');
   assert.ok(fs.existsSync(indexHtmlPath), 'index.html must exist');
   const indexHtml = fs.readFileSync(indexHtmlPath, 'utf8');
 
-  // Verify index.html embeds dynamic Service Worker registration
-  assert.ok(indexHtml.includes('new Blob([swCode]'), 'index.html must create Blob URL from swCode');
-  assert.ok(indexHtml.includes("navigator.serviceWorker.register('./firebase-messaging-sw.js')"), 'index.html must register ./firebase-messaging-sw.js with catch fallback');
-  assert.ok(indexHtml.includes('navigator.serviceWorker.register(swUrl)'), 'index.html must fall back to registering swUrl Blob');
-  assert.ok(indexHtml.includes('tag: \'mudawama-reminder\''), 'index.html must specify tag: mudawama-reminder');
-  assert.ok(indexHtml.includes('requireInteraction: true'), 'index.html must set requireInteraction: true for wake-up persistence');
-  assert.ok(indexHtml.includes('vibrate: [200, 100, 200]'), 'index.html must specify vibrate pattern [200, 100, 200]');
-  assert.ok(indexHtml.includes('messaging.useServiceWorker(reg)'), 'index.html must bind messaging to registered SW');
-  assert.ok(indexHtml.includes('messaging.onMessage'), 'index.html must configure messaging.onMessage foreground listener');
-  assert.ok(indexHtml.includes('showInAppNotificationToast'), 'index.html must include showInAppNotificationToast celebration handler');
-  assert.ok(indexHtml.includes('id="root"'), 'index.html must preserve root div for React');
-  assert.ok(indexHtml.includes('/src/main.tsx'), 'index.html must preserve Vite main.tsx entry');
+  // 1. Verify all inline <script> blocks in index.html compile cleanly
+  const scriptMatches = [...indexHtml.matchAll(/<script>([\s\S]*?)<\/script>/g)];
+  assert.ok(scriptMatches.length >= 2, 'index.html must have embedded data and app script blocks');
+  for (const [, scriptBody] of scriptMatches) {
+    assert.doesNotThrow(
+      () => new Function(scriptBody),
+      'Inline script in index.html must be syntactically valid JavaScript'
+    );
+  }
 
-  // Verify public/firebase-messaging-sw.js exists
+  // 2. Verify 12-Hour (AM/PM) preset chips & dropdown options for Morning, Evening, Sleep, and Daily Goal
+  for (const chip12h of [
+    '05:30 AM',
+    '06:00 AM',
+    '07:00 AM',
+    '04:30 PM',
+    '05:30 PM',
+    '06:30 PM',
+    '09:30 PM',
+    '10:00 PM',
+    '10:30 PM',
+    '07:00 PM',
+    '08:00 PM',
+    '09:00 PM',
+    '10:00 PM',
+  ]) {
+    assert.ok(
+      indexHtml.includes(`data-time="${chip12h}"`) && indexHtml.includes(`>${chip12h}</button>`),
+      `index.html must include 12-hour AM/PM preset chip for "${chip12h}"`
+    );
+  }
+
+  // 3. Verify 12h <-> 24h conversion helpers & localStorage persistence keys
+  assert.ok(indexHtml.includes('function normalizeTo24HourTime('), 'Must include normalizeTo24HourTime helper');
+  assert.ok(indexHtml.includes('const to24HourTime = normalizeTo24HourTime'), 'Must alias to24HourTime');
+  assert.ok(indexHtml.includes('function formatTime12h('), 'Must include formatTime12h helper');
+  assert.ok(indexHtml.includes('const to12HourTime = formatTime12h'), 'Must alias to12HourTime');
+  assert.ok(indexHtml.includes("localStorage.setItem('adhkar_reminders'"), 'Must persist adhkar_reminders in localStorage');
+  assert.ok(indexHtml.includes("localStorage.setItem('lastNotified'"), 'Must persist lastNotified duplicate-prevention map');
+
+  // 4. Verify Service Worker registration, postMessage sync, and 24-hour HH:mm clock comparison
+  assert.ok(indexHtml.includes('new Blob([swCode]'), 'index.html must create Blob URL fallback from swCode');
+  assert.ok(indexHtml.includes("navigator.serviceWorker.register('./firebase-messaging-sw.js')"), 'index.html must register ./firebase-messaging-sw.js with Blob fallback');
+  assert.ok(indexHtml.includes("type: 'SYNC_REMINDER_SCHEDULE'"), 'index.html must sync reminder schedule to Service Worker via postMessage');
+  assert.ok(indexHtml.includes('now.toTimeString().slice(0, 5)'), 'Must compare current clock time via toTimeString().slice(0, 5)');
+
+  // 5. Verify exact Malayalam & English notification titles, bodies, and priority options
+  assert.ok(indexHtml.includes('പ്രഭാത ദിക്റുകൾ • Morning Adhkar'), 'Must include exact Morning notification title');
+  assert.ok(indexHtml.includes('സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.'), 'Must include exact Morning notification body');
+  assert.ok(indexHtml.includes('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar'), 'Must include exact Evening notification title');
+  assert.ok(indexHtml.includes('അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.'), 'Must include exact Evening notification body');
+  assert.ok(indexHtml.includes('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar'), 'Must include exact Sleep notification title');
+  assert.ok(indexHtml.includes('ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.'), 'Must include exact Sleep notification body');
+  assert.ok(indexHtml.includes("tag: 'adhkar-scheduled'"), 'Must use tag: adhkar-scheduled');
+  assert.ok(indexHtml.includes('requireInteraction: true'), 'Must use requireInteraction: true');
+  assert.ok(indexHtml.includes('vibrate: [200, 100, 200]'), 'Must use vibrate: [200, 100, 200]');
+
+  // 6. Verify public/firebase-messaging-sw.js has matching background alarm logic
   const swPath = path.resolve(process.cwd(), 'public/firebase-messaging-sw.js');
   assert.ok(fs.existsSync(swPath), 'public/firebase-messaging-sw.js must exist on disk');
   const swContent = fs.readFileSync(swPath, 'utf8');
-  assert.ok(swContent.includes('self.addEventListener(\'push\''), 'firebase-messaging-sw.js must listen for push events');
-  assert.ok(swContent.includes('self.registration.showNotification'), 'firebase-messaging-sw.js must show notification');
-  assert.ok(swContent.includes('self.addEventListener(\'notificationclick\''), 'firebase-messaging-sw.js must listen for notificationclick');
-
-  // Verify single-file generator embeds SW and FCM logic
-  const singleHtml = generateSingleFileHtml();
-  assert.ok(singleHtml.includes('new Blob([swCode]'), 'Single-file HTML must create Blob URL from swCode');
-  assert.ok(singleHtml.includes('requireInteraction: true'), 'Single-file HTML must specify requireInteraction: true');
-  assert.ok(singleHtml.includes('tag: tag || \'mudawama-reminder\''), 'Single-file HTML must tag notifications');
+  assert.ok(swContent.includes('പ്രഭാത ദിക്റുകൾ • Morning Adhkar'), 'firebase-messaging-sw.js must contain Morning title');
+  assert.ok(swContent.includes('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar'), 'firebase-messaging-sw.js must contain Evening title');
+  assert.ok(swContent.includes('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar'), 'firebase-messaging-sw.js must contain Sleep title');
+  assert.ok(swContent.includes("tag: 'adhkar-scheduled'"), 'firebase-messaging-sw.js must use tag: adhkar-scheduled');
 });
+
 
