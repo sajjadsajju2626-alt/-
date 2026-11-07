@@ -444,7 +444,32 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
   assert.ok(indexHtml.includes('requireInteraction: true'), 'Must use requireInteraction: true');
   assert.ok(indexHtml.includes('vibrate: [200, 100, 200]'), 'Must use vibrate: [200, 100, 200]');
 
-  // 6. Verify public/firebase-messaging-sw.js has matching background alarm logic
+  // 6. Verify Daily Goal Completion Reminder checkbox toggle (#dailyGoalReminderToggle), dailyGoalEnabled persistence, and Send Test Notification SW handler
+  assert.ok(
+    indexHtml.includes('id="dailyGoalReminderToggle"') &&
+      indexHtml.includes("els.dailyGoalReminderToggle.addEventListener('change'"),
+    'Must include <input type="checkbox" id="dailyGoalReminderToggle"> with a change event listener'
+  );
+  assert.ok(
+    indexHtml.includes("localStorage.setItem('dailyGoalEnabled'") &&
+      indexHtml.includes("localStorage.getItem('dailyGoalEnabled')") &&
+      indexHtml.includes('els.dailyGoalReminderToggle.checked = isGoalOn'),
+    'Must persist dailyGoalEnabled in localStorage and sync checkbox.checked on load and modal open'
+  );
+  assert.ok(
+    indexHtml.includes("morningReminderTime: '06:00'") &&
+      indexHtml.includes("eveningReminderTime: '17:30'") &&
+      indexHtml.includes("sleepReminderTime: '22:00'"),
+    'Must keep Morning: 06:00, Evening: 17:30, Sleep: 22:00 defaults synced with localStorage'
+  );
+  assert.ok(
+    indexHtml.includes('നോട്ടിഫിക്കേഷൻ ടെസ്റ്റ് വിജയിച്ചു! • Notification is working perfectly!') &&
+      indexHtml.includes("icon: './icon.png'") &&
+      indexHtml.includes("badge: './badge.png'"),
+    'Send Test Notification button must trigger reg.showNotification with exact Malayalam/English test message, ./icon.png, and ./badge.png'
+  );
+
+  // 7. Verify public/firebase-messaging-sw.js has matching background alarm logic
   const swPath = path.resolve(process.cwd(), 'public/firebase-messaging-sw.js');
   assert.ok(fs.existsSync(swPath), 'public/firebase-messaging-sw.js must exist on disk');
   const swContent = fs.readFileSync(swPath, 'utf8');

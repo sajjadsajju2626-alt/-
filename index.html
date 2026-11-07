@@ -1125,16 +1125,16 @@
               <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-extrabold text-slate-900 dark:text-slate-100 font-malayalam">☀️ Morning / പ്രഭാതം</span>
-                  <span id="morningFormattedTime" class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">05:30 AM</span>
+                  <span id="morningFormattedTime" class="text-[11px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">06:00 AM</span>
                 </div>
                 <div class="flex gap-1.5 items-center">
                   <select id="morningReminderInput" aria-label="Morning Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
                     <option value="04:30 AM">04:30 AM</option>
                     <option value="05:00 AM">05:00 AM</option>
                     <option value="05:15 AM">05:15 AM</option>
-                    <option value="05:30 AM" selected>05:30 AM</option>
+                    <option value="05:30 AM">05:30 AM</option>
                     <option value="05:45 AM">05:45 AM</option>
-                    <option value="06:00 AM">06:00 AM</option>
+                    <option value="06:00 AM" selected>06:00 AM</option>
                     <option value="06:15 AM">06:15 AM</option>
                     <option value="06:30 AM">06:30 AM</option>
                     <option value="06:45 AM">06:45 AM</option>
@@ -1142,12 +1142,12 @@
                     <option value="07:30 AM">07:30 AM</option>
                     <option value="08:00 AM">08:00 AM</option>
                   </select>
-                  <input type="time" id="morningCustomTimeInput" value="05:30" title="Custom minute picker" aria-label="Custom Morning Time" class="w-24 px-1.5 py-1.5 text-[11px] font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white">
+                  <input type="time" id="morningCustomTimeInput" value="06:00" title="Custom minute picker" aria-label="Custom Morning Time" class="w-24 px-1.5 py-1.5 text-[11px] font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white">
                 </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="05:30 AM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 AM</button>
-                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="06:00 AM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:00 AM</button>
-                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="07:00 AM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 AM</button>
+                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="05:30 AM" data-time-24="05:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 AM</button>
+                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="06:00 AM" data-time-24="06:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:00 AM</button>
+                  <button type="button" data-reminder-preset="morning" data-period="morning" data-time="07:00 AM" data-time-24="07:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 AM</button>
                 </div>
               </div>
 
@@ -1175,9 +1175,9 @@
                   <input type="time" id="eveningCustomTimeInput" value="17:30" title="Custom minute picker" aria-label="Custom Evening Time" class="w-24 px-1.5 py-1.5 text-[11px] font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white">
                 </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="04:30 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">04:30 PM</button>
-                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="05:30 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 PM</button>
-                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="06:30 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:30 PM</button>
+                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="04:30 PM" data-time-24="16:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">04:30 PM</button>
+                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="05:30 PM" data-time-24="17:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">05:30 PM</button>
+                  <button type="button" data-reminder-preset="evening" data-period="evening" data-time="06:30 PM" data-time-24="18:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">06:30 PM</button>
                 </div>
               </div>
 
@@ -1204,32 +1204,38 @@
                   <input type="time" id="sleepCustomTimeInput" value="22:00" title="Custom minute picker" aria-label="Custom Sleep Time" class="w-24 px-1.5 py-1.5 text-[11px] font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white">
                 </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="09:30 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:30 PM</button>
-                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="10:00 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
-                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="10:30 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:30 PM</button>
+                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="09:30 PM" data-time-24="21:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:30 PM</button>
+                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="10:00 PM" data-time-24="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
+                  <button type="button" data-reminder-preset="sleep" data-period="sleep" data-time="10:30 PM" data-time-24="22:30" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:30 PM</button>
                 </div>
               </div>
             </div>
 
             <!-- Daily Goal Completion Reminder -->
             <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-emerald-500/60 dark:border-slate-800 space-y-2">
-              <div class="flex items-center justify-between">
-                <div>
+              <div class="flex items-center justify-between gap-2">
+                <label for="dailyGoalReminderToggle" class="cursor-pointer select-none flex-1">
                   <div class="text-xs font-extrabold text-slate-900 dark:text-white">🎯 Daily Goal Completion Reminder</div>
                   <div class="text-[11px] text-slate-500 dark:text-slate-400">Sends a reminder if daily goal progress is &lt; 100%</div>
-                </div>
-                <button
-                  type="button"
+                </label>
+                <label
+                  for="dailyGoalReminderToggle"
                   id="toggleGoalReminderBtn"
                   role="switch"
                   aria-checked="false"
                   aria-label="Toggle Daily Goal Completion Reminder"
-                  class="w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 bg-slate-300 dark:bg-slate-700"
+                  class="relative inline-flex items-center w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer shrink-0 bg-slate-300 dark:bg-slate-700"
                 >
-                  <span id="toggleGoalReminderKnob" class="block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-150 translate-x-0.5"></span>
-                </button>
+                  <input
+                    type="checkbox"
+                    id="dailyGoalReminderToggle"
+                    aria-label="Daily Goal Completion Reminder"
+                    class="sr-only peer"
+                  >
+                  <span id="toggleGoalReminderKnob" class="pointer-events-none inline-block w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 peer-checked:translate-x-5"></span>
+                </label>
               </div>
-              <div id="goalReminderTimeBox" class="hidden pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+              <div id="goalReminderTimeBox" class="hidden pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1.5 transition-all duration-200">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Reminder Scheduled Time:</span>
                   <span id="goalFormattedTime" class="text-xs font-mono font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">08:00 PM</span>
@@ -1237,22 +1243,22 @@
                 <div class="flex gap-1.5 items-center">
                   <select id="goalReminderInput" aria-label="Daily Goal Reminder Time (12-Hour AM/PM)" class="flex-1 px-2.5 py-1.5 text-xs font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white cursor-pointer">
                     <option value="06:30 PM">06:30 PM</option>
-                    <option value="07:00 PM">07:00 PM</option>
+                    <option value="07:00 PM">07:00 PM (19:00)</option>
                     <option value="07:30 PM">07:30 PM</option>
-                    <option value="08:00 PM" selected>08:00 PM</option>
+                    <option value="08:00 PM" selected>08:00 PM (20:00)</option>
                     <option value="08:30 PM">08:30 PM</option>
-                    <option value="09:00 PM">09:00 PM</option>
+                    <option value="09:00 PM">09:00 PM (21:00)</option>
                     <option value="09:30 PM">09:30 PM</option>
-                    <option value="10:00 PM">10:00 PM</option>
+                    <option value="10:00 PM">10:00 PM (22:00)</option>
                     <option value="10:30 PM">10:30 PM</option>
                   </select>
                   <input type="time" id="goalCustomTimeInput" value="20:00" title="Custom minute picker" aria-label="Custom Daily Goal Time" class="w-24 px-1.5 py-1.5 text-[11px] font-mono font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white">
                 </div>
                 <div class="flex gap-1 pt-0.5">
-                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="07:00 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 PM</button>
-                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="08:00 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">08:00 PM</button>
-                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="09:00 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:00 PM</button>
-                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="10:00 PM" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
+                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="07:00 PM" data-time-24="19:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">07:00 PM</button>
+                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="08:00 PM" data-time-24="20:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">08:00 PM</button>
+                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="09:00 PM" data-time-24="21:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">09:00 PM</button>
+                  <button type="button" data-reminder-preset="goal" data-period="goal" data-time="10:00 PM" data-time-24="22:00" class="reminder-preset-btn flex-1 py-1 text-[10px] font-mono font-bold rounded border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer">10:00 PM</button>
                 </div>
               </div>
             </div>
@@ -1545,10 +1551,11 @@
         cardTapToCount: false,
         showFocusTimer: false,
         remindersEnabled: false,
-        morningReminderTime: '05:30',
+        morningReminderTime: '06:00',
         eveningReminderTime: '17:30',
         sleepReminderTime: '22:00',
         goalReminderEnabled: false,
+        dailyGoalEnabled: false,
         goalReminderTime: '20:00',
         dailyGoalReminderTime: '20:00',
       };
@@ -1618,8 +1625,24 @@
               state.settings.dailyGoalReminderTime = parsedRem.goal;
             }
             if (typeof parsedRem.enabled === 'boolean') state.settings.remindersEnabled = parsedRem.enabled;
-            if (typeof parsedRem.goalEnabled === 'boolean') state.settings.goalReminderEnabled = parsedRem.goalEnabled;
+            if (typeof parsedRem.dailyGoalEnabled === 'boolean') {
+              state.settings.dailyGoalEnabled = parsedRem.dailyGoalEnabled;
+              state.settings.goalReminderEnabled = parsedRem.dailyGoalEnabled;
+            } else if (typeof parsedRem.goalEnabled === 'boolean') {
+              state.settings.dailyGoalEnabled = parsedRem.goalEnabled;
+              state.settings.goalReminderEnabled = parsedRem.goalEnabled;
+            }
           }
+        }
+        const savedDailyGoalEnabled = localStorage.getItem('dailyGoalEnabled');
+        if (savedDailyGoalEnabled !== null) {
+          const isDailyGoalOn = savedDailyGoalEnabled === 'true';
+          state.settings.dailyGoalEnabled = isDailyGoalOn;
+          state.settings.goalReminderEnabled = isDailyGoalOn;
+        } else {
+          const fallbackGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
+          state.settings.dailyGoalEnabled = fallbackGoalOn;
+          state.settings.goalReminderEnabled = fallbackGoalOn;
         }
         const savedFocusTimer = localStorage.getItem('adhkar_show_focus_timer');
         if (savedFocusTimer !== null) {
@@ -1746,12 +1769,16 @@
       // Save Helpers
       function saveState() {
         try {
+          const isDailyGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
+          state.settings.dailyGoalEnabled = isDailyGoalOn;
+          state.settings.goalReminderEnabled = isDailyGoalOn;
+          localStorage.setItem('dailyGoalEnabled', String(isDailyGoalOn));
           localStorage.setItem('adhkar_counts', JSON.stringify(state.counts));
           localStorage.setItem('adhkar_settings', JSON.stringify(state.settings));
           const adhkarRemindersObj = {
             morning: typeof normalizeTo24HourTime === 'function'
               ? normalizeTo24HourTime(state.settings.morningReminderTime, 'morning')
-              : (state.settings.morningReminderTime || '05:30'),
+              : (state.settings.morningReminderTime || '06:00'),
             evening: typeof normalizeTo24HourTime === 'function'
               ? normalizeTo24HourTime(state.settings.eveningReminderTime, 'evening')
               : (state.settings.eveningReminderTime || '17:30'),
@@ -1763,7 +1790,7 @@
               : (state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00'),
             morning12h: typeof formatTime12h === 'function'
               ? formatTime12h(state.settings.morningReminderTime, 'morning')
-              : '05:30 AM',
+              : '06:00 AM',
             evening12h: typeof formatTime12h === 'function'
               ? formatTime12h(state.settings.eveningReminderTime, 'evening')
               : '05:30 PM',
@@ -1774,7 +1801,8 @@
               ? formatTime12h(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime, 'goal')
               : '08:00 PM',
             enabled: Boolean(state.settings.remindersEnabled),
-            goalEnabled: Boolean(state.settings.goalReminderEnabled)
+            goalEnabled: isDailyGoalOn,
+            dailyGoalEnabled: isDailyGoalOn
           };
           localStorage.setItem('adhkar_reminders', JSON.stringify(adhkarRemindersObj));
           localStorage.setItem('adhkar_show_focus_timer', String(Boolean(state.settings.showFocusTimer)));
@@ -1944,6 +1972,7 @@
         morningFormattedTime: document.getElementById('morningFormattedTime'),
         eveningFormattedTime: document.getElementById('eveningFormattedTime'),
         sleepFormattedTime: document.getElementById('sleepFormattedTime'),
+        dailyGoalReminderToggle: document.getElementById('dailyGoalReminderToggle'),
         toggleGoalReminderBtn: document.getElementById('toggleGoalReminderBtn'),
         toggleGoalReminderKnob: document.getElementById('toggleGoalReminderKnob'),
         goalReminderTimeBox: document.getElementById('goalReminderTimeBox'),
@@ -4927,7 +4956,29 @@
           els.remindersConfigPanel.classList.toggle('hidden', !isRemOn);
         }
 
-        const morningVal = normalizeTo24HourTime(state.settings.morningReminderTime || '05:30', 'morning');
+        try {
+          const storedDailyGoal = localStorage.getItem('dailyGoalEnabled');
+          if (storedDailyGoal !== null) {
+            const parsedGoalBool = storedDailyGoal === 'true';
+            state.settings.dailyGoalEnabled = parsedGoalBool;
+            state.settings.goalReminderEnabled = parsedGoalBool;
+          }
+          const storedRemRaw = localStorage.getItem('adhkar_reminders');
+          if (storedRemRaw) {
+            const parsedRem = JSON.parse(storedRemRaw);
+            if (parsedRem && typeof parsedRem === 'object') {
+              if (parsedRem.morning) state.settings.morningReminderTime = parsedRem.morning;
+              if (parsedRem.evening) state.settings.eveningReminderTime = parsedRem.evening;
+              if (parsedRem.sleep) state.settings.sleepReminderTime = parsedRem.sleep;
+              if (parsedRem.goal) {
+                state.settings.goalReminderTime = parsedRem.goal;
+                state.settings.dailyGoalReminderTime = parsedRem.goal;
+              }
+            }
+          }
+        } catch (e) {}
+
+        const morningVal = normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning');
         const eveningVal = normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening');
         const sleepVal = normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep');
         const goalVal = normalizeTo24HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
@@ -4960,7 +5011,7 @@
 
         document.querySelectorAll('.reminder-preset-btn').forEach(function(btn) {
           const period = btn.dataset.period || btn.dataset.reminderPreset;
-          const timeVal24 = normalizeTo24HourTime(btn.dataset.time, period);
+          const timeVal24 = normalizeTo24HourTime(btn.dataset.time24 || btn.dataset.time, period);
           const currentVal = period === 'morning'
             ? morningVal
             : period === 'evening'
@@ -4982,12 +5033,21 @@
           }
         });
 
+        const isGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
+        state.settings.dailyGoalEnabled = isGoalOn;
+        state.settings.goalReminderEnabled = isGoalOn;
+        if (els.dailyGoalReminderToggle) {
+          els.dailyGoalReminderToggle.checked = isGoalOn;
+        }
         const goalTimeContainer = els.goalReminderTimeBox || els.goalReminderTimeRow;
-        if (els.toggleGoalReminderBtn && els.toggleGoalReminderKnob && goalTimeContainer) {
-          const isGoalOn = Boolean(state.settings.goalReminderEnabled);
+        if (els.toggleGoalReminderBtn) {
           els.toggleGoalReminderBtn.setAttribute('aria-checked', isGoalOn ? 'true' : 'false');
-          els.toggleGoalReminderBtn.className = 'w-9 h-5 rounded-full transition-colors relative cursor-pointer shrink-0 ' + (isGoalOn ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700');
-          els.toggleGoalReminderKnob.className = 'block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-150 ' + (isGoalOn ? 'translate-x-4' : 'translate-x-0.5');
+          els.toggleGoalReminderBtn.className = 'relative inline-flex items-center w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer shrink-0 ' + (isGoalOn ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700');
+        }
+        if (els.toggleGoalReminderKnob) {
+          els.toggleGoalReminderKnob.className = 'pointer-events-none inline-block w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ' + (isGoalOn ? 'translate-x-5' : 'translate-x-0.5');
+        }
+        if (goalTimeContainer) {
           goalTimeContainer.classList.toggle('hidden', !isGoalOn);
         }
       }
@@ -5473,10 +5533,11 @@
       }
 
       function buildReminderSchedulePayload(resetPeriod) {
-        const morning = normalizeTo24HourTime(state.settings.morningReminderTime || '05:30', 'morning');
+        const morning = normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning');
         const evening = normalizeTo24HourTime(state.settings.eveningReminderTime || '17:30', 'evening');
         const sleep = normalizeTo24HourTime(state.settings.sleepReminderTime || '22:00', 'sleep');
         const goal = normalizeTo24HourTime(state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+        const isGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
 
         const mItems = window.ADHKAR_DATA.morning || [];
         const eItems = window.ADHKAR_DATA.evening || [];
@@ -5499,18 +5560,21 @@
           sleep12h: formatTime12h(sleep, 'sleep'),
           goal12h: formatTime12h(goal, 'goal'),
           enabled: Boolean(state.settings.remindersEnabled),
-          goalEnabled: Boolean(state.settings.goalReminderEnabled)
+          goalEnabled: isGoalOn,
+          dailyGoalEnabled: isGoalOn
         };
         try {
+          localStorage.setItem('dailyGoalEnabled', String(isGoalOn));
           localStorage.setItem('adhkar_reminders', JSON.stringify(remindersRecord));
         } catch (e) {}
 
         return {
-          enabled: Boolean(state.settings.remindersEnabled),
+          enabled: Boolean(state.settings.remindersEnabled || isGoalOn),
           morning: morning,
           evening: evening,
           sleep: sleep,
-          goalEnabled: Boolean(state.settings.goalReminderEnabled),
+          goalEnabled: isGoalOn,
+          dailyGoalEnabled: isGoalOn,
           goal: goal,
           allCompletedToday: Boolean(mDone && eDone),
           lastNotified: lastNotified,
@@ -5616,7 +5680,8 @@
       };
 
       async function checkClientScheduledReminders() {
-        if (!state.settings.remindersEnabled) return;
+        const isGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
+        if (!state.settings.remindersEnabled && !isGoalOn) return;
         const now = new Date();
         const currentTime = now.toTimeString().slice(0, 5);
         const nowMins = now.getHours() * 60 + now.getMinutes();
@@ -5629,7 +5694,7 @@
           if (raw) storedReminders = JSON.parse(raw);
         } catch (e) {}
 
-        const morningTarget = normalizeTo24HourTime((storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '05:30', 'morning');
+        const morningTarget = normalizeTo24HourTime((storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '06:00', 'morning');
         const eveningTarget = normalizeTo24HourTime((storedReminders && storedReminders.evening) || state.settings.eveningReminderTime || '17:30', 'evening');
         const sleepTarget = normalizeTo24HourTime((storedReminders && storedReminders.sleep) || state.settings.sleepReminderTime || '22:00', 'sleep');
         const goalTarget = normalizeTo24HourTime((storedReminders && storedReminders.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
@@ -5640,10 +5705,10 @@
                         eItems.length > 0 && eItems.every(function(i) { return (state.counts[i.id] || 0) >= i.target; });
 
         const slots = [
-          { key: 'morning', time: morningTarget, active: true },
-          { key: 'evening', time: eveningTarget, active: true },
-          { key: 'sleep', time: sleepTarget, active: true },
-          { key: 'goal', time: goalTarget, active: Boolean(state.settings.goalReminderEnabled) && !allDone }
+          { key: 'morning', time: morningTarget, active: Boolean(state.settings.remindersEnabled) },
+          { key: 'evening', time: eveningTarget, active: Boolean(state.settings.remindersEnabled) },
+          { key: 'sleep', time: sleepTarget, active: Boolean(state.settings.remindersEnabled) },
+          { key: 'goal', time: goalTarget, active: isGoalOn && !allDone }
         ];
 
         for (const slot of slots) {
@@ -5831,15 +5896,37 @@
         });
       });
 
-      if (els.toggleGoalReminderBtn) {
+      function applyDailyGoalReminderToggle(nextGoalState) {
+        const isEnabled = Boolean(nextGoalState);
+        state.settings.dailyGoalEnabled = isEnabled;
+        state.settings.goalReminderEnabled = isEnabled;
+        try {
+          localStorage.setItem('dailyGoalEnabled', String(isEnabled));
+        } catch (e) {}
+
+        if (isEnabled) {
+          if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission !== 'granted') {
+            try {
+              Notification.requestPermission();
+            } catch (e) {}
+          }
+        }
+
+        clearLastNotifiedForPeriod('goal');
+        saveState();
+        syncSettingsModalUI();
+        syncRemindersWithServiceWorker('goal').then(function() {
+          checkClientScheduledReminders();
+        });
+      }
+
+      if (els.dailyGoalReminderToggle) {
+        els.dailyGoalReminderToggle.addEventListener('change', function() {
+          applyDailyGoalReminderToggle(this.checked);
+        });
+      } else if (els.toggleGoalReminderBtn) {
         els.toggleGoalReminderBtn.addEventListener('click', function() {
-          state.settings.goalReminderEnabled = !Boolean(state.settings.goalReminderEnabled);
-          clearLastNotifiedForPeriod('goal');
-          saveState();
-          syncSettingsModalUI();
-          syncRemindersWithServiceWorker('goal').then(function() {
-            checkClientScheduledReminders();
-          });
+          applyDailyGoalReminderToggle(!Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled));
         });
       }
 
@@ -5856,14 +5943,55 @@
 
       if (els.sendTestNotificationBtn) {
         els.sendTestNotificationBtn.addEventListener('click', async function() {
-          await requestPushPermissions();
-          await dispatchMobileSafeNotification(
-            '🕌 Daily Adhkar Reminder • ദിക്ർ ഓർമ്മപ്പെടുത്തൽ',
-            'നോട്ടിഫിക്കേഷൻ അയച്ചു! (Notification Sent!) Remember Allah in the morning and evening.',
-            'adhkar-test-' + Date.now()
-          );
+          const testTitle = 'മുദാവമ • Mudawamah';
+          const testBody = 'നോട്ടിഫിക്കേഷൻ ടെസ്റ്റ് വിജയിച്ചു! • Notification is working perfectly!';
+
+          if (typeof window !== 'undefined' && 'Notification' in window) {
+            if (Notification.permission === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.ready.then(function(reg) {
+                reg.showNotification(testTitle, {
+                  body: testBody,
+                  icon: './icon.png',
+                  badge: './badge.png',
+                  vibrate: [200, 100, 200]
+                });
+              });
+            } else if (Notification.permission === 'granted') {
+              await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+            } else {
+              try {
+                const perm = await Notification.requestPermission();
+                if (perm === 'granted') {
+                  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then(function(reg) {
+                      reg.showNotification(testTitle, {
+                        body: testBody,
+                        icon: './icon.png',
+                        badge: './badge.png',
+                        vibrate: [200, 100, 200]
+                      });
+                    });
+                  } else {
+                    await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+
+          if (state.settings.soundEnabled !== false) {
+            playCompletionChime();
+          }
+          if (state.settings.vibrateEnabled !== false) {
+            triggerVibration([200, 100, 200]);
+          }
+          if (els.inAppNotificationToast && els.inAppToastTitle && els.inAppToastBody) {
+            els.inAppToastTitle.textContent = testTitle;
+            els.inAppToastBody.textContent = testBody;
+            els.inAppNotificationToast.classList.remove('hidden');
+          }
           if (els.testNotificationFeedback) {
-            els.testNotificationFeedback.textContent = '✓ നോട്ടിഫിക്കേഷൻ അയച്ചു! (Notification Sent!)';
+            els.testNotificationFeedback.textContent = '✓ ' + testBody;
             els.testNotificationFeedback.classList.remove('hidden');
             setTimeout(function() {
               els.testNotificationFeedback.classList.add('hidden');
