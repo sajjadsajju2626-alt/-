@@ -490,14 +490,16 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
     'Header action icons must use stroke-based vector SVGs (stroke-width 1.75) for Sound, Theme, and Settings'
   );
 
-  // 9. Verify Big Tap Zone under Adhkar text & translation + 35ms / [40, 30, 60] haptics + 300ms auto-advance
+  // 9. Verify Solid Emerald/Teal Tap Button at bottom of card + 35ms / [40, 30, 60] haptics + 300ms auto-advance
   assert.ok(
-    indexHtml.includes('h-20 w-full rounded-2xl bg-emerald-700/15 border-2 border-dashed border-emerald-600/40 hover:bg-emerald-700/25 active:scale-[0.98] transition-all flex flex-col items-center justify-center select-none cursor-pointer'),
-    'Must include full-width Big Tap Card with exact design classes underneath Adhkar text and translation'
+    indexHtml.includes('bg-[#005a4e] hover:bg-[#00483e]') &&
+      indexHtml.includes('bg-[#003b33]') &&
+      indexHtml.includes("${isDone ? '✓ Done:' : 'Tap:'}"),
+    'Must include full-width solid dark emerald/teal Tap button with inset count box matching the screenshot'
   );
   assert.ok(
     indexHtml.includes('എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count'),
-    'Big Tap Card must display hint text "എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count"'
+    'Tap button must include bilingual hint text "എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count"'
   );
   assert.ok(
     indexHtml.includes('navigator.vibrate(35)') &&
@@ -509,6 +511,28 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
       indexHtml.includes("nextCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' })") &&
       indexHtml.includes('}, 300);'),
     'Must trigger success ripple animation and smoothly scroll to the next Dhikr card after a 300ms pause'
+  );
+
+  // 10. Verify Hadith Reference container cleanup, aligned 2-column top action bar, and unified audio player widget
+  assert.ok(
+    indexHtml.includes('border border-slate-200 dark:border-white/10 rounded-xl bg-slate-50/70 dark:bg-white/5'),
+    'Hadith Reference accordion must use soft subtle border and background styling'
+  );
+  assert.equal(
+    indexHtml.includes('>ഹദീസിന്റെ ശ്രേഷ്ഠത</span>'),
+    false,
+    'Must remove redundant inner yellow badge repeating "ഹദീസിന്റെ ശ്രേഷ്ഠത" inside Hadith summary'
+  );
+  assert.ok(
+    indexHtml.includes('<span class="badge ') &&
+      indexHtml.includes('ചിത്രമായി പങ്കുവെക്കുക (Share)'),
+    'Top action bar must include compact <span class="badge"> on left and minimal "ചിത്രമായി പങ്കുവെക്കുക (Share)" button on right'
+  );
+  assert.ok(
+    indexHtml.includes('audio-player-widget') &&
+      indexHtml.includes('data-audio-indicator=') &&
+      indexHtml.includes('Tajweed / Murattal • Qari (ആയത്തുകൾ)'),
+    'Must combine Play button, Tajweed/Murattal Qari label, and speaker/duration indicator into a unified audio-player-widget'
   );
 });
 
