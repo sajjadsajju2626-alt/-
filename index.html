@@ -209,6 +209,29 @@
     .completion-free-text-enter {
       animation: freeTextRiseIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
+    .big-tap-pattern-bg {
+      background-image:
+        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.22) 0%, rgba(13, 92, 58, 0.06) 55%, transparent 75%),
+        repeating-linear-gradient(45deg, rgba(16, 185, 129, 0.07) 0px, rgba(16, 185, 129, 0.07) 2px, transparent 2px, transparent 10px),
+        repeating-linear-gradient(-45deg, rgba(16, 185, 129, 0.07) 0px, rgba(16, 185, 129, 0.07) 2px, transparent 2px, transparent 10px);
+    }
+    @keyframes tapSuccessRipple {
+      0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.65), inset 0 0 0 0 rgba(16, 185, 129, 0.45);
+        transform: scale(0.98);
+      }
+      50% {
+        box-shadow: 0 0 0 14px rgba(16, 185, 129, 0), inset 0 0 24px 4px rgba(16, 185, 129, 0.28);
+        transform: scale(1.01);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0), inset 0 0 0 0 rgba(16, 185, 129, 0);
+        transform: scale(1);
+      }
+    }
+    .tap-success-ripple {
+      animation: tapSuccessRipple 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
   </style>
 </head>
 <body class="bg-[#f4f9f6] dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-full flex flex-col theme-transition pb-12 select-none" id="appBody">
@@ -225,23 +248,33 @@
           </button>
         </div>
 
-        <!-- Right: 3 Clean White Action Icons (Sound, Daylight/Night, Settings) -->
+        <!-- Right: 3 Modern Translucent Glassmorphic Vector Action Icons (Sound, Theme, Settings) -->
         <div class="flex items-center gap-1.5">
-          <!-- Sound Mute/Unmute -->
-          <button id="soundToggleBtn" aria-label="Toggle Sound" title="Sound" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95">
-            <span id="soundIcon" class="text-sm">🔊</span>
+          <!-- Sound Mute/Unmute (Lucide volume-high / volume-x, 20px) -->
+          <button id="soundToggleBtn" aria-label="Toggle Sound" title="Sound" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center transition-all text-white cursor-pointer active:scale-95">
+            <span id="soundIcon" class="flex items-center justify-center">
+              <svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+            </span>
           </button>
 
-          <!-- Theme Toggle -->
-          <button id="themeToggleBtn" aria-label="Toggle Theme" title="Theme" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95">
-            <span id="themeIcon" class="text-sm">🌙</span>
+          <!-- Theme Toggle (Crescent Moon transitioning to Minimal Sun, 20px) -->
+          <button id="themeToggleBtn" aria-label="Toggle Theme" title="Theme" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center transition-all text-white cursor-pointer active:scale-95">
+            <span id="themeIcon" class="flex items-center justify-center">
+              <svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              </svg>
+            </span>
           </button>
 
-          <!-- Settings -->
-          <button id="openSettingsBtn" aria-label="Open Settings" title="Settings" class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-white flex items-center justify-center transition-all cursor-pointer active:scale-95">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <!-- Settings (Refined Geometric Gear Icon, stroke-width 1.75, 20px) -->
+          <button id="openSettingsBtn" aria-label="Open Settings" title="Settings" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center transition-all text-white cursor-pointer active:scale-95">
+            <svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
             </svg>
           </button>
         </div>
@@ -2508,11 +2541,34 @@
         }
       }
 
+      function getSoundIconSvg(enabled) {
+        if (enabled) {
+          return '<svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
+        }
+        return '<svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
+      }
+
+      function getThemeIconSvg(theme) {
+        if (theme === 'emerald') {
+          return '<svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
+        }
+        return '<svg class="w-5 h-5" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>';
+      }
+
+      function updateSoundIconUI() {
+        if (els.soundIcon) {
+          els.soundIcon.innerHTML = getSoundIconSvg(Boolean(state.settings.soundEnabled));
+        }
+      }
+
       function updateTheme(theme) {
         state.settings.theme = theme;
         saveState();
         document.documentElement.className = theme === 'midnight' ? 'theme-midnight dark' : (theme === 'dark' ? 'theme-dark dark' : 'theme-emerald');
-        els.themeIcon.textContent = theme === 'emerald' ? '🌙' : '☀️';
+        if (els.themeIcon) {
+          els.themeIcon.innerHTML = getThemeIconSvg(theme);
+        }
+        updateSoundIconUI();
         
         document.querySelectorAll('.theme-choice').forEach(b => {
           if (b.dataset.theme === theme) {
@@ -3447,13 +3503,11 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                   </button>
 
-                  <button class="count-btn px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-90 ${
-                    isDone 
-                      ? 'bg-emerald-700 text-white shadow-xs' 
-                      : 'bg-[#0d5c3a] hover:bg-[#064e3b] text-white shadow-xs'
-                  }" data-id="${item.id}">
-                    <span>${isDone ? '✓ Done' : 'Tap: ' + currentCount + ' / ' + item.target}</span>
-                  </button>
+                  ${isDone ? `
+                    <span class="px-2.5 py-1 rounded-xl bg-emerald-700 text-white font-extrabold text-[11px] flex items-center gap-1 shadow-2xs">
+                      <span>✓ Done</span>
+                    </span>
+                  ` : ''}
                 </div>
               </div>
 
@@ -3610,6 +3664,33 @@
                   </div>
                 </div>
               ` : ''}
+
+              <!-- Dedicated Big Tap Zone Under the Adhkar Text & Translation -->
+              <button
+                type="button"
+                data-id="${item.id}"
+                data-testid="big-tap-zone-${item.id}"
+                class="count-btn big-tap-zone relative overflow-hidden h-20 w-full rounded-2xl bg-emerald-700/15 border-2 border-dashed border-emerald-600/40 hover:bg-emerald-700/25 active:scale-[0.98] transition-all flex flex-col items-center justify-center select-none cursor-pointer ${
+                  isDone ? 'ring-2 ring-emerald-500/70 bg-emerald-700/25 border-emerald-500/80' : ''
+                }"
+              >
+                <div class="big-tap-pattern-bg pointer-events-none absolute inset-0 opacity-80"></div>
+                <div class="relative z-10 flex items-center gap-2">
+                  <span class="text-xl sm:text-2xl font-black tracking-tight tabular-nums ${
+                    isDone ? 'text-emerald-800 dark:text-emerald-200' : 'text-[#064e3b] dark:text-emerald-300'
+                  }">
+                    ${isDone ? '✓ ' + currentCount + ' / ' + item.target : currentCount + ' / ' + item.target}
+                  </span>
+                  ${!isDone && (item.target - currentCount) > 0 ? `
+                    <span class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-800/15 dark:bg-emerald-400/15 text-[#064e3b] dark:text-emerald-200">
+                      ${item.target - currentCount} left
+                    </span>
+                  ` : ''}
+                </div>
+                <span class="relative z-10 text-[11px] sm:text-xs font-extrabold font-malayalam mt-0.5 text-[#064e3b]/90 dark:text-emerald-200/90">
+                  ${isDone ? '✓ പൂർത്തിയായി • എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count' : 'എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count'}
+                </span>
+              </button>
 
               ${state.settings.showVirtues && (item.virtue || item.malayalamVirtue || item.hadithArabic || item.source) ? `
                 <details class="group text-xs border-t border-slate-300 dark:border-slate-800 pt-2">
@@ -4038,6 +4119,8 @@
         els.tasbihRingCircle.style.strokeDashoffset = offset;
       }
 
+      let autoAdvanceScrollTimer = null;
+
       function handleCount(id) {
         const all = [
           ...window.ADHKAR_DATA.morning,
@@ -4055,27 +4138,86 @@
         const wasCategoryAllDone = catItems.length > 0 && catItems.every(i => (state.counts[i.id] || 0) >= i.target);
 
         const current = state.counts[id] || 0;
+        let justCompletedItem = false;
+
         if (current >= item.target) {
           state.counts[id] = 0;
+          playTapBeep();
+          if (state.settings.vibrateEnabled && 'vibrate' in navigator) {
+            try { navigator.vibrate(35); } catch (e) {}
+          } else {
+            triggerVibration(35);
+          }
         } else {
           state.counts[id] = current + 1;
+          playTapBeep();
           if (state.counts[id] === item.target) {
-            playTapBeep();
-            triggerVibration(30);
+            justCompletedItem = true;
+            if (state.settings.vibrateEnabled && 'vibrate' in navigator) {
+              try { navigator.vibrate([40, 30, 60]); } catch (e) {}
+            } else {
+              triggerVibration([40, 30, 60]);
+            }
           } else {
-            playTapBeep();
-            triggerVibration(15);
+            if (state.settings.vibrateEnabled && 'vibrate' in navigator) {
+              try { navigator.vibrate(35); } catch (e) {}
+            } else {
+              triggerVibration(35);
+            }
           }
         }
+
         saveState();
         recalculateDynamicStreak();
         renderStreakBadge();
         renderCards();
         updateTabsUI();
 
+        if (justCompletedItem) {
+          const completedCardEl = document.getElementById('adhkar-card-' + id);
+          if (completedCardEl) {
+            const tapZoneBtn = completedCardEl.querySelector('.big-tap-zone');
+            if (tapZoneBtn) {
+              tapZoneBtn.classList.remove('tap-success-ripple');
+              void tapZoneBtn.offsetWidth;
+              tapZoneBtn.classList.add('tap-success-ripple');
+            }
+          }
+        }
+
         const isCategoryNowAllDone = catItems.length > 0 && catItems.every(i => (state.counts[i.id] || 0) >= i.target);
         if (!wasCategoryAllDone && isCategoryNowAllDone) {
           triggerCompletionOverlay(targetCatKey);
+        } else if (justCompletedItem) {
+          const currentIdx = catItems.findIndex(i => i.id === id);
+          let nextItem = null;
+          if (currentIdx >= 0) {
+            for (let offset = 1; offset < catItems.length; offset++) {
+              const candidate = catItems[currentIdx + offset];
+              if (candidate && (state.counts[candidate.id] || 0) < candidate.target) {
+                nextItem = candidate;
+                break;
+              }
+            }
+            if (!nextItem && currentIdx + 1 < catItems.length) {
+              nextItem = catItems[currentIdx + 1];
+            }
+            if (!nextItem) {
+              nextItem = catItems.find(i => i.id !== id && (state.counts[i.id] || 0) < i.target) || null;
+            }
+          }
+          if (nextItem) {
+            if (autoAdvanceScrollTimer) {
+              clearTimeout(autoAdvanceScrollTimer);
+            }
+            autoAdvanceScrollTimer = setTimeout(function() {
+              autoAdvanceScrollTimer = null;
+              const nextCardEl = document.getElementById('adhkar-card-' + nextItem.id);
+              if (nextCardEl && nextCardEl.scrollIntoView) {
+                nextCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 300);
+          }
         }
       }
 
@@ -4827,7 +4969,7 @@
       els.soundToggleBtn.addEventListener('click', function() {
         state.settings.soundEnabled = !state.settings.soundEnabled;
         saveState();
-        els.soundIcon.textContent = state.settings.soundEnabled ? '🔊' : '🔇';
+        updateSoundIconUI();
         els.toggleSoundSetting.checked = state.settings.soundEnabled;
       });
 
@@ -5121,7 +5263,7 @@
       els.toggleSoundSetting.addEventListener('change', function() {
         state.settings.soundEnabled = this.checked;
         saveState();
-        els.soundIcon.textContent = this.checked ? '🔊' : '🔇';
+        updateSoundIconUI();
       });
       els.toggleVibrate.addEventListener('change', function() {
         state.settings.vibrateEnabled = this.checked;

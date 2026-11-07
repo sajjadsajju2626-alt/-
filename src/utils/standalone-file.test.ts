@@ -477,6 +477,40 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
   assert.ok(swContent.includes('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar'), 'firebase-messaging-sw.js must contain Evening title');
   assert.ok(swContent.includes('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar'), 'firebase-messaging-sw.js must contain Sleep title');
   assert.ok(swContent.includes("tag: 'adhkar-scheduled'"), 'firebase-messaging-sw.js must use tag: adhkar-scheduled');
+
+  // 8. Verify Modernized Header Action Icons (glassmorphic badges + stroke-based 20px SVGs)
+  assert.ok(
+    indexHtml.includes('w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 flex items-center justify-center transition-all'),
+    'Header action buttons must use modern translucent circular glassmorphic badge styling'
+  );
+  assert.ok(
+    indexHtml.includes('function getSoundIconSvg(') &&
+      indexHtml.includes('function getThemeIconSvg(') &&
+      indexHtml.includes('stroke-width="1.75"'),
+    'Header action icons must use stroke-based vector SVGs (stroke-width 1.75) for Sound, Theme, and Settings'
+  );
+
+  // 9. Verify Big Tap Zone under Adhkar text & translation + 35ms / [40, 30, 60] haptics + 300ms auto-advance
+  assert.ok(
+    indexHtml.includes('h-20 w-full rounded-2xl bg-emerald-700/15 border-2 border-dashed border-emerald-600/40 hover:bg-emerald-700/25 active:scale-[0.98] transition-all flex flex-col items-center justify-center select-none cursor-pointer'),
+    'Must include full-width Big Tap Card with exact design classes underneath Adhkar text and translation'
+  );
+  assert.ok(
+    indexHtml.includes('എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count'),
+    'Big Tap Card must display hint text "എണ്ണാൻ ഇവിടെ ടാപ്പ് ചെയ്യുക • Tap to Count"'
+  );
+  assert.ok(
+    indexHtml.includes('navigator.vibrate(35)') &&
+      indexHtml.includes('navigator.vibrate([40, 30, 60])'),
+    'Must trigger navigator.vibrate(35) on tap and navigator.vibrate([40, 30, 60]) on dhikr completion'
+  );
+  assert.ok(
+    indexHtml.includes('tap-success-ripple') &&
+      indexHtml.includes("nextCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' })") &&
+      indexHtml.includes('}, 300);'),
+    'Must trigger success ripple animation and smoothly scroll to the next Dhikr card after a 300ms pause'
+  );
 });
+
 
 
