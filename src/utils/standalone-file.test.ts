@@ -464,6 +464,22 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
       indexHtml.includes("badge: './badge.png'"),
     'Send Test Notification button must trigger reg.showNotification with exact Malayalam/English test message, ./icon.png, and ./badge.png'
   );
+  assert.ok(
+    indexHtml.includes("vapidKey: 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI'") &&
+      indexHtml.includes("localStorage.setItem('fcm_token', currentToken)"),
+    'Must retrieve FCM device token using configured VAPID key and store fcm_token in localStorage'
+  );
+  assert.ok(
+    indexHtml.includes('function checkScheduledReminders()') &&
+      indexHtml.includes('function alreadyFiredToday(') &&
+      indexHtml.includes('function markFiredToday(') &&
+      indexHtml.includes('async function triggerLocalNotification(') &&
+      indexHtml.includes("localStorage.getItem('morning_time')") &&
+      indexHtml.includes("localStorage.getItem('evening_time')") &&
+      indexHtml.includes("localStorage.getItem('sleep_time')") &&
+      indexHtml.includes('setInterval(checkScheduledReminders, 30000);'),
+    'Must implement checkScheduledReminders with 30s interval, localStorage time keys, and fired-today state persistence'
+  );
 
   // 7. Verify public/firebase-messaging-sw.js has matching background alarm logic
   const swPath = path.resolve(process.cwd(), 'public/firebase-messaging-sw.js');

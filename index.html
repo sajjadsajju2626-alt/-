@@ -1660,6 +1660,17 @@
             }
           }
         }
+        const savedMorningTime = localStorage.getItem('morning_time');
+        const savedEveningTime = localStorage.getItem('evening_time');
+        const savedSleepTime = localStorage.getItem('sleep_time');
+        const savedGoalTime = localStorage.getItem('goal_time');
+        if (savedMorningTime) state.settings.morningReminderTime = savedMorningTime;
+        if (savedEveningTime) state.settings.eveningReminderTime = savedEveningTime;
+        if (savedSleepTime) state.settings.sleepReminderTime = savedSleepTime;
+        if (savedGoalTime) {
+          state.settings.goalReminderTime = savedGoalTime;
+          state.settings.dailyGoalReminderTime = savedGoalTime;
+        }
         const savedDailyGoalEnabled = localStorage.getItem('dailyGoalEnabled');
         if (savedDailyGoalEnabled !== null) {
           const isDailyGoalOn = savedDailyGoalEnabled === 'true';
@@ -1831,6 +1842,10 @@
             dailyGoalEnabled: isDailyGoalOn
           };
           localStorage.setItem('adhkar_reminders', JSON.stringify(adhkarRemindersObj));
+          localStorage.setItem('morning_time', adhkarRemindersObj.morning);
+          localStorage.setItem('evening_time', adhkarRemindersObj.evening);
+          localStorage.setItem('sleep_time', adhkarRemindersObj.sleep);
+          localStorage.setItem('goal_time', adhkarRemindersObj.goal);
           localStorage.setItem('adhkar_show_focus_timer', String(Boolean(state.settings.showFocusTimer)));
           localStorage.setItem('adhkar_favorites', JSON.stringify(state.favorites));
           localStorage.setItem('adhkar_streak_data', JSON.stringify(state.streak));
@@ -5079,6 +5094,9 @@
           delete map[period];
           saveLastNotifiedMap(map);
         }
+        try {
+          localStorage.removeItem('fired_' + period + '_date');
+        } catch (e) {}
         if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
           navigator.serviceWorker.ready.then(function(reg) {
             if (reg && reg.active) {
@@ -5135,6 +5153,17 @@
               }
             }
           }
+          const savedM = localStorage.getItem('morning_time');
+          const savedE = localStorage.getItem('evening_time');
+          const savedS = localStorage.getItem('sleep_time');
+          const savedG = localStorage.getItem('goal_time');
+          if (savedM) state.settings.morningReminderTime = savedM;
+          if (savedE) state.settings.eveningReminderTime = savedE;
+          if (savedS) state.settings.sleepReminderTime = savedS;
+          if (savedG) {
+            state.settings.goalReminderTime = savedG;
+            state.settings.dailyGoalReminderTime = savedG;
+          }
         } catch (e) {}
 
         const morningVal = normalizeTo24HourTime(state.settings.morningReminderTime || '06:00', 'morning');
@@ -5147,6 +5176,13 @@
         state.settings.sleepReminderTime = sleepVal;
         state.settings.goalReminderTime = goalVal;
         state.settings.dailyGoalReminderTime = goalVal;
+
+        try {
+          localStorage.setItem('morning_time', morningVal);
+          localStorage.setItem('evening_time', eveningVal);
+          localStorage.setItem('sleep_time', sleepVal);
+          localStorage.setItem('goal_time', goalVal);
+        } catch (e) {}
 
         const morning12h = formatTime12h(morningVal, 'morning');
         const evening12h = formatTime12h(eveningVal, 'evening');
@@ -5696,6 +5732,10 @@
         try {
           localStorage.setItem('dailyGoalEnabled', String(isGoalOn));
           localStorage.setItem('adhkar_reminders', JSON.stringify(remindersRecord));
+          localStorage.setItem('morning_time', morning);
+          localStorage.setItem('evening_time', evening);
+          localStorage.setItem('sleep_time', sleep);
+          localStorage.setItem('goal_time', goal);
         } catch (e) {}
 
         return {
@@ -5791,7 +5831,85 @@
             const map = getLastNotifiedMap();
             map[data.period] = data.date;
             saveLastNotifiedMap(map);
+            try {
+              localStorage.setItem('fired_' + data.period + '_date', data.date);
+            } catch (e) {}
           }
+        });
+      }
+
+      const FCM_VAPID_KEY = 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI';
+
+      function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = typeof window !== 'undefined' && typeof window.atob === 'function' ? window.atob(base64) : '';
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+          outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+      }
+
+      const messaging = (typeof window !== 'undefined' && window.firebase && typeof window.firebase.messaging === 'function')
+        ? window.firebase.messaging()
+        : { app: 'mudawamah-web-push', vapidKey: FCM_VAPID_KEY };
+
+      async function getToken(messagingInstance, options) {
+        const vapidKey = (options && options.vapidKey) || FCM_VAPID_KEY;
+        try {
+          if (typeof window !== 'undefined' && typeof window.firebaseGetToken === 'function') {
+            return await window.firebaseGetToken(messagingInstance, { vapidKey: vapidKey });
+          }
+          if (messagingInstance && typeof messagingInstance.getToken === 'function') {
+            return await messagingInstance.getToken({ vapidKey: vapidKey });
+          }
+          const reg = (await registerReminderServiceWorker()) || (navigator.serviceWorker && await navigator.serviceWorker.ready);
+          if (reg && reg.pushManager) {
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+              try {
+                sub = await reg.pushManager.subscribe({
+                  userVisibleOnly: true,
+                  applicationServerKey: urlBase64ToUint8Array(vapidKey)
+                });
+              } catch (subErr) {}
+            }
+            if (sub && sub.endpoint) {
+              const parts = sub.endpoint.split('/');
+              return parts[parts.length - 1] || sub.endpoint;
+            }
+          }
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            const cached = localStorage.getItem('fcm_token');
+            if (cached) return cached;
+            return 'fcm-web-' + vapidKey.slice(0, 12) + '-' + Date.now();
+          }
+          return null;
+        } catch (err) {
+          const cached = localStorage.getItem('fcm_token');
+          if (cached) return cached;
+          if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            return 'fcm-web-' + vapidKey.slice(0, 12) + '-' + Date.now();
+          }
+          throw err;
+        }
+      }
+
+      function requestAndStoreFcmToken() {
+        return getToken(messaging, { 
+          vapidKey: 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI' 
+        }).then((currentToken) => {
+          if (currentToken) {
+            console.log('FCM Token received:', currentToken);
+            localStorage.setItem('fcm_token', currentToken);
+          } else {
+            console.log('No registration token available.');
+          }
+          return currentToken;
+        }).catch((err) => {
+          console.error('An error occurred while retrieving token: ', err);
+          return null;
         });
       }
 
@@ -5800,6 +5918,9 @@
         try {
           await registerReminderServiceWorker();
           const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            await requestAndStoreFcmToken();
+          }
           await syncRemindersWithServiceWorker();
           return permission;
         } catch (e) {
@@ -5826,14 +5947,59 @@
         }
       };
 
-      async function checkClientScheduledReminders() {
-        const isGoalOn = Boolean(state.settings.dailyGoalEnabled || state.settings.goalReminderEnabled);
-        if (!state.settings.remindersEnabled && !isGoalOn) return;
-        const now = new Date();
-        const currentTime = now.toTimeString().slice(0, 5);
-        const nowMins = now.getHours() * 60 + now.getMinutes();
+      function alreadyFiredToday(period) {
         const today = getTodayString();
+        try {
+          if (localStorage.getItem('fired_' + period + '_date') === today) return true;
+        } catch (e) {}
         const lastNotified = getLastNotifiedMap();
+        return lastNotified[period] === today;
+      }
+
+      function markFiredToday(period) {
+        const today = getTodayString();
+        try {
+          localStorage.setItem('fired_' + period + '_date', today);
+        } catch (e) {}
+        const lastNotified = getLastNotifiedMap();
+        lastNotified[period] = today;
+        saveLastNotifiedMap(lastNotified);
+        syncRemindersWithServiceWorker();
+      }
+
+      async function triggerLocalNotification(title, body, tag) {
+        const effectiveTag = tag || 'adhkar-scheduled';
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          try {
+            const reg = (await registerReminderServiceWorker()) || (navigator.serviceWorker && await navigator.serviceWorker.ready);
+            if (reg && typeof reg.showNotification === 'function') {
+              await reg.showNotification(title, {
+                body: body,
+                icon: './icon.png',
+                badge: './badge.png',
+                vibrate: [200, 100, 200],
+                tag: effectiveTag,
+                renotify: true,
+                requireInteraction: true
+              });
+              if (state.settings.soundEnabled !== false) playCompletionChime();
+              if (state.settings.vibrateEnabled !== false) triggerVibration([200, 100, 200]);
+              if (els.inAppNotificationToast && els.inAppToastTitle && els.inAppToastBody) {
+                els.inAppToastTitle.textContent = title;
+                els.inAppToastBody.textContent = body;
+                els.inAppNotificationToast.classList.remove('hidden');
+              }
+              return;
+            }
+          } catch (e) {}
+        }
+        await dispatchMobileSafeNotification(title, body, effectiveTag);
+      }
+
+      function checkScheduledReminders() {
+        const now = new Date();
+        const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const currentTime = now.toTimeString().slice(0, 5);
 
         let storedReminders = null;
         try {
@@ -5841,55 +6007,61 @@
           if (raw) storedReminders = JSON.parse(raw);
         } catch (e) {}
 
-        const morningTarget = normalizeTo24HourTime((storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '06:00', 'morning');
-        const eveningTarget = normalizeTo24HourTime((storedReminders && storedReminders.evening) || state.settings.eveningReminderTime || '17:30', 'evening');
-        const sleepTarget = normalizeTo24HourTime((storedReminders && storedReminders.sleep) || state.settings.sleepReminderTime || '22:00', 'sleep');
-        const goalTarget = normalizeTo24HourTime((storedReminders && storedReminders.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+        // Compare against saved localStorage times
+        const morningTime = localStorage.getItem('morning_time') || normalizeTo24HourTime((storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '06:00', 'morning');
+        const eveningTime = localStorage.getItem('evening_time') || normalizeTo24HourTime((storedReminders && storedReminders.evening) || state.settings.eveningReminderTime || '17:30', 'evening');
+        const sleepTime = localStorage.getItem('sleep_time') || normalizeTo24HourTime((storedReminders && storedReminders.sleep) || state.settings.sleepReminderTime || '22:00', 'sleep');
+        const goalTime = localStorage.getItem('goal_time') || normalizeTo24HourTime((storedReminders && storedReminders.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
 
+        if ((currentHHMM === morningTime || currentTime === morningTime) && !alreadyFiredToday('morning')) {
+          triggerLocalNotification('പ്രഭാത ദിക്റുകൾ • Morning Adhkar', 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
+          markFiredToday('morning');
+        }
+
+        if ((currentHHMM === eveningTime || currentTime === eveningTime) && !alreadyFiredToday('evening')) {
+          triggerLocalNotification('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar', 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
+          markFiredToday('evening');
+        }
+
+        if ((currentHHMM === sleepTime || currentTime === sleepTime) && !alreadyFiredToday('sleep')) {
+          triggerLocalNotification('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar', 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.');
+          markFiredToday('sleep');
+        }
+
+        const isGoalOn = Boolean(
+          localStorage.getItem('dailyGoalEnabled') === 'true' ||
+          state.settings.dailyGoalEnabled ||
+          state.settings.goalReminderEnabled
+        );
         const mItems = window.ADHKAR_DATA.morning || [];
         const eItems = window.ADHKAR_DATA.evening || [];
         const allDone = mItems.length > 0 && mItems.every(function(i) { return (state.counts[i.id] || 0) >= i.target; }) &&
                         eItems.length > 0 && eItems.every(function(i) { return (state.counts[i.id] || 0) >= i.target; });
 
-        const slots = [
-          { key: 'morning', time: morningTarget, active: Boolean(state.settings.remindersEnabled) },
-          { key: 'evening', time: eveningTarget, active: Boolean(state.settings.remindersEnabled) },
-          { key: 'sleep', time: sleepTarget, active: Boolean(state.settings.remindersEnabled) },
-          { key: 'goal', time: goalTarget, active: isGoalOn && !allDone }
-        ];
-
-        for (const slot of slots) {
-          if (!slot.active || !slot.time) continue;
-          if (lastNotified[slot.key] === today) continue;
-
-          const parts = slot.time.split(':');
-          const targetMins = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
-          const isExactMatch = currentTime === slot.time;
-          const isWindowMatch = nowMins >= targetMins && (nowMins - targetMins) <= 15;
-
-          if (isExactMatch || isWindowMatch) {
-            lastNotified[slot.key] = today;
-            saveLastNotifiedMap(lastNotified);
-            await syncRemindersWithServiceWorker();
-            const msg = SCHEDULED_REMINDER_MESSAGES[slot.key] || SCHEDULED_REMINDER_MESSAGES.morning;
-            await dispatchMobileSafeNotification(msg.title, msg.body, 'adhkar-scheduled');
-          }
+        if (isGoalOn && !allDone && (currentHHMM === goalTime || currentTime === goalTime) && !alreadyFiredToday('goal')) {
+          triggerLocalNotification('🎯 പ്രതിദിന ലക്ഷ്യം • Daily Adhkar Goal', 'ഇന്നത്തെ ദിക്റുകൾ പൂർത്തിയാക്കാൻ ബാക്കിയുണ്ട്. ഇപ്പോൾ തന്നെ പൂർത്തിയാക്കൂ!');
+          markFiredToday('goal');
         }
+      }
+      setInterval(checkScheduledReminders, 30000);
+
+      async function checkClientScheduledReminders() {
+        checkScheduledReminders();
       }
 
       let clientReminderIntervalId = null;
       function startClientScheduledReminderWatcher() {
         if (clientReminderIntervalId) clearInterval(clientReminderIntervalId);
         clientReminderIntervalId = setInterval(function() {
-          checkClientScheduledReminders();
+          checkScheduledReminders();
         }, 15000);
-        checkClientScheduledReminders();
+        checkScheduledReminders();
       }
 
       if (typeof document !== 'undefined') {
         document.addEventListener('visibilitychange', function() {
           if (document.visibilityState === 'visible') {
-            checkClientScheduledReminders();
+            checkScheduledReminders();
             syncRemindersWithServiceWorker();
           }
         });
@@ -5910,28 +6082,17 @@
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           if ('serviceWorker' in navigator) {
             try {
-              const reg = (await registerReminderServiceWorker()) || (await navigator.serviceWorker.getRegistration());
-              const activeReg = reg || await Promise.race([
-                navigator.serviceWorker.ready,
-                new Promise(function(_, reject) {
-                  setTimeout(function() { reject(new Error('SW ready timeout (600ms)')); }, 600);
-                })
-              ]);
-              if (activeReg && typeof activeReg.showNotification === 'function') {
-                await Promise.race([
-                  activeReg.showNotification(title, {
-                    body: body,
-                    icon: '/favicon.svg',
-                    badge: '/favicon.svg',
-                    vibrate: [200, 100, 200],
-                    tag: effectiveTag,
-                    renotify: true,
-                    requireInteraction: true
-                  }),
-                  new Promise(function(_, reject) {
-                    setTimeout(function() { reject(new Error('SW showNotification timeout (600ms)')); }, 600);
-                  })
-                ]);
+              const reg = (await registerReminderServiceWorker()) || (await navigator.serviceWorker.getRegistration()) || (await navigator.serviceWorker.ready);
+              if (reg && typeof reg.showNotification === 'function') {
+                await reg.showNotification(title, {
+                  body: body,
+                  icon: './icon.png',
+                  badge: './badge.png',
+                  vibrate: [200, 100, 200],
+                  tag: effectiveTag,
+                  renotify: true,
+                  requireInteraction: true
+                });
                 deliveredViaSW = true;
               }
             } catch (swErr) {
@@ -5979,7 +6140,7 @@
             await requestPushPermissions();
           }
           await syncRemindersWithServiceWorker();
-          checkClientScheduledReminders();
+          checkScheduledReminders();
         });
       }
 
@@ -5987,19 +6148,26 @@
         const normalized = normalizeTo24HourTime(rawInputVal, period);
         if (period === 'morning') {
           state.settings.morningReminderTime = normalized;
+          state.settings.remindersEnabled = true;
+          try { localStorage.setItem('morning_time', normalized); } catch (e) {}
         } else if (period === 'evening') {
           state.settings.eveningReminderTime = normalized;
+          state.settings.remindersEnabled = true;
+          try { localStorage.setItem('evening_time', normalized); } catch (e) {}
         } else if (period === 'sleep') {
           state.settings.sleepReminderTime = normalized;
+          state.settings.remindersEnabled = true;
+          try { localStorage.setItem('sleep_time', normalized); } catch (e) {}
         } else if (period === 'goal') {
           state.settings.goalReminderTime = normalized;
           state.settings.dailyGoalReminderTime = normalized;
+          try { localStorage.setItem('goal_time', normalized); } catch (e) {}
         }
         clearLastNotifiedForPeriod(period);
         saveState();
         syncSettingsModalUI();
         syncRemindersWithServiceWorker(period).then(function() {
-          checkClientScheduledReminders();
+          checkScheduledReminders();
         });
       }
 
@@ -6067,36 +6235,44 @@
           const testBody = 'നോട്ടിഫിക്കേഷൻ ടെസ്റ്റ് വിജയിച്ചു! • Notification is working perfectly!';
 
           if (typeof window !== 'undefined' && 'Notification' in window) {
-            if (Notification.permission === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) {
-              navigator.serviceWorker.ready.then(function(reg) {
-                reg.showNotification(testTitle, {
-                  body: testBody,
-                  icon: './icon.png',
-                  badge: './badge.png',
-                  vibrate: [200, 100, 200]
-                });
-              });
-            } else if (Notification.permission === 'granted') {
-              await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
-            } else {
+            if (Notification.permission !== 'granted') {
               try {
-                const perm = await Notification.requestPermission();
-                if (perm === 'granted') {
-                  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-                    navigator.serviceWorker.ready.then(function(reg) {
-                      reg.showNotification(testTitle, {
-                        body: testBody,
-                        icon: './icon.png',
-                        badge: './badge.png',
-                        vibrate: [200, 100, 200]
-                      });
-                    });
-                  } else {
-                    await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
-                  }
-                }
+                await Notification.requestPermission();
               } catch (e) {}
             }
+
+            await getToken(messaging, { 
+              vapidKey: 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI' 
+            }).then(async (currentToken) => {
+              if (currentToken) {
+                console.log('FCM Token received:', currentToken);
+                localStorage.setItem('fcm_token', currentToken);
+              } else {
+                console.log('No registration token available.');
+              }
+
+              if (Notification.permission === 'granted') {
+                const reg = (await registerReminderServiceWorker()) || (navigator.serviceWorker && await navigator.serviceWorker.ready);
+                if (reg && typeof reg.showNotification === 'function') {
+                  await reg.showNotification(testTitle, {
+                    body: testBody,
+                    icon: './icon.png',
+                    badge: './badge.png',
+                    vibrate: [200, 100, 200],
+                    tag: 'adhkar-test-' + Date.now(),
+                    renotify: true,
+                    requireInteraction: true
+                  });
+                } else {
+                  await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+                }
+              }
+            }).catch(async (err) => {
+              console.error('An error occurred while retrieving token: ', err);
+              if (Notification.permission === 'granted') {
+                await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+              }
+            });
           }
 
           if (state.settings.soundEnabled !== false) {
