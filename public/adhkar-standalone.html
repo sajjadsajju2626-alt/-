@@ -1286,7 +1286,7 @@
                 type="button"
                 id="sendTestNotificationBtn"
                 data-testid="send-test-notification-btn"
-                onclick="window.triggerImmediateTest(event)"
+                onclick="fireSystemNotification('മുദാവമ • Mudawamah', 'ടെസ്റ്റ് സിസ്റ്റം നോട്ടിഫിക്കേഷൻ വിജയിച്ചു!')"
                 style="position:relative; z-index:9999; cursor:pointer;"
                 class="py-2 px-3 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
@@ -5019,6 +5019,73 @@
       window.getNormalizedCurrentTime = getNormalizedCurrentTime;
       window.playAdhkarChime = playCompletionChime;
 
+      async function fireSystemNotification(title, message) {
+        // 1. Play in-app audio chime
+        if (typeof playNotificationSound === 'function') {
+          playNotificationSound();
+        } else if (typeof playCompletionChime === 'function') {
+          playCompletionChime();
+        }
+
+        // 2. Check permission
+        if (!('Notification' in window)) {
+          console.warn('System notifications not supported');
+          return;
+        }
+
+        let permission = Notification.permission;
+        if (permission !== 'granted') {
+          try {
+            permission = await Notification.requestPermission();
+          } catch (e) {
+            console.warn('Permission request error:', e);
+          }
+        }
+
+        if (permission === 'granted') {
+          const notificationOptions = {
+            body: message,
+            icon: './icon.png',
+            badge: './badge.png',
+            tag: 'mudawamah-system-alert-' + Date.now(),
+            vibrate: [300, 100, 300, 100, 300],
+            renotify: true,
+            requireInteraction: true,
+            data: { url: window.location.href }
+          };
+
+          // Trigger through Service Worker (Mandatory for Android System Tray)
+          if ('serviceWorker' in navigator) {
+            try {
+              const registration = (typeof registerReminderServiceWorker === 'function' && await registerReminderServiceWorker()) ||
+                                  (await navigator.serviceWorker.ready);
+              if (registration && typeof registration.showNotification === 'function') {
+                await registration.showNotification(title, notificationOptions);
+              } else {
+                new Notification(title, notificationOptions);
+              }
+            } catch (swErr) {
+              try {
+                new Notification(title, notificationOptions);
+              } catch (e) {}
+            }
+          } else {
+            // Fallback to desktop/legacy Notification constructor
+            try {
+              new Notification(title, notificationOptions);
+            } catch (e) {}
+          }
+        }
+
+        const fb = document.getElementById('testNotificationFeedback');
+        if (fb) {
+          fb.textContent = '✓ ' + (message || 'സിസ്റ്റം നോട്ടിഫിക്കേഷൻ അയച്ചു!');
+          fb.classList.remove('hidden');
+          setTimeout(() => fb.classList.add('hidden'), 5000);
+        }
+      }
+      window.fireSystemNotification = fireSystemNotification;
+
       window.triggerImmediateTest = function(event) {
         if (event && typeof event.preventDefault === 'function') {
           try { event.preventDefault(); } catch (err) {}
@@ -5026,62 +5093,7 @@
         if (event && typeof event.stopPropagation === 'function') {
           try { event.stopPropagation(); } catch (err) {}
         }
-
-        const testTitle = 'മുദാവമ • Mudawamah';
-        const testBody = 'നോട്ടിഫിക്കേഷൻ ടെസ്റ്റ് വിജയിച്ചു! • Notification is working perfectly!';
-
-        // Immediate tactile/audio feedback on first touch
-        try {
-          if (typeof playCompletionChime === 'function') playCompletionChime();
-        } catch (e) {}
-        try {
-          if (typeof triggerVibration === 'function') triggerVibration([200, 100, 200]);
-          else if (navigator && typeof navigator.vibrate === 'function') navigator.vibrate([200, 100, 200]);
-        } catch (e) {}
-
-        const fb = document.getElementById('testNotificationFeedback');
-        if (fb) {
-          fb.textContent = '✓ ' + testBody;
-          fb.classList.remove('hidden');
-          setTimeout(() => fb.classList.add('hidden'), 5000);
-        }
-
-        const inAppToast = document.getElementById('inAppNotificationToast');
-        const inAppTitle = document.getElementById('inAppToastTitle');
-        const inAppBody = document.getElementById('inAppToastBody');
-        if (inAppToast && inAppTitle && inAppBody) {
-          inAppTitle.textContent = testTitle;
-          inAppBody.textContent = testBody;
-          inAppToast.classList.remove('hidden');
-        }
-
-        if (typeof window !== 'undefined' && 'Notification' in window) {
-          if (Notification.permission !== 'granted') {
-            Notification.requestPermission().then(function(permission) {
-              if (permission === 'granted') {
-                dispatchDirectNotification(testTitle, testBody);
-              }
-            }).catch(function() {});
-          } else {
-            dispatchDirectNotification(testTitle, testBody);
-          }
-        }
-
-        // Background non-blocking FCM token logging
-        try {
-          if (typeof getToken === 'function' && typeof messaging !== 'undefined') {
-            getToken(messaging, { 
-              vapidKey: 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI' 
-            }).then(function(currentToken) {
-              if (currentToken) {
-                console.log('FCM Token received:', currentToken);
-                localStorage.setItem('fcm_token', currentToken);
-              }
-            }).catch(function(err) {
-              console.log('FCM background token retrieval note:', err);
-            });
-          }
-        } catch (e) {}
+        return fireSystemNotification('മുദാവമ • Mudawamah', 'ടെസ്റ്റ് സിസ്റ്റം നോട്ടിഫിക്കേഷൻ വിജയിച്ചു!');
       };
 
       async function dispatchDirectNotification(title, body) {
@@ -5759,13 +5771,12 @@
 
         self.addEventListener('notificationclick', function(event) {
           event.notification.close();
-          const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : './';
           event.waitUntil(
             clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-              for (const client of clientList) {
-                if ('focus' in client) return client.focus();
+              if (clientList.length > 0) {
+                return clientList[0].focus();
               }
-              if (clients.openWindow) return clients.openWindow(targetUrl);
+              return clients.openWindow('/');
             })
           );
         });

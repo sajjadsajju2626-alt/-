@@ -486,10 +486,10 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
   );
   assert.ok(
     indexHtml.includes('function getNormalizedCurrentTime()') &&
-      indexHtml.includes('window.triggerImmediateTest = function(') &&
-      indexHtml.includes('onclick="window.triggerImmediateTest(event)"') &&
+      indexHtml.includes('async function fireSystemNotification(') &&
+      indexHtml.includes("onclick=\"fireSystemNotification('മുദാവമ • Mudawamah', 'ടെസ്റ്റ് സിസ്റ്റം നോട്ടിഫിക്കേഷൻ വിജയിച്ചു!')\"") &&
       indexHtml.includes('id="reminderClockDebug"'),
-    'Must implement bulletproof getNormalizedCurrentTime, window.triggerImmediateTest with direct onclick handler, and on-screen #reminderClockDebug visual indicator'
+    'Must implement bulletproof getNormalizedCurrentTime, fireSystemNotification with direct onclick handler, and on-screen #reminderClockDebug visual indicator'
   );
 
   // 7. Verify public/firebase-messaging-sw.js has matching background alarm logic

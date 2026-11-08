@@ -585,25 +585,12 @@ self.addEventListener('push', function(event) {
 
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  const targetTab = (event.notification.data && event.notification.data.tab) || 'morning';
-  const clickUrl = (event.notification.data && event.notification.data.url) || `./?tab=${encodeURIComponent(targetTab)}`;
-
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if ('focus' in client) {
-          client.postMessage({
-            type: 'ADHKAR_NOTIFICATION_CLICK',
-            data: event.notification.data,
-            tab: targetTab,
-          });
-          return client.focus();
-        }
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
+      if (clientList.length > 0) {
+        return clientList[0].focus();
       }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(clickUrl);
-      }
+      return clients.openWindow('/');
     })
   );
 });
