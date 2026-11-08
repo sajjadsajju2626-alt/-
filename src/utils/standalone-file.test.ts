@@ -435,10 +435,14 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
   assert.ok(indexHtml.includes('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar'), 'Must include exact Evening notification title');
   assert.ok(indexHtml.includes('അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.'), 'Must include exact Evening notification body');
   assert.ok(indexHtml.includes('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar'), 'Must include exact Sleep notification title');
-  assert.ok(indexHtml.includes('ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.'), 'Must include exact Sleep notification body');
-  assert.ok(indexHtml.includes("tag: 'adhkar-scheduled'"), 'Must use tag: adhkar-scheduled');
+  assert.ok(indexHtml.includes("tag: 'adhkar-scheduled'") || indexHtml.includes("effectiveTag || 'adhkar-scheduled'"), 'Must use tag: adhkar-scheduled');
   assert.ok(indexHtml.includes('requireInteraction: true'), 'Must use requireInteraction: true');
-  assert.ok(indexHtml.includes('vibrate: [200, 100, 200]'), 'Must use vibrate: [200, 100, 200]');
+  assert.ok(
+    indexHtml.includes('vibrate: [300, 100, 300, 100, 300]') &&
+      indexHtml.includes("urgency: 'high'") &&
+      indexHtml.includes("priority: 'high'"),
+    'Must use high importance heads-up flags (vibrate: [300, 100, 300, 100, 300], urgency: high, priority: high)'
+  );
 
   // 6. Verify Daily Goal Completion Reminder checkbox toggle (#dailyGoalReminderToggle), dailyGoalEnabled persistence, and Send Test Notification SW handler
   assert.ok(

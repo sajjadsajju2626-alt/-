@@ -5085,30 +5085,31 @@
       };
 
       async function dispatchDirectNotification(title, body) {
+        const options = {
+          body: body,
+          icon: './icon.png',
+          badge: './badge.png',
+          vibrate: [300, 100, 300, 100, 300],
+          requireInteraction: true,
+          renotify: true,
+          tag: 'adhkar-reminder-' + Date.now(),
+          data: { dateOfArrival: Date.now() },
+          // Enforce Android heads-up banner flags
+          urgency: 'high',
+          priority: 'high'
+        };
+
         try {
           const reg = (typeof registerReminderServiceWorker === 'function' && await registerReminderServiceWorker()) ||
                       (navigator.serviceWorker && await navigator.serviceWorker.ready);
           if (reg && typeof reg.showNotification === 'function') {
-            await reg.showNotification(title, {
-              body: body,
-              icon: './icon.png',
-              badge: './badge.png',
-              vibrate: [200, 100, 200],
-              tag: 'adhkar-test-' + Date.now(),
-              renotify: true,
-              requireInteraction: true
-            });
+            await reg.showNotification(title, options);
             return;
           }
         } catch (e) {}
 
         try {
-          new Notification(title, {
-            body: body,
-            icon: './icon.png',
-            badge: './badge.png',
-            tag: 'adhkar-test-' + Date.now()
-          });
+          new Notification(title, options);
         } catch (e) {}
       }
 
@@ -5588,13 +5589,15 @@
               try {
                 await self.registration.showNotification(msg.title, {
                   body: msg.body,
-                  icon: '/favicon.svg',
-                  badge: '/favicon.svg',
-                  vibrate: [200, 100, 200],
-                  tag: 'adhkar-scheduled',
-                  renotify: true,
+                  icon: './icon.png',
+                  badge: './badge.png',
+                  vibrate: [300, 100, 300, 100, 300],
                   requireInteraction: true,
-                  data: { url: './?category=' + msg.category, period: slot.key }
+                  renotify: true,
+                  tag: 'adhkar-reminder-' + Date.now(),
+                  data: { dateOfArrival: Date.now(), url: './?category=' + msg.category, period: slot.key },
+                  urgency: 'high',
+                  priority: 'high'
                 });
                 await notifyClientsReminderFired(slot.key, today);
               } catch (e) {}
@@ -5735,13 +5738,15 @@
           const title = data.notification?.title || data.data?.title || 'മുദാവമ • Mudawamah';
           const options = {
             body: data.notification?.body || data.data?.body || 'ദിക്റുകൾ ചൊല്ലാനുള്ള സമയമായി (Time for your daily Adhkar)',
-            icon: '/favicon.svg',
-            badge: '/favicon.svg',
-            vibrate: [200, 100, 200],
-            tag: data.data?.tag || 'adhkar-scheduled',
+            icon: './icon.png',
+            badge: './badge.png',
+            vibrate: [300, 100, 300, 100, 300],
+            tag: data.data?.tag || ('adhkar-reminder-' + Date.now()),
             renotify: true,
             requireInteraction: true,
-            data: { url: data.data?.url || './' }
+            data: { dateOfArrival: Date.now(), url: data.data?.url || './' },
+            urgency: 'high',
+            priority: 'high'
           };
 
           event.waitUntil(
@@ -6075,21 +6080,27 @@
 
       async function triggerLocalNotification(title, body, tag) {
         const effectiveTag = tag || 'adhkar-scheduled';
+        const options = {
+          body: body,
+          icon: './icon.png',
+          badge: './badge.png',
+          vibrate: [300, 100, 300, 100, 300],
+          requireInteraction: true,
+          renotify: true,
+          tag: effectiveTag || 'adhkar-scheduled',
+          data: { dateOfArrival: Date.now() },
+          // Enforce Android heads-up banner flags
+          urgency: 'high',
+          priority: 'high'
+        };
+
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           try {
             const reg = (await registerReminderServiceWorker()) || (navigator.serviceWorker && await navigator.serviceWorker.ready);
             if (reg && typeof reg.showNotification === 'function') {
-              await reg.showNotification(title, {
-                body: body,
-                icon: './icon.png',
-                badge: './badge.png',
-                vibrate: [200, 100, 200],
-                tag: effectiveTag,
-                renotify: true,
-                requireInteraction: true
-              });
+              await reg.showNotification(title, options);
               if (state.settings.soundEnabled !== false) playCompletionChime();
-              if (state.settings.vibrateEnabled !== false) triggerVibration([200, 100, 200]);
+              if (state.settings.vibrateEnabled !== false) triggerVibration([300, 100, 300, 100, 300]);
               if (els.inAppNotificationToast && els.inAppToastTitle && els.inAppToastBody) {
                 els.inAppToastTitle.textContent = title;
                 els.inAppToastBody.textContent = body;
@@ -6203,27 +6214,33 @@
           playCompletionChime();
         }
         if (state.settings.vibrateEnabled !== false) {
-          triggerVibration([200, 100, 200]);
+          triggerVibration([300, 100, 300, 100, 300]);
         }
 
         let deliveredViaSW = false;
         let deliveredViaNative = false;
         const effectiveTag = tag || 'adhkar-scheduled';
 
+        const options = {
+          body: body,
+          icon: './icon.png',
+          badge: './badge.png',
+          vibrate: [300, 100, 300, 100, 300],
+          requireInteraction: true,
+          renotify: true,
+          tag: effectiveTag,
+          data: { dateOfArrival: Date.now() },
+          // Enforce Android heads-up banner flags
+          urgency: 'high',
+          priority: 'high'
+        };
+
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           if ('serviceWorker' in navigator) {
             try {
               const reg = (await registerReminderServiceWorker()) || (await navigator.serviceWorker.getRegistration()) || (await navigator.serviceWorker.ready);
               if (reg && typeof reg.showNotification === 'function') {
-                await reg.showNotification(title, {
-                  body: body,
-                  icon: './icon.png',
-                  badge: './badge.png',
-                  vibrate: [200, 100, 200],
-                  tag: effectiveTag,
-                  renotify: true,
-                  requireInteraction: true
-                });
+                await reg.showNotification(title, options);
                 deliveredViaSW = true;
               }
             } catch (swErr) {
@@ -6233,12 +6250,7 @@
 
           if (!deliveredViaSW) {
             try {
-              new Notification(title, {
-                body: body,
-                icon: '/favicon.svg',
-                tag: effectiveTag,
-                requireInteraction: true
-              });
+              new Notification(title, options);
               deliveredViaNative = true;
             } catch (nativeErr) {
               deliveredViaNative = false;
@@ -6389,19 +6401,22 @@
                     body: testBody,
                     icon: './icon.png',
                     badge: './badge.png',
-                    vibrate: [200, 100, 200],
-                    tag: 'adhkar-test-' + Date.now(),
+                    vibrate: [300, 100, 300, 100, 300],
+                    tag: 'adhkar-reminder-' + Date.now(),
                     renotify: true,
-                    requireInteraction: true
+                    requireInteraction: true,
+                    data: { dateOfArrival: Date.now() },
+                    urgency: 'high',
+                    priority: 'high'
                   });
                 } else {
-                  await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+                  await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-reminder-' + Date.now());
                 }
               }
             }).catch(async (err) => {
               console.error('An error occurred while retrieving token: ', err);
               if (Notification.permission === 'granted') {
-                await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-test-' + Date.now());
+                await dispatchMobileSafeNotification(testTitle, testBody, 'adhkar-reminder-' + Date.now());
               }
             });
           }
@@ -6410,7 +6425,7 @@
             playCompletionChime();
           }
           if (state.settings.vibrateEnabled !== false) {
-            triggerVibration([200, 100, 200]);
+            triggerVibration([300, 100, 300, 100, 300]);
           }
           if (els.inAppNotificationToast && els.inAppToastTitle && els.inAppToastBody) {
             els.inAppToastTitle.textContent = testTitle;
