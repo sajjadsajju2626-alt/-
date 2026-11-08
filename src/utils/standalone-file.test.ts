@@ -99,6 +99,14 @@ test('generateSingleFileHtml produces valid self-contained HTML5 file', () => {
     );
   }
 
+  // Verify custom built-in target modal replaces window.prompt
+  assert.ok(html.includes('id="customCountModal"'), 'Must contain built-in #customCountModal component');
+  assert.ok(html.includes('id="customTargetInput"'), 'Must contain #customTargetInput');
+  assert.ok(html.includes('function openTargetModal('), 'Must define openTargetModal()');
+  assert.ok(html.includes('function closeTargetModal('), 'Must define closeTargetModal()');
+  assert.ok(html.includes('function confirmTargetModal('), 'Must define confirmTargetModal()');
+  assert.equal(/prompt\s*\(/i.test(html), false, 'Must completely eliminate window.prompt() from HTML and scripts');
+
   // Size check
   assert.ok(html.length > 100000, `File should be substantial (>100KB), got ${html.length} chars`);
 });

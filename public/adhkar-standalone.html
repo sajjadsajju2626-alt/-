@@ -1496,6 +1496,17 @@
     </div>
   </div>
 
+  <!-- ================= CUSTOM TARGET COUNT MODAL ================= -->
+  <div id="customCountModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs shadow-2xl text-center space-y-4">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100">ലക്ഷ്യം നിശ്ചയിക്കുക (Target Count)</h3>
+      <input type="number" id="customTargetInput" min="1" max="9999" class="w-full text-center text-2xl font-bold p-3 border rounded-xl dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500" value="33" />
+      <div class="flex gap-2">
+        <button type="button" onclick="closeTargetModal()" class="flex-1 py-2 rounded-xl text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 font-medium">Cancel</button>
+        <button type="button" onclick="confirmTargetModal()" class="flex-1 py-2 rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 font-medium">OK</button>
+      </div>
+    </div>
+  </div>
 
 
   <!-- EMBEDDED COMPLETE DATASET -->
@@ -4991,13 +5002,68 @@
         renderTasbihView();
       });
 
-      els.tasbihChangeTargetBtn.addEventListener('click', function() {
-        const val = prompt('Enter custom target count:', String(state.tasbih.target));
-        const num = parseInt(val, 10);
-        if (!isNaN(num) && num > 0) {
-          state.tasbih.target = num;
-          renderTasbihView();
+      function openTargetModal() {
+        const modal = document.getElementById('customCountModal');
+        const input = document.getElementById('customTargetInput');
+        if (input) {
+          input.value = String(state.tasbih.target || 33);
         }
+        if (modal) {
+          modal.classList.remove('hidden');
+          setTimeout(() => {
+            if (input) {
+              input.focus();
+              input.select();
+            }
+          }, 50);
+        }
+      }
+      window.openTargetModal = openTargetModal;
+
+      function closeTargetModal() {
+        const modal = document.getElementById('customCountModal');
+        if (modal) {
+          modal.classList.add('hidden');
+        }
+      }
+      window.closeTargetModal = closeTargetModal;
+
+      function confirmTargetModal() {
+        const input = document.getElementById('customTargetInput');
+        if (input) {
+          const num = parseInt(input.value, 10);
+          if (!isNaN(num) && num > 0) {
+            state.tasbih.target = Math.min(9999, num);
+            renderTasbihView();
+          }
+        }
+        closeTargetModal();
+      }
+      window.confirmTargetModal = confirmTargetModal;
+
+      const customCountModalEl = document.getElementById('customCountModal');
+      if (customCountModalEl) {
+        customCountModalEl.addEventListener('click', function(e) {
+          if (e.target === customCountModalEl) {
+            closeTargetModal();
+          }
+        });
+      }
+      const customTargetInputEl = document.getElementById('customTargetInput');
+      if (customTargetInputEl) {
+        customTargetInputEl.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmTargetModal();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeTargetModal();
+          }
+        });
+      }
+
+      els.tasbihChangeTargetBtn.addEventListener('click', function() {
+        openTargetModal();
       });
 
       els.soundToggleBtn.addEventListener('click', function() {
