@@ -480,6 +480,13 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
       indexHtml.includes('setInterval(checkScheduledReminders, 30000);'),
     'Must implement checkScheduledReminders with 30s interval, localStorage time keys, and fired-today state persistence'
   );
+  assert.ok(
+    indexHtml.includes('function getNormalizedCurrentTime()') &&
+      indexHtml.includes('window.triggerImmediateTest = function(') &&
+      indexHtml.includes('onclick="window.triggerImmediateTest(event)"') &&
+      indexHtml.includes('id="reminderClockDebug"'),
+    'Must implement bulletproof getNormalizedCurrentTime, window.triggerImmediateTest with direct onclick handler, and on-screen #reminderClockDebug visual indicator'
+  );
 
   // 7. Verify public/firebase-messaging-sw.js has matching background alarm logic
   const swPath = path.resolve(process.cwd(), 'public/firebase-messaging-sw.js');

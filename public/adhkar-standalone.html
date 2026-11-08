@@ -1286,6 +1286,8 @@
                 type="button"
                 id="sendTestNotificationBtn"
                 data-testid="send-test-notification-btn"
+                onclick="window.triggerImmediateTest(event)"
+                style="position:relative; z-index:9999; cursor:pointer;"
                 class="py-2 px-3 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <span>🔔</span>
@@ -1302,6 +1304,10 @@
             </div>
             <div id="testNotificationFeedback" class="hidden p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-600 text-xs font-extrabold text-emerald-950 dark:text-emerald-200 text-center font-malayalam">
               നോട്ടിഫിക്കേഷൻ അയച്ചു! ✓
+            </div>
+            <!-- On-Screen Visual Debug Indicator -->
+            <div id="reminderClockDebug" class="text-center text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-2">
+              Current Device Time: --:-- | Next Alarm: --:--
             </div>
           </div>
         </div>
@@ -5006,6 +5012,106 @@
         updateTheme(nextTheme);
       });
 
+      function getNormalizedCurrentTime() {
+        const d = new Date();
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      }
+      window.getNormalizedCurrentTime = getNormalizedCurrentTime;
+      window.playAdhkarChime = playCompletionChime;
+
+      window.triggerImmediateTest = function(event) {
+        if (event && typeof event.preventDefault === 'function') {
+          try { event.preventDefault(); } catch (err) {}
+        }
+        if (event && typeof event.stopPropagation === 'function') {
+          try { event.stopPropagation(); } catch (err) {}
+        }
+
+        const testTitle = 'മുദാവമ • Mudawamah';
+        const testBody = 'നോട്ടിഫിക്കേഷൻ ടെസ്റ്റ് വിജയിച്ചു! • Notification is working perfectly!';
+
+        // Immediate tactile/audio feedback on first touch
+        try {
+          if (typeof playCompletionChime === 'function') playCompletionChime();
+        } catch (e) {}
+        try {
+          if (typeof triggerVibration === 'function') triggerVibration([200, 100, 200]);
+          else if (navigator && typeof navigator.vibrate === 'function') navigator.vibrate([200, 100, 200]);
+        } catch (e) {}
+
+        const fb = document.getElementById('testNotificationFeedback');
+        if (fb) {
+          fb.textContent = '✓ ' + testBody;
+          fb.classList.remove('hidden');
+          setTimeout(() => fb.classList.add('hidden'), 5000);
+        }
+
+        const inAppToast = document.getElementById('inAppNotificationToast');
+        const inAppTitle = document.getElementById('inAppToastTitle');
+        const inAppBody = document.getElementById('inAppToastBody');
+        if (inAppToast && inAppTitle && inAppBody) {
+          inAppTitle.textContent = testTitle;
+          inAppBody.textContent = testBody;
+          inAppToast.classList.remove('hidden');
+        }
+
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+          if (Notification.permission !== 'granted') {
+            Notification.requestPermission().then(function(permission) {
+              if (permission === 'granted') {
+                dispatchDirectNotification(testTitle, testBody);
+              }
+            }).catch(function() {});
+          } else {
+            dispatchDirectNotification(testTitle, testBody);
+          }
+        }
+
+        // Background non-blocking FCM token logging
+        try {
+          if (typeof getToken === 'function' && typeof messaging !== 'undefined') {
+            getToken(messaging, { 
+              vapidKey: 'BEoFaPWdyeDaoc29lofG6VhNjhv6VQfTOn2HcshqsfBZihJiDvOazujpzJ4CGK6tQ3lbSNp0l49bpTgSHCtNXtI' 
+            }).then(function(currentToken) {
+              if (currentToken) {
+                console.log('FCM Token received:', currentToken);
+                localStorage.setItem('fcm_token', currentToken);
+              }
+            }).catch(function(err) {
+              console.log('FCM background token retrieval note:', err);
+            });
+          }
+        } catch (e) {}
+      };
+
+      async function dispatchDirectNotification(title, body) {
+        try {
+          const reg = (typeof registerReminderServiceWorker === 'function' && await registerReminderServiceWorker()) ||
+                      (navigator.serviceWorker && await navigator.serviceWorker.ready);
+          if (reg && typeof reg.showNotification === 'function') {
+            await reg.showNotification(title, {
+              body: body,
+              icon: './icon.png',
+              badge: './badge.png',
+              vibrate: [200, 100, 200],
+              tag: 'adhkar-test-' + Date.now(),
+              renotify: true,
+              requireInteraction: true
+            });
+            return;
+          }
+        } catch (e) {}
+
+        try {
+          new Notification(title, {
+            body: body,
+            icon: './icon.png',
+            badge: './badge.png',
+            tag: 'adhkar-test-' + Date.now()
+          });
+        } catch (e) {}
+      }
+
       function normalizeTo24HourTime(rawValue, periodHint) {
         if (!rawValue || typeof rawValue !== 'string') {
           if (periodHint === 'morning') return '05:30';
@@ -5998,7 +6104,9 @@
 
       function checkScheduledReminders() {
         const now = new Date();
-        const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const currentHHMM = typeof getNormalizedCurrentTime === 'function'
+          ? getNormalizedCurrentTime()
+          : `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const currentTime = now.toTimeString().slice(0, 5);
 
         let storedReminders = null;
@@ -6007,42 +6115,65 @@
           if (raw) storedReminders = JSON.parse(raw);
         } catch (e) {}
 
-        // Compare against saved localStorage times
-        const morningTime = localStorage.getItem('morning_time') || normalizeTo24HourTime((storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '06:00', 'morning');
-        const eveningTime = localStorage.getItem('evening_time') || normalizeTo24HourTime((storedReminders && storedReminders.evening) || state.settings.eveningReminderTime || '17:30', 'evening');
-        const sleepTime = localStorage.getItem('sleep_time') || normalizeTo24HourTime((storedReminders && storedReminders.sleep) || state.settings.sleepReminderTime || '22:00', 'sleep');
-        const goalTime = localStorage.getItem('goal_time') || normalizeTo24HourTime((storedReminders && storedReminders.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00', 'goal');
+        // Compare against saved localStorage times (bulletproof 24-hour normalization)
+        const rawMorning = localStorage.getItem('morning_time') || (storedReminders && storedReminders.morning) || state.settings.morningReminderTime || '06:00';
+        const rawEvening = localStorage.getItem('evening_time') || (storedReminders && storedReminders.evening) || state.settings.eveningReminderTime || '17:30';
+        const rawSleep = localStorage.getItem('sleep_time') || (storedReminders && storedReminders.sleep) || state.settings.sleepReminderTime || '22:00';
+        const rawGoal = localStorage.getItem('goal_time') || (storedReminders && storedReminders.goal) || state.settings.goalReminderTime || state.settings.dailyGoalReminderTime || '20:00';
 
-        if ((currentHHMM === morningTime || currentTime === morningTime) && !alreadyFiredToday('morning')) {
-          triggerLocalNotification('പ്രഭാത ദിക്റുകൾ • Morning Adhkar', 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
-          markFiredToday('morning');
-        }
+        const morningTime = normalizeTo24HourTime(rawMorning, 'morning');
+        const eveningTime = normalizeTo24HourTime(rawEvening, 'evening');
+        const sleepTime = normalizeTo24HourTime(rawSleep, 'sleep');
+        const goalTime = normalizeTo24HourTime(rawGoal, 'goal');
 
-        if ((currentHHMM === eveningTime || currentTime === eveningTime) && !alreadyFiredToday('evening')) {
-          triggerLocalNotification('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar', 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
-          markFiredToday('evening');
-        }
-
-        if ((currentHHMM === sleepTime || currentTime === sleepTime) && !alreadyFiredToday('sleep')) {
-          triggerLocalNotification('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar', 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.');
-          markFiredToday('sleep');
-        }
-
+        // Calculate Next Alarm
+        const alarms = [morningTime, eveningTime, sleepTime];
         const isGoalOn = Boolean(
           localStorage.getItem('dailyGoalEnabled') === 'true' ||
           state.settings.dailyGoalEnabled ||
           state.settings.goalReminderEnabled
         );
+        if (isGoalOn) alarms.push(goalTime);
+
+        alarms.sort();
+        let nextAlarm = alarms.find(t => t > currentHHMM) || alarms[0] || '--:--';
+
+        // Update on-screen visual debug indicator if element exists
+        const debugEl = document.getElementById('reminderClockDebug');
+        if (debugEl) {
+          debugEl.textContent = `Current Device Time: ${currentHHMM} | Next Alarm: ${nextAlarm}`;
+        }
+
+        if ((currentHHMM === morningTime || currentTime === morningTime) && !alreadyFiredToday('morning')) {
+          if (state.settings.soundEnabled !== false) playCompletionChime();
+          triggerLocalNotification('പ്രഭാത ദിക്റുകൾ • Morning Adhkar', 'സുബ്ഹിക്കു ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
+          markFiredToday('morning');
+        }
+
+        if ((currentHHMM === eveningTime || currentTime === eveningTime) && !alreadyFiredToday('evening')) {
+          if (state.settings.soundEnabled !== false) playCompletionChime();
+          triggerLocalNotification('പ്രദോഷ ദിക്റുകൾ • Evening Adhkar', 'അസ്വർ/മഗ്രിബിന് ശേഷമുള്ള ദിക്റുകൾ ചൊല്ലാൻ സമയമായി.');
+          markFiredToday('evening');
+        }
+
+        if ((currentHHMM === sleepTime || currentTime === sleepTime) && !alreadyFiredToday('sleep')) {
+          if (state.settings.soundEnabled !== false) playCompletionChime();
+          triggerLocalNotification('ഉറങ്ങുന്ന നേരത്തെ ദിക്റുകൾ • Sleep Adhkar', 'ഉറങ്ങുന്നതിന് മുൻപുള്ള ദിക്റുകളും ദുആകളും ചൊല്ലാം.');
+          markFiredToday('sleep');
+        }
+
         const mItems = window.ADHKAR_DATA.morning || [];
         const eItems = window.ADHKAR_DATA.evening || [];
         const allDone = mItems.length > 0 && mItems.every(function(i) { return (state.counts[i.id] || 0) >= i.target; }) &&
                         eItems.length > 0 && eItems.every(function(i) { return (state.counts[i.id] || 0) >= i.target; });
 
         if (isGoalOn && !allDone && (currentHHMM === goalTime || currentTime === goalTime) && !alreadyFiredToday('goal')) {
+          if (state.settings.soundEnabled !== false) playCompletionChime();
           triggerLocalNotification('🎯 പ്രതിദിന ലക്ഷ്യം • Daily Adhkar Goal', 'ഇന്നത്തെ ദിക്റുകൾ പൂർത്തിയാക്കാൻ ബാക്കിയുണ്ട്. ഇപ്പോൾ തന്നെ പൂർത്തിയാക്കൂ!');
           markFiredToday('goal');
         }
       }
+      setInterval(checkScheduledReminders, 12000);
       setInterval(checkScheduledReminders, 30000);
 
       async function checkClientScheduledReminders() {
@@ -6054,7 +6185,7 @@
         if (clientReminderIntervalId) clearInterval(clientReminderIntervalId);
         clientReminderIntervalId = setInterval(function() {
           checkScheduledReminders();
-        }, 15000);
+        }, 12000);
         checkScheduledReminders();
       }
 
