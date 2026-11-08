@@ -913,7 +913,11 @@
     <div id="tasbihView" class="hidden flex flex-col items-center justify-center py-6 space-y-6">
       
       <!-- Preset Selectors -->
-      <div class="w-full flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+      <div id="tasbihPresetsContainer" class="w-full flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        <button type="button" id="openAddThasbeehBtn" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all">
+          <span>+</span>
+          <span class="font-malayalam">Add Thasbeeh (പുതിയത്)</span>
+        </button>
         <button data-tasbih-preset="subhanallah" class="tasbih-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-teal-700 text-white border border-teal-600 shadow-xs cursor-pointer">
           سُبْحَانَ اللَّهِ (33)
         </button>
@@ -1507,6 +1511,77 @@
       </div>
     </div>
   </div>
+
+  <!-- ================= ADD CUSTOM THASBEEH MODAL ================= -->
+  <div id="addThasbeehModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl space-y-4 border border-emerald-500/30">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-700">
+        <h3 class="text-base font-bold text-[#064e3b] dark:text-emerald-300 flex items-center gap-1.5 font-malayalam">
+          <span>✨</span>
+          <span>പുതിയ ദിക്ർ ചേർക്കുക (Add Thasbeeh)</span>
+        </h3>
+        <button type="button" onclick="closeAddThasbeehModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-3 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Arabic / Dhikr Title (അറബിക് / ദിക്ർ) *
+          </label>
+          <input
+            type="text"
+            id="newThasbeehArabicInput"
+            placeholder="e.g. أَسْتَغْفِرُ اللَّهَ or Astaghfirullah"
+            class="w-full px-3 py-2.5 text-base border rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Meaning / Malayalam Description (അർത്ഥം - ഓപ്ഷണൽ)
+          </label>
+          <input
+            type="text"
+            id="newThasbeehMeaningInput"
+            placeholder="e.g. ഞാൻ അല്ലാഹുവോട് പാപമോചനം തേടുന്നു"
+            class="w-full px-3 py-2 text-xs border rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-malayalam"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Target Count (ലക്ഷ്യം)
+          </label>
+          <input
+            type="number"
+            id="newThasbeehTargetInput"
+            min="1"
+            max="99999"
+            value="33"
+            class="w-full px-3 py-2 text-sm font-bold border rounded-xl dark:bg-slate-700 dark:text-white dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button
+          type="button"
+          onclick="closeAddThasbeehModal()"
+          class="flex-1 py-2.5 rounded-xl text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 font-bold text-xs"
+        >
+          Cancel / റദ്ദാക്കുക
+        </button>
+        <button
+          type="button"
+          onclick="saveCustomThasbeeh()"
+          class="flex-1 py-2.5 rounded-xl text-white bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 font-bold text-xs shadow-md shadow-emerald-900/20 font-malayalam"
+        >
+          Save Thasbeeh / സേവ് ചെയ്യുക
+        </button>
+      </div>
+    </div>
+  </div>
+
 
 
   <!-- EMBEDDED COMPLETE DATASET -->
@@ -3402,6 +3477,7 @@
           els.tasksView.classList.add('hidden');
           els.tasbihView.classList.remove('hidden');
           els.emptyState.classList.add('hidden');
+          if (typeof renderTasbihPresetsBar === 'function') renderTasbihPresetsBar();
           renderTasbihView();
           return;
         }
@@ -4148,20 +4224,108 @@
       window.startAutoplayAll = startAutoplayAll;
       window.stopAutoplayAll = stopAutoplayAll;
 
-      function renderTasbihView() {
-        const preset = window.ADHKAR_DATA.tasbihPresets.find(p => p.id === state.tasbih.currentDhikrId) || window.ADHKAR_DATA.tasbihPresets[0];
-        els.tasbihArabic.textContent = preset.arabic;
-        els.tasbihTranslit.textContent = preset.transliteration;
-        els.tasbihTrans.textContent = preset.translation + ' • ' + preset.malayalamTranslation;
+      function getCustomThasbeehList() {
+        try {
+          const raw = localStorage.getItem('custom_thasbeeh_list');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch (e) {}
+        return [];
+      }
 
-        els.tasbihCurrentCount.textContent = state.tasbih.count;
-        els.tasbihTargetDisplay.textContent = 'Target: ' + state.tasbih.target;
+      function saveCustomThasbeehList(list) {
+        try {
+          localStorage.setItem('custom_thasbeeh_list', JSON.stringify(list));
+        } catch (e) {}
+      }
+
+      function getAllTasbihPresets() {
+        const standard = window.ADHKAR_DATA.tasbihPresets || [];
+        const custom = getCustomThasbeehList();
+        return [...standard, ...custom];
+      }
+
+      function renderTasbihPresetsBar() {
+        const container = document.getElementById('tasbihPresetsContainer');
+        if (!container) return;
+
+        const presets = getAllTasbihPresets();
+        const activeId = state.tasbih.currentDhikrId;
+
+        let html = `
+          <button type="button" id="openAddThasbeehBtn" class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs cursor-pointer flex items-center gap-1 transition-all">
+            <span>+</span>
+            <span class="font-malayalam">Add Thasbeeh (പുതിയത്)</span>
+          </button>
+        `;
+
+        presets.forEach(p => {
+          const isActive = p.id === activeId;
+          const isCustom = Boolean(p.isCustom);
+          const activeClasses = 'bg-[#0d5c3a] text-white border-[#0d5c3a] font-semibold';
+          const inactiveClasses = 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium';
+
+          html += `
+            <div class="inline-flex items-center gap-1">
+              <button
+                type="button"
+                data-tasbih-preset="${p.id}"
+                class="tasbih-chip px-3 py-1.5 rounded-full text-xs whitespace-nowrap border shadow-xs cursor-pointer transition-all ${isActive ? activeClasses : inactiveClasses}"
+              >
+                <span>${p.arabic}</span>
+                <span class="opacity-80">(${p.target})</span>
+              </button>
+              ${isCustom ? `
+                <button
+                  type="button"
+                  data-delete-custom-thasbeeh="${p.id}"
+                  title="Delete Custom Thasbeeh / നീക്കം ചെയ്യുക"
+                  class="w-6 h-6 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/60 transition-all cursor-pointer text-xs"
+                >
+                  ✕
+                </button>
+              ` : ''}
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+
+        const addBtn = document.getElementById('openAddThasbeehBtn');
+        if (addBtn) {
+          addBtn.onclick = function() {
+            if (typeof window.openAddThasbeehModal === 'function') {
+              window.openAddThasbeehModal();
+            }
+          };
+        }
+      }
+      window.renderTasbihPresetsBar = renderTasbihPresetsBar;
+
+      function renderTasbihView() {
+        const presets = getAllTasbihPresets();
+        const preset = presets.find(p => p.id === state.tasbih.currentDhikrId) || presets[0] || (window.ADHKAR_DATA.tasbihPresets && window.ADHKAR_DATA.tasbihPresets[0]);
+        if (!preset) return;
+
+        if (els.tasbihArabic) els.tasbihArabic.textContent = preset.arabic;
+        if (els.tasbihTranslit) els.tasbihTranslit.textContent = preset.transliteration || preset.title || '';
+        if (els.tasbihTrans) {
+          const transParts = [];
+          if (preset.translation) transParts.push(preset.translation);
+          if (preset.malayalamTranslation) transParts.push(preset.malayalamTranslation);
+          els.tasbihTrans.textContent = transParts.join(' • ') || (preset.isCustom ? 'കസ്റ്റം ദിക്ർ • Custom Thasbeeh' : '');
+        }
+
+        if (els.tasbihCurrentCount) els.tasbihCurrentCount.textContent = state.tasbih.count;
+        if (els.tasbihTargetDisplay) els.tasbihTargetDisplay.textContent = 'Target: ' + state.tasbih.target;
 
         const radius = 44;
         const circumference = 2 * Math.PI * radius;
-        const progress = Math.min(state.tasbih.count / state.tasbih.target, 1);
+        const progress = Math.min(state.tasbih.count / Math.max(1, state.tasbih.target), 1);
         const offset = circumference - (progress * circumference);
-        els.tasbihRingCircle.style.strokeDashoffset = offset;
+        if (els.tasbihRingCircle) els.tasbihRingCircle.style.strokeDashoffset = offset;
       }
 
       let autoAdvanceScrollTimer = null;
@@ -4757,23 +4921,18 @@
           return;
         }
 
+        const deleteCustomBtn = e.target.closest('[data-delete-custom-thasbeeh]');
+        if (deleteCustomBtn) {
+          e.stopPropagation();
+          const delId = deleteCustomBtn.getAttribute('data-delete-custom-thasbeeh');
+          deleteCustomThasbeeh(delId);
+          return;
+        }
+
         const chip = e.target.closest('.tasbih-chip');
         if (chip) {
           const id = chip.dataset.tasbihPreset;
-          state.tasbih.currentDhikrId = id;
-          const preset = window.ADHKAR_DATA.tasbihPresets.find(p => p.id === id);
-          if (preset) {
-            state.tasbih.target = preset.target;
-            state.tasbih.count = 0;
-          }
-          document.querySelectorAll('.tasbih-chip').forEach(c => {
-            if (c.dataset.tasbihPreset === id) {
-              c.className = 'tasbih-chip px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap bg-[#0d5c3a] text-white border border-[#0d5c3a] shadow-xs cursor-pointer';
-            } else {
-              c.className = 'tasbih-chip px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer';
-            }
-          });
-          renderTasbihView();
+          selectTasbihPreset(id);
           return;
         }
 
@@ -5058,6 +5217,127 @@
           } else if (e.key === 'Escape') {
             e.preventDefault();
             closeTargetModal();
+          }
+        });
+      }
+
+      function selectTasbihPreset(id) {
+        state.tasbih.currentDhikrId = id;
+        const presets = getAllTasbihPresets();
+        const preset = presets.find(p => p.id === id);
+        if (preset) {
+          state.tasbih.target = preset.target || 33;
+          state.tasbih.count = 0;
+        }
+        renderTasbihPresetsBar();
+        renderTasbihView();
+      }
+      window.selectTasbihPreset = selectTasbihPreset;
+
+      function openAddThasbeehModal() {
+        const modal = document.getElementById('addThasbeehModal');
+        const arabicInput = document.getElementById('newThasbeehArabicInput');
+        const meaningInput = document.getElementById('newThasbeehMeaningInput');
+        const targetInput = document.getElementById('newThasbeehTargetInput');
+
+        if (arabicInput) arabicInput.value = '';
+        if (meaningInput) meaningInput.value = '';
+        if (targetInput) targetInput.value = '33';
+
+        if (modal) {
+          modal.classList.remove('hidden');
+          setTimeout(() => {
+            if (arabicInput) arabicInput.focus();
+          }, 50);
+        }
+      }
+      window.openAddThasbeehModal = openAddThasbeehModal;
+
+      function closeAddThasbeehModal() {
+        const modal = document.getElementById('addThasbeehModal');
+        if (modal) {
+          modal.classList.add('hidden');
+        }
+      }
+      window.closeAddThasbeehModal = closeAddThasbeehModal;
+
+      function saveCustomThasbeeh() {
+        const arabicInput = document.getElementById('newThasbeehArabicInput');
+        const meaningInput = document.getElementById('newThasbeehMeaningInput');
+        const targetInput = document.getElementById('newThasbeehTargetInput');
+
+        const arabicVal = arabicInput ? arabicInput.value.trim() : '';
+        if (!arabicVal) {
+          if (arabicInput) {
+            arabicInput.focus();
+            arabicInput.classList.add('ring-2', 'ring-rose-500');
+            setTimeout(() => arabicInput.classList.remove('ring-2', 'ring-rose-500'), 1500);
+          }
+          return;
+        }
+
+        const meaningVal = meaningInput ? meaningInput.value.trim() : '';
+        const targetNum = targetInput ? (parseInt(targetInput.value, 10) || 33) : 33;
+        const finalTarget = Math.max(1, Math.min(99999, targetNum));
+
+        const newId = 'custom-' + Date.now();
+        const newThasbeeh = {
+          id: newId,
+          arabic: arabicVal,
+          title: arabicVal,
+          transliteration: arabicVal,
+          translation: meaningVal || 'Custom Dhikr',
+          malayalamTranslation: meaningVal || 'കസ്റ്റം ദിക്ർ',
+          target: finalTarget,
+          isCustom: true,
+          createdAt: Date.now()
+        };
+
+        const list = getCustomThasbeehList();
+        list.push(newThasbeeh);
+        saveCustomThasbeehList(list);
+
+        closeAddThasbeehModal();
+        selectTasbihPreset(newId);
+      }
+      window.saveCustomThasbeeh = saveCustomThasbeeh;
+
+      function deleteCustomThasbeeh(id) {
+        if (!id) return;
+        let list = getCustomThasbeehList();
+        list = list.filter(item => item.id !== id);
+        saveCustomThasbeehList(list);
+
+        if (state.tasbih.currentDhikrId === id) {
+          state.tasbih.currentDhikrId = 'subhanallah';
+          const defaultPreset = (window.ADHKAR_DATA.tasbihPresets && window.ADHKAR_DATA.tasbihPresets[0]) || { target: 33 };
+          state.tasbih.target = defaultPreset.target || 33;
+          state.tasbih.count = 0;
+        }
+
+        renderTasbihPresetsBar();
+        renderTasbihView();
+      }
+      window.deleteCustomThasbeeh = deleteCustomThasbeeh;
+
+      const addThasbeehModalEl = document.getElementById('addThasbeehModal');
+      if (addThasbeehModalEl) {
+        addThasbeehModalEl.addEventListener('click', function(e) {
+          if (e.target === addThasbeehModalEl) {
+            closeAddThasbeehModal();
+          }
+        });
+      }
+
+      const newThasbeehArabicInputEl = document.getElementById('newThasbeehArabicInput');
+      if (newThasbeehArabicInputEl) {
+        newThasbeehArabicInputEl.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            saveCustomThasbeeh();
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            closeAddThasbeehModal();
           }
         });
       }

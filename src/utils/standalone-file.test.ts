@@ -107,6 +107,17 @@ test('generateSingleFileHtml produces valid self-contained HTML5 file', () => {
   assert.ok(html.includes('function confirmTargetModal('), 'Must define confirmTargetModal()');
   assert.equal(/prompt\s*\(/i.test(html), false, 'Must completely eliminate window.prompt() from HTML and scripts');
 
+  // Verify Add Custom Thasbeeh feature & localStorage management
+  assert.ok(html.includes('id="openAddThasbeehBtn"'), 'Must contain + Add Thasbeeh button');
+  assert.ok(html.includes('id="addThasbeehModal"'), 'Must contain #addThasbeehModal component');
+  assert.ok(html.includes('id="newThasbeehArabicInput"'), 'Must contain Arabic input in Add Thasbeeh modal');
+  assert.ok(html.includes('id="newThasbeehMeaningInput"'), 'Must contain Meaning input in Add Thasbeeh modal');
+  assert.ok(html.includes('id="newThasbeehTargetInput"'), 'Must contain Target Count input in Add Thasbeeh modal');
+  assert.ok(html.includes('custom_thasbeeh_list'), 'Must persist custom thasbeeh items in localStorage under custom_thasbeeh_list');
+  assert.ok(html.includes('function saveCustomThasbeeh('), 'Must define saveCustomThasbeeh()');
+  assert.ok(html.includes('function deleteCustomThasbeeh('), 'Must define deleteCustomThasbeeh()');
+  assert.ok(html.includes('function renderTasbihPresetsBar('), 'Must define renderTasbihPresetsBar()');
+
   // Size check
   assert.ok(html.length > 100000, `File should be substantial (>100KB), got ${html.length} chars`);
 });
