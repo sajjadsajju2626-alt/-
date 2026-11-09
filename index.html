@@ -13,6 +13,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Daily Adhkar">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/png" href="./icon.png">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23064e3b'/%3E%3Cpath d='M 280 140 A 120 120 0 1 0 380 340 A 100 100 0 1 1 280 140 Z' fill='%23ffffff'/%3E%3C/svg%3E">
   
   <!-- Preconnect to Google Fonts -->
@@ -1332,8 +1334,14 @@
           </div>
         </div>
 
-        <!-- Offline Standalone Download Action -->
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800">
+        <!-- Offline Standalone Download & PWA Install Action -->
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5">
+          <div id="pwaInstallContainer" class="hidden">
+            <button type="button" id="pwaInstallBtn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm transition-colors">
+              <span>📲</span>
+              <span class="font-malayalam">Install Offline App • ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക</span>
+            </button>
+          </div>
           <button id="modalDownloadBtn" class="w-full py-2.5 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-sm">
             <span>💾</span>
             <span>Download Standalone Single-File (.html)</span>
@@ -1349,6 +1357,15 @@
 
       </div>
     </div>
+  </div>
+
+  <!-- ================= OFFLINE STATUS INDICATOR BANNER ================= -->
+  <div id="offlineStatusBanner" data-testid="offline-status-banner" class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md rounded-2xl bg-amber-600 dark:bg-amber-700 text-white px-4 py-2.5 shadow-xl border border-amber-300/50 flex items-center justify-between gap-2.5">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="h-2.5 w-2.5 rounded-full bg-white animate-pulse shrink-0"></span>
+      <span class="text-xs font-extrabold font-malayalam truncate">ഓഫ്‌ലൈൻ മോഡ് • Offline Mode — സമ്പൂർണ്ണമായി പ്രവർത്തിക്കുന്നു</span>
+    </div>
+    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-black/20 shrink-0">Cached</span>
   </div>
 
   <!-- ================= IN-APP NOTIFICATION TOAST ================= -->
@@ -1731,6 +1748,21 @@
       try {
         const savedSettings = localStorage.getItem('adhkar_settings');
         if (savedSettings) state.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
+        const savedTheme = localStorage.getItem('adhkar_theme');
+        if (savedTheme && (savedTheme === 'emerald' || savedTheme === 'dark' || savedTheme === 'midnight')) {
+          state.settings.theme = savedTheme;
+        }
+        const savedTasbihRaw = localStorage.getItem('adhkar_tasbih_state');
+        if (savedTasbihRaw) {
+          const parsedTasbih = JSON.parse(savedTasbihRaw);
+          if (parsedTasbih && typeof parsedTasbih === 'object') {
+            state.tasbih = {
+              currentDhikrId: parsedTasbih.currentDhikrId || 'subhanallah',
+              count: Number(parsedTasbih.count) || 0,
+              target: Math.max(1, Number(parsedTasbih.target) || 33)
+            };
+          }
+        }
         const savedRemindersRaw = localStorage.getItem('adhkar_reminders');
         if (savedRemindersRaw) {
           const parsedRem = JSON.parse(savedRemindersRaw);
@@ -1939,9 +1971,17 @@
           localStorage.setItem('sleep_time', adhkarRemindersObj.sleep);
           localStorage.setItem('goal_time', adhkarRemindersObj.goal);
           localStorage.setItem('adhkar_show_focus_timer', String(Boolean(state.settings.showFocusTimer)));
+          localStorage.setItem('adhkar_theme', state.settings.theme || 'emerald');
+          localStorage.setItem('adhkar_tasbih_state', JSON.stringify(state.tasbih));
           localStorage.setItem('adhkar_favorites', JSON.stringify(state.favorites));
           localStorage.setItem('adhkar_streak_data', JSON.stringify(state.streak));
           localStorage.setItem('adhkar_completion_timestamps', JSON.stringify(state.streak.completionTimestamps || {}));
+        } catch (e) {}
+      }
+
+      function saveTasbihState() {
+        try {
+          localStorage.setItem('adhkar_tasbih_state', JSON.stringify(state.tasbih));
         } catch (e) {}
       }
 
@@ -5148,16 +5188,19 @@
           playTapBeep();
           triggerVibration(15);
         }
+        saveTasbihState();
         renderTasbihView();
       });
 
       els.tasbihMinusBtn.addEventListener('click', function() {
         if (state.tasbih.count > 0) state.tasbih.count--;
+        saveTasbihState();
         renderTasbihView();
       });
 
       els.tasbihResetBtn.addEventListener('click', function() {
         state.tasbih.count = 0;
+        saveTasbihState();
         renderTasbihView();
       });
 
@@ -5193,6 +5236,7 @@
           const num = parseInt(input.value, 10);
           if (!isNaN(num) && num > 0) {
             state.tasbih.target = Math.min(9999, num);
+            saveTasbihState();
             renderTasbihView();
           }
         }
@@ -5229,6 +5273,7 @@
           state.tasbih.target = preset.target || 33;
           state.tasbih.count = 0;
         }
+        saveTasbihState();
         renderTasbihPresetsBar();
         renderTasbihView();
       }
@@ -6016,9 +6061,43 @@
           checkScheduledAlarms();
         }
 
-        self.addEventListener('install', function() {
+        const CACHE_NAME = 'mudawamah-cache-v1';
+        self.addEventListener('install', (event) => {
           self.skipWaiting();
           ensureBackgroundTicker();
+          event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => {
+              return cache.addAll([
+                './',
+                './index.html',
+                './manifest.json',
+                './icon.png'
+              ]).catch(function() {});
+            })
+          );
+        });
+
+        self.addEventListener('fetch', (event) => {
+          if (event.request.method !== 'GET') return;
+          event.respondWith(
+            caches.match(event.request).then((response) => {
+              const fetchPromise = fetch(event.request).then((networkResponse) => {
+                if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+                  const responseClone = networkResponse.clone();
+                  caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseClone).catch(function() {});
+                  }).catch(function() {});
+                }
+                return networkResponse;
+              }).catch(() => {
+                if (event.request.mode === 'navigate') {
+                  return caches.match('./index.html') || caches.match('./');
+                }
+                return response;
+              });
+              return response || fetchPromise;
+            })
+          );
         });
 
         self.addEventListener('activate', function(event) {
@@ -7242,6 +7321,52 @@
 
       if (els.modalDownloadBtn) {
         els.modalDownloadBtn.addEventListener('click', downloadCurrentSingleFile);
+      }
+
+      // Offline Status Indicator & In-App PWA Install Handler
+      const offlineStatusBanner = document.getElementById('offlineStatusBanner');
+      function updateOnlineStatusUI() {
+        if (!offlineStatusBanner) return;
+        const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+        offlineStatusBanner.classList.toggle('hidden', isOnline);
+      }
+      window.addEventListener('online', updateOnlineStatusUI);
+      window.addEventListener('offline', updateOnlineStatusUI);
+      updateOnlineStatusUI();
+
+      let deferredPwaPrompt = null;
+      const pwaInstallContainer = document.getElementById('pwaInstallContainer');
+      const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+      const isStandalonePwa = typeof window !== 'undefined' && (
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        window.navigator.standalone === true
+      );
+
+      if (!isStandalonePwa) {
+        window.addEventListener('beforeinstallprompt', function(e) {
+          e.preventDefault();
+          deferredPwaPrompt = e;
+          if (pwaInstallContainer) pwaInstallContainer.classList.remove('hidden');
+        });
+        window.addEventListener('appinstalled', function() {
+          deferredPwaPrompt = null;
+          if (pwaInstallContainer) pwaInstallContainer.classList.add('hidden');
+        });
+        if (pwaInstallBtn) {
+          pwaInstallBtn.addEventListener('click', async function() {
+            if (!deferredPwaPrompt) return;
+            if (typeof deferredPwaPrompt['prompt'] === 'function') {
+              deferredPwaPrompt['prompt']();
+            }
+            try {
+              const choice = await deferredPwaPrompt.userChoice;
+              if (choice && choice.outcome === 'accepted') {
+                if (pwaInstallContainer) pwaInstallContainer.classList.add('hidden');
+              }
+            } catch (err) {}
+            deferredPwaPrompt = null;
+          });
+        }
       }
 
       updateTheme(state.settings.theme);

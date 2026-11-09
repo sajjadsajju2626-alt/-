@@ -118,6 +118,15 @@ test('generateSingleFileHtml produces valid self-contained HTML5 file', () => {
   assert.ok(html.includes('function deleteCustomThasbeeh('), 'Must define deleteCustomThasbeeh()');
   assert.ok(html.includes('function renderTasbihPresetsBar('), 'Must define renderTasbihPresetsBar()');
 
+  // Verify Offline PWA Capability, Manifest, Cache-First SW, and Offline Status Indicator
+  assert.ok(html.includes('<link rel="manifest" href="./manifest.json">'), 'Must link to ./manifest.json');
+  assert.ok(html.includes("const CACHE_NAME = 'mudawamah-cache-v1';"), 'Must define CACHE_NAME = mudawamah-cache-v1');
+  assert.ok(html.includes("caches.open(CACHE_NAME)"), 'Must precache assets into CACHE_NAME');
+  assert.ok(html.includes("caches.match(event.request)"), 'Must handle fetch events with Cache-First / Stale-While-Revalidate');
+  assert.ok(html.includes('id="offlineStatusBanner"'), 'Must contain #offlineStatusBanner indicator');
+  assert.ok(html.includes('adhkar_tasbih_state'), 'Must persist Tasbih counter state in localStorage');
+  assert.ok(html.includes('adhkar_theme'), 'Must persist theme preference in localStorage');
+
   // Size check
   assert.ok(html.length > 100000, `File should be substantial (>100KB), got ${html.length} chars`);
 });

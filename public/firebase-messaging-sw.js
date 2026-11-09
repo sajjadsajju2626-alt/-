@@ -498,8 +498,62 @@ function ensureBackgroundCheckLoop() {
   checkIntervalId = setInterval(checkScheduledAlarms, 15000);
 }
 
-self.addEventListener('install', () => {
+const CACHE_NAME = 'mudawamah-cache-v1';
+const OFFLINE_PRECACHE_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.png',
+  './badge.png',
+  './icon.svg',
+  'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
+  'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,700&family=Aref+Ruqaa:wght@700&display=swap',
+  'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Scheherazade+New:wght@400;700&display=swap'
+];
+
+self.addEventListener('install', (event) => {
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll([
+        './',
+        './index.html',
+        './manifest.json',
+        './icon.png'
+      ]).then(() => {
+        return Promise.allSettled(
+          OFFLINE_PRECACHE_ASSETS.map((url) => cache.add(url).catch(() => {}))
+        );
+      }).catch(() => {
+        return Promise.allSettled(
+          OFFLINE_PRECACHE_ASSETS.map((url) => cache.add(url).catch(() => {}))
+        );
+      });
+    })
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && (networkResponse.status === 200 || networkResponse.type === 'opaque')) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone).catch(() => {});
+          }).catch(() => {});
+        }
+        return networkResponse;
+      }).catch(() => {
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html') || caches.match('./');
+        }
+        return response;
+      });
+      return response || fetchPromise;
+    })
+  );
 });
 
 self.addEventListener('activate', (event) => {
