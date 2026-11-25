@@ -5449,7 +5449,7 @@
           if ('serviceWorker' in navigator) {
             try {
               const registration = (typeof registerReminderServiceWorker === 'function' && await registerReminderServiceWorker()) ||
-                                  (await navigator.serviceWorker.ready);
+                                  (await navigator.serviceWorker.getRegistration());
               if (registration && typeof registration.showNotification === 'function') {
                 await registration.showNotification(title, notificationOptions);
               } else {
@@ -6332,9 +6332,23 @@
 
         swRegistrationPromise = (async function() {
           try {
+            if (typeof navigator.serviceWorker.getRegistrations === 'function') {
+              const existingRegs = await navigator.serviceWorker.getRegistrations();
+              for (const existingReg of existingRegs) {
+                const swScriptUrl = (existingReg.active && existingReg.active.scriptURL) ||
+                  (existingReg.waiting && existingReg.waiting.scriptURL) ||
+                  (existingReg.installing && existingReg.installing.scriptURL) || '';
+                if (swScriptUrl.indexOf('dev-sw.js') !== -1) {
+                  existingReg.unregister().catch(function() {});
+                }
+              }
+            }
+          } catch (cleanupErr) {}
+
+          try {
             const reg = await navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now());
             if (reg && typeof reg.update === 'function') {
-              reg.update().catch(function() {}); // Forces browser to fetch the newest worker file
+              Promise.resolve(reg.update()).catch(function() {}); // Forces browser to fetch the newest worker file safely
             }
             return reg;
           } catch (fileErr) {
@@ -6343,7 +6357,7 @@
               const swBlobUrl = URL.createObjectURL(blob);
               const reg = await navigator.serviceWorker.register(swBlobUrl);
               if (reg && typeof reg.update === 'function') {
-                reg.update().catch(function() {});
+                Promise.resolve(reg.update()).catch(function() {});
               }
               return reg;
             } catch (blobErr) {
@@ -6356,21 +6370,14 @@
       }
 
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./firebase-messaging-sw.js?v=' + Date.now())
-            .then((reg) => {
-              reg.update(); // Forces browser to fetch the newest worker file
-              syncRemindersWithServiceWorker();
-            })
-            .catch(function() {
-              registerReminderServiceWorker().then(function(reg) {
-                if (reg && typeof reg.update === 'function') {
-                  reg.update().catch(function() {});
-                }
-                syncRemindersWithServiceWorker();
-              });
-            });
-        }
+        registerReminderServiceWorker()
+          .then(function(reg) {
+            if (reg && typeof reg.update === 'function') {
+              Promise.resolve(reg.update()).catch(function() {});
+            }
+            syncRemindersWithServiceWorker();
+          })
+          .catch(function() {});
 
         navigator.serviceWorker.addEventListener('message', function(event) {
           const data = event.data || {};
