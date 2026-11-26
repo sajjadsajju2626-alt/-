@@ -588,5 +588,28 @@ test('index.html implements 12-hour AM/PM time selectors & preset chips, localSt
   );
 });
 
+test('index.html includes minimalist Qada & Mudd Tracker with pill-switcher, calculator modal, female cycle deduction, Shafi Mudd rice weight, and persistence', () => {
+  const html = generateSingleFileHtml();
 
+  // 1. Pill-switcher between ദിനചര്യ (مداومة) and ഖളാഅ് (قضاء)
+  assert.ok(html.includes('id="mainViewSwitcher"'), 'Must include mainViewSwitcher pill-switcher');
+  assert.ok(html.includes('ദിനചര്യ') && html.includes('(مداومة)'), 'Must label Mudawama tab');
+  assert.ok(html.includes('ഖളാഅ്') && html.includes('(قضاء)'), 'Must label Qada tab');
 
+  // 2. Qada Dashboard & 6 prayer/fast cards + Mudd card
+  assert.ok(html.includes('id="qadaView"'), 'Must include #qadaView container');
+  for (const label of ['സുബ്ഹി', 'ളുഹ്ർ', 'അസ്ർ', 'മഗ്രിബ്', 'ഇശാഅ്', 'നോമ്പ്']) {
+    assert.ok(html.includes(label), `Must include Qada item label ${label}`);
+  }
+  assert.ok(html.includes('id="qadaMuddCard"') && html.includes('−1 മുദ്ദ്'), 'Must include Mudd card with -1 മുദ്ദ് button');
+
+  // 3. Setup / Calculator modal with Female Cycle Deduction & Mudd delayed fasts
+  assert.ok(html.includes('id="qadaSetupModal"'), 'Must include #qadaSetupModal');
+  assert.ok(html.includes('ആർത്തവ ദിനങ്ങൾ കുറയ്ക്കുക'), 'Must include Female Cycle Deduction toggle');
+  assert.ok(html.includes('മുദ്ദ് ബാധകമായ നോമ്പുകൾ'), 'Must include Delayed Fasts for Mudd inputs');
+  assert.ok(html.includes('650g') && html.includes('600g'), 'Must include 650g / 600g Shafi Mudd rice weight options');
+
+  // 4. Persistence & Celebration integration
+  assert.ok(html.includes('mudawama_qada_state'), 'Must persist Qada & Mudd state in localStorage');
+  assert.ok(html.includes('triggerQadaCelebration'), 'Must trigger celebration overlay on Qada milestones');
+});
