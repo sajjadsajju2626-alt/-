@@ -251,6 +251,26 @@
     .tabular-nums {
       font-variant-numeric: tabular-nums;
     }
+    @keyframes jannahHouseGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.55));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.95));
+        transform: scale(1.06);
+      }
+    }
+    .jannah-house-glow {
+      animation: jannahHouseGlow 2.4s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .jannah-house-glow,
+      .streak-freeze-badge,
+      .streak-flame-svg {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-[#f4f9f6] dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-full flex flex-col theme-transition pb-12 select-none" id="appBody">
@@ -259,11 +279,23 @@
   <header class="sticky top-0 z-30 bg-gradient-to-b from-[#064e3b] via-[#0d5c3a] to-[#115e59] dark:from-[#042f2e] dark:via-[#064e3b] dark:to-[#0d5c3a] text-white rounded-b-[2rem] shadow-lg border-b border-emerald-400/20 backdrop-blur-md">
     <div class="max-w-xl mx-auto px-4 pt-3.5 pb-4">
       <div class="flex items-center justify-between gap-2">
-        <!-- Left: Streak Badge -->
-        <div class="flex items-center">
-          <button id="streakBtn" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-white/15 text-white border-white/25 hover:bg-white/25" title="Daily Streak">
+        <!-- Left: Streak Badge + Safar/Udhr Mode Toggle Pill -->
+        <div class="flex items-center gap-1.5 min-w-0">
+          <button id="streakBtn" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-white/15 text-white border-white/25 hover:bg-white/25 shrink-0" title="Daily Streak">
             <span>🔥</span>
             <span id="streakCount">0d</span>
+            <span id="streakProtectedIcon" class="hidden text-[10px] leading-none" title="Streak Protected">❄️</span>
+          </button>
+          <button
+            type="button"
+            id="modeToggleBtn"
+            data-testid="safar-udhr-toggle-btn"
+            aria-label="Toggle Resident, Safar, or Udhr Mode"
+            title="യാത്ര / ഉദ്ർ മോഡ് (Safar &amp; Udhr Mode)"
+            class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold font-malayalam whitespace-nowrap transition-all border cursor-pointer active:scale-95 bg-white/12 text-white/95 border-white/20 hover:bg-white/22 shrink-0"
+          >
+            <span id="modeToggleIcon" aria-hidden="true">🏠</span>
+            <span id="modeToggleLabel">നാട്ടിൽ <span class="hidden min-[370px]:inline opacity-85 font-sans font-bold">(Resident)</span></span>
           </button>
         </div>
 
@@ -356,6 +388,64 @@
         <span class="font-arabic text-sm sm:text-base font-bold opacity-90">(قضاء)</span>
       </button>
     </div>
+
+    <!-- ================= SAFAR / UDHR HADITH REASSURANCE BANNER ================= -->
+    <section
+      id="safarUdhrHadithBanner"
+      data-testid="safar-udhr-hadith-banner"
+      aria-live="polite"
+      class="hidden rounded-2xl p-3.5 border transition-colors space-y-2"
+    >
+      <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
+        <div id="safarUdhrStatusMeta" class="flex items-center gap-1.5 font-malayalam truncate">
+          <span>✈️</span>
+          <span>യാത്രാ മോഡ് · Streak Protected</span>
+        </div>
+        <button
+          type="button"
+          id="hadithBannerChangeModeBtn"
+          class="text-[11px] font-extrabold font-malayalam underline underline-offset-2 opacity-85 hover:opacity-100 cursor-pointer shrink-0"
+        >
+          മാറ്റുക
+        </button>
+      </div>
+      <p class="font-arabic text-base sm:text-lg font-bold leading-relaxed text-right text-slate-900 dark:text-white" dir="rtl">
+        «إِذَا مَرِضَ الْعَبْدُ أَوْ سَافَرَ كُتِبَ لَهُ مِثْلُ مَا كَانَ يَعْمَلُ مُقِيمًا صَحِيحًا»
+      </p>
+      <p class="font-malayalam text-xs leading-relaxed font-semibold text-slate-700 dark:text-slate-200">
+        യാത്രയിലോ രോഗാവസ്ഥയിലോ ആയിരിക്കുമ്പോൾ, നാട്ടിൽ ആരോഗ്യത്തോടെ ഇരുന്നപ്പോൾ ചെയ്തിരുന്ന അമലുകളുടെ പൂർണ്ണ പ്രതിഫലം രേഖപ്പെടുത്തപ്പെടും (ബുഖാരി).
+      </p>
+    </section>
+
+    <!-- ================= TRAVEL ADHKAR CARD (Visible in Safar Mode) ================= -->
+    <section
+      id="travelAdhkarCard"
+      data-testid="travel-adhkar-card"
+      aria-label="Travel Adhkar"
+      class="hidden rounded-3xl bg-white dark:bg-slate-900 border border-sky-200/90 dark:border-sky-800/70 shadow-xs overflow-hidden"
+    >
+      <div class="flex items-center justify-between gap-2 px-4 py-3 bg-sky-50/90 dark:bg-sky-950/40 border-b border-sky-200/80 dark:border-sky-900/60">
+        <div class="min-w-0">
+          <div class="flex items-baseline gap-2 flex-wrap">
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white font-malayalam">✈️ യാത്രാ ദിക്റുകൾ</h2>
+            <span class="font-arabic text-sm font-bold text-sky-800 dark:text-sky-300" dir="rtl">أذكار السفر</span>
+          </div>
+          <p class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Travel Adhkar • Tap to listen in Arabic</p>
+        </div>
+        <button
+          type="button"
+          id="toggleTravelAdhkarCollapseBtn"
+          aria-expanded="true"
+          aria-controls="travelAdhkarList"
+          class="min-w-[36px] min-h-[36px] px-2.5 rounded-xl text-xs font-extrabold text-sky-800 dark:text-sky-300 hover:bg-sky-100/80 dark:hover:bg-sky-900/40 transition-colors cursor-pointer shrink-0"
+        >
+          ▾
+        </button>
+      </div>
+      <div id="travelAdhkarList" class="divide-y divide-slate-200/80 dark:divide-slate-800">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
 
     <!-- ================= HOME DASHBOARD: SINGLE TIME-BASED RECOMMENDATION + 2-COLUMN EMERALD CARD GRID ================= -->
     <nav aria-label="Adhkar Categories" class="space-y-3.5" id="categoryGridSection">
@@ -1766,6 +1856,73 @@
     </div>
   </div>
 
+  <!-- ================= SAFAR & UDHR QUICK-SELECTOR SHEET ================= -->
+  <div id="modeSelectorModal" data-testid="mode-selector-sheet" role="dialog" aria-modal="true" aria-labelledby="modeSelectorTitle" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
+    <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-emerald-500/25 dark:border-slate-800 space-y-3.5 card-surface">
+      <div class="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-700 mx-auto sm:hidden" aria-hidden="true"></div>
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
+        <div>
+          <h3 id="modeSelectorTitle" class="text-base font-extrabold text-slate-900 dark:text-white font-malayalam">യാത്ര &amp; ഉദ്ർ മോഡ്</h3>
+          <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Safar &amp; Udhr Mode · Streak Freeze Protection</p>
+        </div>
+        <button type="button" id="closeModeSelectorBtn" aria-label="Close Mode Selector" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 font-bold cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-2" role="radiogroup" aria-label="Select Daily Routine Mode">
+        <!-- 1. Safar Mode -->
+        <button
+          type="button"
+          data-select-mode="safar"
+          data-testid="select-mode-safar"
+          class="mode-option-btn w-full min-h-[60px] p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99] bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-sky-400"
+        >
+          <div class="flex items-start gap-3 min-w-0">
+            <span class="text-xl leading-none mt-0.5 shrink-0" aria-hidden="true">✈️</span>
+            <div class="min-w-0">
+              <div class="text-sm font-extrabold text-slate-900 dark:text-white font-malayalam">യാത്ര (Safar Mode)</div>
+              <div class="text-xs font-medium text-slate-600 dark:text-slate-400 font-malayalam mt-0.5">ഖസ്ർ/ജംഅ്, യാത്രാ ദിക്റുകൾ · Streak സംരക്ഷണം</div>
+            </div>
+          </div>
+          <span class="mode-option-check w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-[11px] font-black shrink-0"></span>
+        </button>
+
+        <!-- 2. Udhr Mode -->
+        <button
+          type="button"
+          data-select-mode="udhr"
+          data-testid="select-mode-udhr"
+          class="mode-option-btn w-full min-h-[60px] p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99] bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-amber-400"
+        >
+          <div class="flex items-start gap-3 min-w-0">
+            <span class="text-xl leading-none mt-0.5 shrink-0" aria-hidden="true">🌿</span>
+            <div class="min-w-0">
+              <div class="text-sm font-extrabold text-slate-900 dark:text-white font-malayalam">ഉദ്ർ (Excuse / Menstruation / Illness)</div>
+              <div class="text-xs font-medium text-slate-600 dark:text-slate-400 font-malayalam mt-0.5">നമസ്കാരങ്ങൾക്ക് ഇളവ്, ദിക്റുകൾ തുടരാം · Streak സംരക്ഷണം</div>
+            </div>
+          </div>
+          <span class="mode-option-check w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-[11px] font-black shrink-0"></span>
+        </button>
+
+        <!-- 3. Normal Mode -->
+        <button
+          type="button"
+          data-select-mode="normal"
+          data-testid="select-mode-normal"
+          class="mode-option-btn w-full min-h-[60px] p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99] bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-emerald-500"
+        >
+          <div class="flex items-start gap-3 min-w-0">
+            <span class="text-xl leading-none mt-0.5 shrink-0" aria-hidden="true">🏠</span>
+            <div class="min-w-0">
+              <div class="text-sm font-extrabold text-slate-900 dark:text-white font-malayalam">സാധാരണ നില (Normal Mode)</div>
+              <div class="text-xs font-medium text-slate-600 dark:text-slate-400 font-malayalam mt-0.5">നാട്ടിൽ (Resident) · എല്ലാ ദിനചര്യകളും സജീവം</div>
+            </div>
+          </div>
+          <span class="mode-option-check w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-[11px] font-black shrink-0"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= QADA & MUDD SETUP / CALCULATOR MODAL ================= -->
   <div id="qadaSetupModal" data-testid="qada-setup-modal" role="dialog" aria-modal="true" aria-labelledby="qadaSetupModalTitle" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/65 backdrop-blur-xs p-0 sm:p-4">
     <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-emerald-500/30 dark:border-slate-800 max-h-[90vh] overflow-y-auto space-y-4 card-surface">
@@ -2062,7 +2219,9 @@
         filterMode: 'all',
         counts: {},
         favorites: [],
-        streak: { currentStreak: 0, bestStreak: 0, lastCompletedDate: null, completionTimestamps: {}, usedFreezeDates: [] },
+        streak: { currentStreak: 0, bestStreak: 0, lastCompletedDate: null, completionTimestamps: {}, usedFreezeDates: [], protectedModeDates: {} },
+        travelMode: 'normal', // 'normal' | 'safar' | 'udhr'
+        travelAdhkarCollapsed: false,
         settings: { ...DEFAULT_SETTINGS },
         playingId: null,
         playbackStatus: 'idle',
@@ -2177,8 +2336,20 @@
             bestStreak: parsedStreak.bestStreak || 0,
             lastCompletedDate: parsedStreak.lastCompletedDate || null,
             completionTimestamps: (parsedStreak.completionTimestamps && typeof parsedStreak.completionTimestamps === 'object') ? parsedStreak.completionTimestamps : {},
-            usedFreezeDates: Array.isArray(parsedStreak.usedFreezeDates) ? parsedStreak.usedFreezeDates : []
+            usedFreezeDates: Array.isArray(parsedStreak.usedFreezeDates) ? parsedStreak.usedFreezeDates : [],
+            protectedModeDates: (parsedStreak.protectedModeDates && typeof parsedStreak.protectedModeDates === 'object') ? parsedStreak.protectedModeDates : {}
           };
+        }
+        const savedProtectedDates = localStorage.getItem('mudawama_protected_mode_dates');
+        if (savedProtectedDates) {
+          const parsedProtected = JSON.parse(savedProtectedDates);
+          if (parsedProtected && typeof parsedProtected === 'object') {
+            state.streak.protectedModeDates = { ...(state.streak.protectedModeDates || {}), ...parsedProtected };
+          }
+        }
+        const savedTravelMode = localStorage.getItem('mudawama_travel_mode');
+        if (savedTravelMode === 'safar' || savedTravelMode === 'udhr' || savedTravelMode === 'normal') {
+          state.travelMode = savedTravelMode;
         }
         const savedCompletionTs = localStorage.getItem('adhkar_completion_timestamps');
         if (savedCompletionTs) {
@@ -2272,6 +2443,90 @@
         'rawatib-isha': 2
       };
 
+      const PRAYER_TASK_IDS = [
+        'task-fard-prayers',
+        'task-5-prayers',
+        'task-rawatib',
+        'task-12-rawatib',
+        'task-duha',
+        'task-qiyam-witr'
+      ];
+
+      function isPrayerTaskId(taskId) {
+        return PRAYER_TASK_IDS.includes(taskId);
+      }
+
+      function isRawatibTaskId(taskId) {
+        return taskId === 'task-rawatib' || taskId === 'task-12-rawatib';
+      }
+
+      function isTaskExemptedInCurrentMode(task) {
+        return Boolean(task && state.travelMode === 'udhr' && isPrayerTaskId(task.id));
+      }
+
+      function isRawatibSubtaskWaivedInCurrentMode(subtaskId) {
+        if (state.travelMode === 'udhr') return true;
+        if (state.travelMode === 'safar') return subtaskId !== 'rawatib-fajr';
+        return false;
+      }
+
+      function getActiveTasksForProgress() {
+        return state.tasks.filter(t => !isTaskExemptedInCurrentMode(t));
+      }
+
+      function getJannahHouseStage(completedRakahs) {
+        const r = Math.max(0, Math.min(12, Math.floor(Number(completedRakahs) || 0)));
+        if (r >= 12) return 5;
+        if (r >= 10) return 4;
+        if (r >= 8) return 3;
+        if (r >= 6) return 2;
+        if (r >= 2) return 1;
+        return 0;
+      }
+
+      function renderJannahHouseSvg(completedRakahs, isWaived) {
+        const r = Math.max(0, Math.min(12, Math.floor(Number(completedRakahs) || 0)));
+        const stage = getJannahHouseStage(r);
+        const isFull = r >= 12 && !isWaived;
+        const baseLit = stage >= 1 && !isWaived;
+        const wallsLit = stage >= 2 && !isWaived;
+        const doorLit = stage >= 3 && !isWaived;
+        const roofLit = stage >= 4 && !isWaived;
+
+        const baseColor = isFull ? '#f59e0b' : (baseLit ? '#10b981' : 'none');
+        const wallsColor = isFull ? '#fbbf24' : (wallsLit ? '#34d399' : 'none');
+        const doorColor = isFull ? '#b45309' : (doorLit ? '#047857' : 'none');
+        const windowColor = isFull ? '#fef3c7' : (doorLit ? '#fde68a' : 'none');
+        const roofColor = isFull ? '#f59e0b' : (roofLit ? '#059669' : 'none');
+        const strokeColor = isFull ? '#b45309' : (stage > 0 && !isWaived ? '#065f46' : 'currentColor');
+
+        return `
+          <span
+            data-testid="jannah-house-indicator"
+            data-stage="${stage}"
+            data-rakahs="${r}"
+            title="House in Jannah: ${r}/12 rak'ahs (Stage ${stage}/5)"
+            aria-label="House in Jannah progress: ${r} of 12 rak'ahs"
+            class="inline-flex items-center justify-center shrink-0 ${isFull ? 'jannah-house-glow text-amber-500' : (stage > 0 && !isWaived ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500')}"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Finial / Star (Stage 5: 12 rak'ahs) -->
+              <circle cx="12" cy="2.6" r="${isFull ? '1.35' : '0.85'}" fill="${isFull ? '#f59e0b' : 'none'}" stroke="${isFull ? '#b45309' : strokeColor}" stroke-width="1.2" opacity="${isFull ? '1' : '0.45'}"/>
+              <!-- Roof / Dome (Stage 4: 10 rak'ahs) -->
+              <path d="M3.5 11.2L12 4.5L20.5 11.2H3.5Z" fill="${roofColor}" fill-opacity="${isFull ? '0.92' : (roofLit ? '0.8' : '0')}" stroke="${strokeColor}" stroke-width="1.6" stroke-linejoin="round"/>
+              <!-- Main Walls (Stage 2: 6 rak'ahs) -->
+              <rect x="5" y="11.2" width="14" height="8.3" rx="0.8" fill="${wallsColor}" fill-opacity="${isFull ? '0.45' : (wallsLit ? '0.32' : '0')}" stroke="${strokeColor}" stroke-width="1.6"/>
+              <!-- Arched Door & Windows (Stage 3: 8 rak'ahs) -->
+              <path d="M10.1 19.5V15.3C10.1 14.2 10.95 13.4 12 13.4C13.05 13.4 13.9 14.2 13.9 15.3V19.5" fill="${doorColor}" fill-opacity="${doorLit ? '0.88' : '0'}" stroke="${strokeColor}" stroke-width="1.4" stroke-linejoin="round"/>
+              <rect x="6.7" y="13.6" width="2" height="2" rx="0.4" fill="${windowColor}" stroke="${strokeColor}" stroke-width="1" opacity="${doorLit ? '1' : '0.4'}"/>
+              <rect x="15.3" y="13.6" width="2" height="2" rx="0.4" fill="${windowColor}" stroke="${strokeColor}" stroke-width="1" opacity="${doorLit ? '1' : '0.4'}"/>
+              <!-- Foundation Base (Stage 1: 2 rak'ahs) -->
+              <rect x="3.5" y="19.5" width="17" height="2.2" rx="1" fill="${baseColor}" fill-opacity="${baseLit ? '0.95' : '0'}" stroke="${strokeColor}" stroke-width="1.4"/>
+            </svg>
+          </span>
+        `;
+      }
+
       function getTaskPortionStats(task) {
         if (!task || typeof task !== 'object') {
           return { hasPortions: false, completedPortions: 0, totalPortions: 0, percent: 0, unit: '', isComplete: false, isPartial: false };
@@ -2287,6 +2542,13 @@
         }
         if (task.id === 'task-rawatib' || task.id === 'task-12-rawatib') {
           const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+          if (state.travelMode === 'safar') {
+            const fajrSub = subtasks.find(s => s && s.id === 'rawatib-fajr');
+            const completedPortions = fajrSub && fajrSub.completed ? 2 : 0;
+            const totalPortions = 2;
+            const percent = completedPortions >= 2 ? 100 : 0;
+            return { hasPortions: true, completedPortions: completedPortions, totalPortions: totalPortions, percent: percent, unit: "rak'ahs (Fajr)", isComplete: completedPortions >= 2, isPartial: false };
+          }
           const totalPortions = 12;
           let completedPortions = 0;
           subtasks.forEach(s => {
@@ -2365,6 +2627,8 @@
           localStorage.setItem('adhkar_streak_data', JSON.stringify(state.streak));
           localStorage.setItem('adhkar_completion_timestamps', JSON.stringify(state.streak.completionTimestamps || {}));
           localStorage.setItem('mudawama_qada_state', JSON.stringify(state.qada));
+          localStorage.setItem('mudawama_travel_mode', state.travelMode || 'normal');
+          localStorage.setItem('mudawama_protected_mode_dates', JSON.stringify(state.streak.protectedModeDates || {}));
         } catch (e) {}
       }
 
@@ -2379,8 +2643,9 @@
           const today = getTodayString();
           localStorage.setItem('adhkar_daily_tasks', JSON.stringify(state.tasks));
           localStorage.setItem('adhkar_tasks_date', today);
-          const completedTaskIds = state.tasks.filter(t => isTaskEffectivelyCompleted(t)).map(t => t.id);
-          const total = state.tasks.length;
+          const activeTasks = getActiveTasksForProgress();
+          const completedTaskIds = activeTasks.filter(t => isTaskEffectivelyCompleted(t)).map(t => t.id);
+          const total = activeTasks.length;
           const completed = completedTaskIds.length;
           const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
           const dayRecord = {
@@ -2594,6 +2859,7 @@
         }
         if (els.categoryGridSection) els.categoryGridSection.classList.add('hidden');
         if (els.categoryDetailView) els.categoryDetailView.classList.remove('hidden');
+        if (typeof syncTravelModeVisibility === 'function') syncTravelModeVisibility();
         updateTabsUI();
         renderCards();
         if (scrollTargetSelector) {
@@ -2611,6 +2877,7 @@
         state.isCategoryOpen = false;
         if (els.categoryDetailView) els.categoryDetailView.classList.add('hidden');
         if (els.categoryGridSection) els.categoryGridSection.classList.remove('hidden');
+        if (typeof syncTravelModeVisibility === 'function') syncTravelModeVisibility();
         updateTabsUI();
         window.scrollTo({ top: 0, behavior: 'smooth' });
         if (!fromPopState) {
@@ -2642,6 +2909,10 @@
           const qadaModalEl = document.getElementById('qadaSetupModal');
           if (qadaModalEl && !qadaModalEl.classList.contains('hidden')) {
             qadaModalEl.classList.add('hidden');
+          }
+          const modeModalEl = document.getElementById('modeSelectorModal');
+          if (modeModalEl && !modeModalEl.classList.contains('hidden')) {
+            modeModalEl.classList.add('hidden');
           }
         }
       });
@@ -2718,6 +2989,14 @@
         if (!state.streak.completionTimestamps || typeof state.streak.completionTimestamps !== 'object') {
           state.streak.completionTimestamps = {};
         }
+        if (!state.streak.protectedModeDates || typeof state.streak.protectedModeDates !== 'object') {
+          state.streak.protectedModeDates = {};
+        }
+
+        // Protect today's date automatically when Safar or Udhr mode is active
+        if (state.travelMode === 'safar' || state.travelMode === 'udhr') {
+          state.streak.protectedModeDates[todayStr] = state.travelMode;
+        }
 
         // Seed legacy streak into completionTimestamps if present
         if (state.streak.lastCompletedDate && state.streak.currentStreak > 0 && Object.keys(state.streak.completionTimestamps).length === 0) {
@@ -2744,8 +3023,10 @@
           }
         }
 
-        // Dynamically calculate consecutive streak from completionTimestamps (allowing 1-day Streak Freeze bridge)
+        // Dynamically calculate consecutive streak from completionTimestamps
+        // allowing Safar/Udhr protected dates + 1-day Streak Freeze bridge
         const tsMap = state.streak.completionTimestamps;
+        const protectedMap = state.streak.protectedModeDates;
         const todayDate = new Date();
         let streakCount = 0;
         let freezeRemaining = 1;
@@ -2756,14 +3037,17 @@
         if (tsMap[todayKey]) {
           streakCount++;
           cursor.setDate(cursor.getDate() - 1);
+        } else if (protectedMap[todayKey]) {
+          activeFrozenDates.push(todayKey);
+          cursor.setDate(cursor.getDate() - 1);
         } else {
           cursor.setDate(cursor.getDate() - 1);
           const yesterdayKey = formatDateObjYYYYMMDD(cursor);
-          if (!tsMap[yesterdayKey]) {
+          if (!tsMap[yesterdayKey] && !protectedMap[yesterdayKey]) {
             const twoDaysAgo = new Date(cursor);
             twoDaysAgo.setDate(twoDaysAgo.getDate() - 1);
             const twoDaysAgoKey = formatDateObjYYYYMMDD(twoDaysAgo);
-            if (freezeRemaining > 0 && tsMap[twoDaysAgoKey]) {
+            if (freezeRemaining > 0 && (tsMap[twoDaysAgoKey] || protectedMap[twoDaysAgoKey])) {
               freezeRemaining--;
               activeFrozenDates.push(yesterdayKey);
               cursor.setDate(cursor.getDate() - 1);
@@ -2776,11 +3060,14 @@
           if (tsMap[ds]) {
             streakCount++;
             cursor.setDate(cursor.getDate() - 1);
+          } else if (protectedMap[ds]) {
+            activeFrozenDates.push(ds);
+            cursor.setDate(cursor.getDate() - 1);
           } else if (freezeRemaining > 0) {
             const prevDay = new Date(cursor);
             prevDay.setDate(prevDay.getDate() - 1);
             const prevKey = formatDateObjYYYYMMDD(prevDay);
-            if (tsMap[prevKey]) {
+            if (tsMap[prevKey] || protectedMap[prevKey]) {
               freezeRemaining--;
               activeFrozenDates.push(ds);
               cursor.setDate(cursor.getDate() - 1);
@@ -2813,6 +3100,7 @@
         const now = new Date();
         const todayIdx = now.getDay();
         const tsMap = state.streak.completionTimestamps || {};
+        const protectedMap = state.streak.protectedModeDates || {};
         let hasMissedPastDayInWeek = false;
 
         if (els.streakWeekRow) {
@@ -2822,7 +3110,7 @@
             const dateStr = formatDateObjYYYYMMDD(d);
             let status = 'future';
             if (idx === todayIdx) {
-              status = pillarStatus.allFourCompleted ? 'completed' : 'today';
+              status = pillarStatus.allFourCompleted ? 'completed' : (protectedMap[dateStr] ? 'missed' : 'today');
             } else if (idx < todayIdx) {
               if (tsMap[dateStr]) {
                 status = 'completed';
@@ -2859,7 +3147,8 @@
         }
 
         if (els.streakFreezeBanner) {
-          const showFreezeBanner = hasMissedPastDayInWeek || (Array.isArray(state.streak.usedFreezeDates) && state.streak.usedFreezeDates.length > 0);
+          const isModeProtected = state.travelMode === 'safar' || state.travelMode === 'udhr';
+          const showFreezeBanner = isModeProtected || hasMissedPastDayInWeek || (Array.isArray(state.streak.usedFreezeDates) && state.streak.usedFreezeDates.length > 0);
           els.streakFreezeBanner.classList.toggle('hidden', !showFreezeBanner);
         }
 
@@ -2948,8 +3237,9 @@
       function updateCategoryProgress() {
         if (state.activeTab === 'tasks') {
           els.headerProgressContainer.classList.remove('hidden');
-          const total = state.tasks.length;
-          const completed = state.tasks.filter(t => isTaskEffectivelyCompleted(t)).length;
+          const activeTasks = getActiveTasksForProgress();
+          const total = activeTasks.length;
+          const completed = activeTasks.filter(t => isTaskEffectivelyCompleted(t)).length;
           const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
           const isAllDone = total > 0 && completed === total;
           els.progressStatusText.textContent = isAllDone
@@ -3119,12 +3409,20 @@
       function renderStreakBadge() {
         const { streakCount, pillarStatus } = recalculateDynamicStreak();
         const doneToday = pillarStatus.allFourCompleted;
+        const isProtected = state.travelMode === 'safar' || state.travelMode === 'udhr';
         els.streakCount.textContent = (streakCount || 0) + 'd';
-        if (doneToday) {
-          els.streakBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-amber-400 text-[#064e3b] border-amber-300 shadow-sm';
-        } else {
-          els.streakBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-white/15 text-white border-white/25 hover:bg-white/25';
+        const protIcon = document.getElementById('streakProtectedIcon');
+        if (protIcon) {
+          protIcon.classList.toggle('hidden', !isProtected);
         }
+        if (doneToday) {
+          els.streakBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-amber-400 text-[#064e3b] border-amber-300 shadow-sm shrink-0';
+        } else if (isProtected) {
+          els.streakBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-sky-400/20 text-white border-sky-300/60 shadow-[0_0_10px_rgba(56,189,248,0.35)] hover:bg-sky-400/30 shrink-0';
+        } else {
+          els.streakBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold transition-all border cursor-pointer active:scale-95 bg-white/15 text-white border-white/25 hover:bg-white/25 shrink-0';
+        }
+        els.streakBtn.title = isProtected ? 'Daily Streak (Protected by Safar/Udhr Freeze)' : 'Daily Streak';
       }
 
       function getSoundIconSvg(enabled) {
@@ -3194,8 +3492,9 @@
         let sDone = sItems.filter(i => (state.counts[i.id] || 0) >= i.target).length;
         document.querySelector('[data-tab="sleep"] .tab-badge').textContent = (sDone === sItems.length && sItems.length > 0 ? '🔥 ' : '') + sDone + '/' + sItems.length + (sDone === sItems.length && sItems.length > 0 ? ' പൂർത്തിയായി!' : '');
 
-        const tTotal = state.tasks.length;
-        const tDone = state.tasks.filter(t => isTaskEffectivelyCompleted(t)).length;
+        const activeT = getActiveTasksForProgress();
+        const tTotal = activeT.length;
+        const tDone = activeT.filter(t => isTaskEffectivelyCompleted(t)).length;
         const tasksBadge = document.querySelector('[data-tab="tasks"] .tab-badge');
         if (tasksBadge) {
           tasksBadge.textContent = (tDone === tTotal && tTotal > 0 ? '🔥 ' : '') + tDone + '/' + tTotal;
@@ -3389,8 +3688,9 @@
         syncAdhkarCompletionToTasks();
         saveTasksState();
 
-        const total = state.tasks.length;
-        const completed = state.tasks.filter(t => isTaskEffectivelyCompleted(t)).length;
+        const activeTasks = getActiveTasksForProgress();
+        const total = activeTasks.length;
+        const completed = activeTasks.filter(t => isTaskEffectivelyCompleted(t)).length;
         const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
         const isAllDone = total > 0 && completed === total;
 
@@ -3428,31 +3728,46 @@
             const subtasksTotal = hasSubtasks ? task.subtasks.length : 0;
             const isVirtueOpen = state.expandedTaskVirtueId === task.id;
             const portionStats = getTaskPortionStats(task);
+            const isRawatib = isRawatibTaskId(task.id);
+            const isFardPrayers = task.id === 'task-fard-prayers' || task.id === 'task-5-prayers';
+            const isUdhrExempted = isTaskExemptedInCurrentMode(task);
+            const isSafarRawatib = isRawatib && state.travelMode === 'safar';
+            const isSafarFard = isFardPrayers && state.travelMode === 'safar';
+            const isJannahComplete = isRawatib && !isUdhrExempted && !isSafarRawatib && portionStats.completedPortions >= 12;
+
+            const cardStateClasses = isUdhrExempted
+              ? 'bg-slate-50/85 dark:bg-slate-900/55 border-slate-200 dark:border-slate-800 opacity-70'
+              : isSafarRawatib
+              ? (portionStats.isComplete
+                  ? 'bg-sky-50/60 dark:bg-sky-950/20 border-sky-400/70 dark:border-sky-800/70'
+                  : 'bg-slate-50/80 dark:bg-slate-900/70 border-sky-200/90 dark:border-sky-900/60 opacity-90')
+              : portionStats.isComplete
+              ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-500/80 dark:border-emerald-700/70'
+              : portionStats.isPartial
+              ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-400/80 dark:border-amber-700/60'
+              : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800';
 
             return `
-              <article data-testid="task-card-${task.id}" class="rounded-3xl p-4 sm:p-5 border transition-all duration-200 shadow-xs ${
-                portionStats.isComplete
-                  ? 'bg-emerald-50/70 dark:bg-emerald-950/25 border-emerald-500/80 dark:border-emerald-700/70'
-                  : portionStats.isPartial
-                  ? 'bg-amber-50/60 dark:bg-amber-950/20 border-amber-400/80 dark:border-amber-700/60'
-                  : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800'
-              }">
+              <article data-testid="task-card-${task.id}" data-udhr-exempted="${isUdhrExempted ? 'true' : 'false'}" data-safar-waived="${isSafarRawatib ? 'true' : 'false'}" class="rounded-3xl p-4 sm:p-5 border transition-all duration-200 shadow-xs ${cardStateClasses}">
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex items-start gap-3 flex-1 min-w-0">
                     <button
                       type="button"
                       data-toggle-task="${task.id}"
                       data-testid="toggle-task-${task.id}"
-                      aria-label="Toggle ${task.title}"
-                      class="mt-0.5 w-7 h-7 rounded-xl flex items-center justify-center font-black text-sm transition-all cursor-pointer shrink-0 active:scale-90 ${
-                        portionStats.isComplete
-                          ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-500/30'
+                      ${isUdhrExempted ? 'disabled aria-disabled="true"' : ''}
+                      aria-label="${isUdhrExempted ? task.title + ' (Exempted in Udhr Mode)' : 'Toggle ' + task.title}"
+                      class="mt-0.5 w-7 h-7 rounded-xl flex items-center justify-center font-black text-sm transition-all shrink-0 ${
+                        isUdhrExempted
+                          ? 'bg-amber-100/70 dark:bg-amber-950/50 border border-amber-300/80 dark:border-amber-800/70 text-amber-700 dark:text-amber-300 cursor-not-allowed'
+                          : portionStats.isComplete
+                          ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-500/30 cursor-pointer active:scale-90'
                           : portionStats.isPartial
-                          ? 'bg-amber-500/20 border-2 border-amber-500 text-amber-800 dark:text-amber-300 font-mono text-[9px] font-black'
-                          : 'bg-slate-100 dark:bg-slate-800 text-transparent border-2 border-slate-400 dark:border-slate-600 hover:border-teal-600'
+                          ? 'bg-amber-500/20 border-2 border-amber-500 text-amber-800 dark:text-amber-300 font-mono text-[9px] font-black cursor-pointer active:scale-90'
+                          : 'bg-slate-100 dark:bg-slate-800 text-transparent border-2 border-slate-400 dark:border-slate-600 hover:border-teal-600 cursor-pointer active:scale-90'
                       }"
                     >
-                      ${portionStats.isComplete ? '✓' : portionStats.isPartial ? portionStats.percent + '%' : '✓'}
+                      ${isUdhrExempted ? '🌿' : (portionStats.isComplete ? '✓' : portionStats.isPartial ? portionStats.percent + '%' : '✓')}
                     </button>
 
                     <div class="flex-1 min-w-0 space-y-1">
@@ -3466,7 +3781,22 @@
                             ⏰ ${task.targetTimeHint}
                           </span>
                         ` : ''}
-                        ${portionStats.hasPortions ? `
+                        ${isUdhrExempted ? `
+                          <span data-testid="udhr-exempted-badge-${task.id}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold font-malayalam bg-amber-100 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300/90 dark:border-amber-700/70">
+                            🌿 ഉദ്ർ (Exempted)
+                          </span>
+                        ` : ''}
+                        ${isSafarRawatib ? `
+                          <span data-testid="safar-waived-tag" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold font-malayalam bg-sky-100 dark:bg-sky-950/70 text-sky-900 dark:text-sky-200 border border-sky-300/90 dark:border-sky-700/70">
+                            ✈️ യാത്രയിൽ ഒഴിവാക്കപ്പെട്ടത് (Sunnah waived in travel)
+                          </span>
+                        ` : ''}
+                        ${isSafarFard ? `
+                          <span class="text-[11px] font-bold font-malayalam text-sky-800 dark:text-sky-300">
+                            · ✈️ ഖസ്ർ / ജംഅ് (Qasr/Jam')
+                          </span>
+                        ` : ''}
+                        ${portionStats.hasPortions && !isUdhrExempted ? `
                           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-extrabold ${
                             portionStats.isComplete
                               ? 'bg-emerald-700 text-white'
@@ -3476,7 +3806,8 @@
                           }">
                             ${portionStats.percent}% (${portionStats.completedPortions}/${portionStats.totalPortions} ${portionStats.unit})
                           </span>
-                        ` : (hasSubtasks ? `
+                          ${isRawatib && !isSafarRawatib ? renderJannahHouseSvg(portionStats.completedPortions, false) : ''}
+                        ` : (hasSubtasks && !isUdhrExempted ? `
                           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
                             subtasksDone === subtasksTotal
                               ? 'bg-emerald-700 text-white'
@@ -3487,9 +3818,19 @@
                         ` : '')}
                       </div>
 
+                      ${isJannahComplete ? `
+                        <div data-testid="jannah-house-complete-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-extrabold bg-amber-100/90 dark:bg-amber-950/55 text-amber-950 dark:text-amber-200 border border-amber-400/80 dark:border-amber-500/50 shadow-2xs">
+                          <span class="font-arabic text-xs font-bold" dir="rtl">بيت في الجنة</span>
+                          <span aria-hidden="true">•</span>
+                          <span class="font-malayalam">സ്വർഗ്ഗത്തിൽ ഒരു ഭവനം പൂർത്തിയായി!</span>
+                        </div>
+                      ` : ''}
+
                       <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1">
                         <h3 class="text-sm sm:text-base font-extrabold leading-snug ${
-                          portionStats.isComplete
+                          isUdhrExempted
+                            ? 'text-slate-500 dark:text-slate-400'
+                            : portionStats.isComplete
                             ? 'line-through text-emerald-900 dark:text-emerald-300 opacity-85'
                             : 'text-slate-900 dark:text-white'
                         }">
@@ -3502,7 +3843,7 @@
                         ` : ''}
                       </div>
 
-                      ${portionStats.hasPortions ? `
+                      ${portionStats.hasPortions && !isUdhrExempted ? `
                         <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
                           <div
                             class="h-full rounded-full transition-all duration-300 ${
@@ -3562,34 +3903,45 @@
 
                 ${hasSubtasks ? `
                   <div class="mt-3 pt-3 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                    ${task.subtasks.map(sub => `
+                    ${task.subtasks.map(sub => {
+                      const isSubDisabled = isUdhrExempted || (isSafarRawatib && isRawatibSubtaskWaivedInCurrentMode(sub.id));
+                      const isSafarFajrActive = isSafarRawatib && sub.id === 'rawatib-fajr';
+                      return `
                       <button
                         type="button"
                         data-toggle-subtask="${task.id}"
                         data-subtask-id="${sub.id}"
                         data-testid="subtask-${task.id}-${sub.id}"
-                        class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-left transition-all cursor-pointer active:scale-98 ${
-                          sub.completed
-                            ? 'bg-emerald-600/15 dark:bg-emerald-950/50 border-emerald-500/70 text-emerald-950 dark:text-emerald-200 font-extrabold'
-                            : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 font-bold hover:border-teal-500'
+                        ${isSubDisabled ? 'disabled aria-disabled="true"' : ''}
+                        class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border text-left transition-all ${
+                          isSubDisabled
+                            ? 'bg-slate-100/70 dark:bg-slate-800/40 border-slate-200/70 dark:border-slate-800 text-slate-400 dark:text-slate-500 opacity-60 cursor-not-allowed'
+                            : sub.completed
+                            ? 'bg-emerald-600/15 dark:bg-emerald-950/50 border-emerald-500/70 text-emerald-950 dark:text-emerald-200 font-extrabold cursor-pointer active:scale-98'
+                            : isSafarFajrActive
+                            ? 'bg-emerald-50/80 dark:bg-emerald-950/35 border-emerald-400/80 dark:border-emerald-700 text-emerald-950 dark:text-emerald-100 font-extrabold cursor-pointer active:scale-98'
+                            : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 font-bold hover:border-teal-500 cursor-pointer active:scale-98'
                         }"
                       >
                         <div class="flex items-center gap-2 min-w-0">
                           <span class="w-4 h-4 rounded-md flex items-center justify-center text-[10px] font-black shrink-0 ${
-                            sub.completed
+                            isSubDisabled
+                              ? 'bg-slate-200/70 dark:bg-slate-700/60 text-slate-400 dark:text-slate-500'
+                              : sub.completed
                               ? 'bg-emerald-600 text-white'
                               : 'bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-600 text-transparent'
                           }">
-                            ✓
+                            ${isSubDisabled ? '–' : '✓'}
                           </span>
                           <div class="truncate">
-                            <div class="text-xs truncate">${sub.label}</div>
-                            ${sub.malayalamLabel ? `<div class="text-[10px] font-malayalam text-slate-500 dark:text-slate-400 truncate">${sub.malayalamLabel}</div>` : ''}
+                            <div class="text-xs truncate">${sub.label}${isSafarFajrActive ? ' • സുന്നത്ത്' : ''}</div>
+                            ${sub.malayalamLabel ? `<div class="text-[10px] font-malayalam text-slate-500 dark:text-slate-400 truncate">${isSafarRawatib && isSubDisabled ? 'യാത്രയിൽ ഒഴിവാക്കി' : sub.malayalamLabel}</div>` : ''}
                           </div>
                         </div>
                         ${sub.arabicLabel ? `<span class="font-arabic text-xs font-bold text-teal-800 dark:text-teal-300 shrink-0" dir="rtl">${sub.arabicLabel}</span>` : ''}
                       </button>
-                    `).join('')}
+                      `;
+                    }).join('')}
                   </div>
                 ` : ''}
 
@@ -4440,6 +4792,7 @@
             if (els.autoplayAllBtnLabel) els.autoplayAllBtnLabel.textContent = 'Autoplay All';
           }
         }
+        if (typeof syncTravelAudioButtonsUI === 'function') syncTravelAudioButtonsUI();
       }
 
       function onCardAudioFinished(finishedItemId) {
@@ -4917,9 +5270,22 @@
       }
 
       function toggleTaskById(taskId) {
-        const wasTasksAllDone = state.tasks.length > 0 && state.tasks.every(t => isTaskEffectivelyCompleted(t));
+        const targetTask = state.tasks.find(t => t.id === taskId);
+        if (!targetTask || isTaskExemptedInCurrentMode(targetTask)) return;
+        const activeBefore = getActiveTasksForProgress();
+        const wasTasksAllDone = activeBefore.length > 0 && activeBefore.every(t => isTaskEffectivelyCompleted(t));
         state.tasks = state.tasks.map(task => {
           if (task.id !== taskId) return task;
+          if (isRawatibTaskId(task.id) && state.travelMode === 'safar') {
+            const fajrSub = (task.subtasks || []).find(s => s.id === 'rawatib-fajr');
+            const nextFajr = !(fajrSub && fajrSub.completed);
+            playTapBeep();
+            if (nextFajr) triggerVibration(30);
+            const updatedSubs = (task.subtasks || []).map(s =>
+              s.id === 'rawatib-fajr' ? { ...s, completed: nextFajr } : s
+            );
+            return { ...task, completed: nextFajr, subtasks: updatedSubs };
+          }
           const hasSubs = Array.isArray(task.subtasks) && task.subtasks.length > 0;
           const allSubsDone = hasSubs ? task.subtasks.every(s => s.completed) : task.completed;
           const nextCompleted = hasSubs ? !(task.completed && allSubsDone) : !task.completed;
@@ -4938,14 +5304,19 @@
         saveTasksState();
         updateTabsUI();
         renderTasksView();
-        const isTasksNowAllDone = state.tasks.length > 0 && state.tasks.every(t => isTaskEffectivelyCompleted(t));
+        const activeAfter = getActiveTasksForProgress();
+        const isTasksNowAllDone = activeAfter.length > 0 && activeAfter.every(t => isTaskEffectivelyCompleted(t));
         if (!wasTasksAllDone && isTasksNowAllDone) {
           triggerCompletionOverlay('tasks');
         }
       }
 
       function toggleSubtaskById(taskId, subtaskId) {
-        const wasTasksAllDone = state.tasks.length > 0 && state.tasks.every(t => isTaskEffectivelyCompleted(t));
+        const targetTask = state.tasks.find(t => t.id === taskId);
+        if (!targetTask || isTaskExemptedInCurrentMode(targetTask)) return;
+        if (isRawatibTaskId(taskId) && isRawatibSubtaskWaivedInCurrentMode(subtaskId)) return;
+        const activeBefore = getActiveTasksForProgress();
+        const wasTasksAllDone = activeBefore.length > 0 && activeBefore.every(t => isTaskEffectivelyCompleted(t));
         state.tasks = state.tasks.map(task => {
           if (task.id !== taskId || !task.subtasks) return task;
           const updatedSubs = task.subtasks.map(s => s.id === subtaskId ? { ...s, completed: !s.completed } : s);
@@ -4967,7 +5338,8 @@
         saveTasksState();
         updateTabsUI();
         renderTasksView();
-        const isTasksNowAllDone = state.tasks.length > 0 && state.tasks.every(t => isTaskEffectivelyCompleted(t));
+        const activeAfter = getActiveTasksForProgress();
+        const isTasksNowAllDone = activeAfter.length > 0 && activeAfter.every(t => isTaskEffectivelyCompleted(t));
         if (!wasTasksAllDone && isTasksNowAllDone) {
           triggerCompletionOverlay('tasks');
         }
@@ -5515,11 +5887,21 @@
       }
 
       els.completeAllTasksBtn.addEventListener('click', function() {
-        state.tasks = state.tasks.map(t => ({
-          ...t,
-          completed: true,
-          subtasks: t.subtasks ? t.subtasks.map(s => ({ ...s, completed: true })) : undefined
-        }));
+        state.tasks = state.tasks.map(t => {
+          if (isTaskExemptedInCurrentMode(t)) return t;
+          if (isRawatibTaskId(t.id) && state.travelMode === 'safar') {
+            return {
+              ...t,
+              completed: true,
+              subtasks: t.subtasks ? t.subtasks.map(s => s.id === 'rawatib-fajr' ? { ...s, completed: true } : s) : undefined
+            };
+          }
+          return {
+            ...t,
+            completed: true,
+            subtasks: t.subtasks ? t.subtasks.map(s => ({ ...s, completed: true })) : undefined
+          };
+        });
         saveTasksState();
         updateTabsUI();
         renderTasksView();
@@ -8260,6 +8642,7 @@
           if (els.headerCategoryLabel) els.headerCategoryLabel.textContent = 'ഖളാഅ് & മുദ്ദ്';
           if (els.headerCategoryArabic) els.headerCategoryArabic.textContent = 'قضاء الصلاة والصيام';
           if (els.headerProgressContainer) els.headerProgressContainer.classList.add('hidden');
+          if (typeof syncTravelModeVisibility === 'function') syncTravelModeVisibility();
           renderQadaDashboard();
         } else {
           if (qadaEls.view) qadaEls.view.classList.add('hidden');
@@ -8270,6 +8653,7 @@
             if (els.categoryGridSection) els.categoryGridSection.classList.remove('hidden');
             if (els.categoryDetailView) els.categoryDetailView.classList.add('hidden');
           }
+          if (typeof syncTravelModeVisibility === 'function') syncTravelModeVisibility();
           updateTabsUI();
           updateCategoryProgress();
         }
@@ -8470,6 +8854,310 @@
           handleQadaStep('mudd', 1);
         });
       }
+
+      // ================= SAFAR & UDHR MODE + TRAVEL ADHKAR CONTROLLER =================
+      const TRAVEL_ADHKAR_ITEMS = [
+        {
+          id: 'travel-dhikr-riding',
+          titleMl: 'വാഹനത്തിൽ കയറുമ്പോഴുള്ള ദിക്ർ',
+          titleEn: 'Mounting a Vehicle',
+          arabic: 'سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَٰذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ ۝ وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ',
+          meaningMl: 'ഇതിനെ ഞങ്ങൾക്ക് വിധേയമാക്കിത്തന്ന അല്ലാഹു എത്ര പരിശുദ്ധൻ! ഞങ്ങൾക്ക് ഇതിനെ കീഴ്പ്പെടുത്താൻ കഴിയുമായിരുന്നില്ല. തീർച്ചയായും ഞങ്ങൾ ഞങ്ങളുടെ രക്ഷിതാവിലേക്ക് മടങ്ങുന്നവരാകുന്നു.',
+          source: 'സൂറത്തുസ്സുഖ്റുഫ് 13–14 · മുസ്ലിം'
+        },
+        {
+          id: 'travel-dhikr-dua',
+          titleMl: 'യാത്രാ പ്രാർത്ഥന',
+          titleEn: 'Travel Supplication',
+          arabic: 'اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَٰذَا الْبِرَّ وَالتَّقْوَىٰ، وَمِنَ الْعَمَلِ مَا تَرْضَىٰ، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَٰذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ، وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ',
+          meaningMl: 'അല്ലാഹുവേ, ഞങ്ങളുടെ ഈ യാത്രയിൽ നിന്നോട് പുണ്യവും ഭക്തിയും നിനക്ക് തൃപ്തിയുള്ള കർമ്മവും ഞങ്ങൾ ചോദിക്കുന്നു. ഈ യാത്ര ഞങ്ങൾക്ക് എളുപ്പമാക്കിത്തരുകയും അതിന്റെ ദൂരം ചുരുക്കിത്തരുകയും ചെയ്യേണമേ. യാത്രയിലെ സഹയാത്രികനും കുടുംബത്തിലെ സംരക്ഷകനും നീയാണ്. യാത്രയുടെ ക്ലേശങ്ങളിൽ നിന്നും ദുഃഖകരമായ കാഴ്ചകളിൽ നിന്നും ധനത്തിലും കുടുംബത്തിലുമുള്ള ചീത്ത പരിണതിയിൽ നിന്നും നിന്നോട് ഞാൻ അഭയം തേടുന്നു.',
+          source: 'സ്വഹീഹ് മുസ്ലിം 1342'
+        },
+        {
+          id: 'travel-dhikr-return',
+          titleMl: 'മടക്കയാത്രാ ദിക്ർ',
+          titleEn: 'Returning from Travel',
+          arabic: 'آيِبُونَ تَائِبُونَ عَابِدُونَ لِرَبِّنَا حَامِدُونَ',
+          meaningMl: 'ഞങ്ങൾ മടങ്ങുന്നവരും പശ്ചാത്തപിക്കുന്നവരും അല്ലാഹുവിനെ ആരാധിക്കുന്നവരും ഞങ്ങളുടെ രക്ഷിതാവിനെ സ്തുതിക്കുന്നവരുമാകുന്നു.',
+          source: 'സ്വഹീഹ് ബുഖാരി 1797 · മുസ്ലിം 1342'
+        }
+      ];
+
+      const modeEls = {
+        toggleBtn: document.getElementById('modeToggleBtn'),
+        toggleIcon: document.getElementById('modeToggleIcon'),
+        toggleLabel: document.getElementById('modeToggleLabel'),
+        modal: document.getElementById('modeSelectorModal'),
+        closeBtn: document.getElementById('closeModeSelectorBtn'),
+        hadithBanner: document.getElementById('safarUdhrHadithBanner'),
+        statusMeta: document.getElementById('safarUdhrStatusMeta'),
+        bannerChangeBtn: document.getElementById('hadithBannerChangeModeBtn'),
+        travelCard: document.getElementById('travelAdhkarCard'),
+        travelList: document.getElementById('travelAdhkarList'),
+        travelCollapseBtn: document.getElementById('toggleTravelAdhkarCollapseBtn')
+      };
+
+      function syncTravelModeToFirebase() {
+        try {
+          if (typeof window !== 'undefined' && window.firebase && typeof window.firebase.firestore === 'function') {
+            const user = window.firebase.auth && window.firebase.auth().currentUser;
+            if (user && user.uid) {
+              window.firebase.firestore().collection('mudawama_users').doc(user.uid).set({
+                travelMode: state.travelMode,
+                protectedModeDates: state.streak.protectedModeDates || {}
+              }, { merge: true }).catch(function() {});
+            }
+          }
+        } catch (fbErr) {}
+      }
+
+      function syncTravelAudioButtonsUI() {
+        document.querySelectorAll('.travel-tts-btn').forEach(function(btn) {
+          const tid = btn.getAttribute('data-travel-tts');
+          const isPlaying = state.playingId === tid && state.playbackStatus === 'playing';
+          if (isPlaying) {
+            btn.className = 'travel-tts-btn min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-extrabold font-malayalam inline-flex items-center gap-1.5 bg-sky-700 hover:bg-sky-800 text-white shadow-2xs cursor-pointer active:scale-95 transition-all shrink-0';
+            btn.innerHTML = '<span>⏸</span><span>നിർത്തുക</span>';
+          } else {
+            btn.className = 'travel-tts-btn min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-extrabold font-malayalam inline-flex items-center gap-1.5 bg-sky-100 hover:bg-sky-200 dark:bg-sky-950/70 dark:hover:bg-sky-900/80 text-sky-900 dark:text-sky-200 border border-sky-300/80 dark:border-sky-800 cursor-pointer active:scale-95 transition-all shrink-0';
+            btn.innerHTML = '<span>🔊</span><span>കേൾക്കുക</span>';
+          }
+        });
+      }
+
+      function playTravelDhikrTts(travelId) {
+        const item = TRAVEL_ADHKAR_ITEMS.find(function(x) { return x.id === travelId; });
+        if (!item) return;
+        if (state.playingId === travelId && state.playbackStatus === 'playing') {
+          stopAndUnloadCurrentAudio();
+          return;
+        }
+        stopAutoplayAll();
+        stopAndUnloadCurrentAudio();
+
+        const token = ++audioPlaybackToken;
+        state.playingId = travelId;
+        state.playbackStatus = 'playing';
+        syncAudioButtonsUI();
+
+        const cleanArabic = item.arabic.replace(/۝/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!('speechSynthesis' in window)) {
+          stopAndUnloadCurrentAudio();
+          return;
+        }
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(cleanArabic);
+          utterance.lang = 'ar-SA';
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
+          const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+          const arVoices = voices.filter(function(v) { return (v.lang || '').toLowerCase().startsWith('ar'); });
+          if (arVoices.length > 0) {
+            const preferred = arVoices.find(function(v) {
+              const name = (v.name || '').toLowerCase();
+              return name.includes('sa') || name.includes('maged') || name.includes('tariq') || name.includes('naayf') || name.includes('natural');
+            }) || arVoices[0];
+            if (preferred) utterance.voice = preferred;
+          }
+          utterance.onend = function() {
+            if (audioPlaybackToken === token && state.playingId === travelId) {
+              stopAndUnloadCurrentAudio();
+            }
+          };
+          utterance.onerror = function() {
+            if (audioPlaybackToken === token && state.playingId === travelId) {
+              stopAndUnloadCurrentAudio();
+            }
+          };
+          currentUtterance = utterance;
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {
+          stopAndUnloadCurrentAudio();
+        }
+      }
+
+      function renderTravelAdhkarCard() {
+        if (!modeEls.travelList) return;
+        modeEls.travelList.innerHTML = TRAVEL_ADHKAR_ITEMS.map(function(item) {
+          return `
+            <div class="p-4 space-y-2.5" data-testid="travel-dhikr-item-${item.id}">
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <h3 class="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white font-malayalam truncate">${item.titleMl}</h3>
+                  <div class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${item.titleEn} · ${item.source}</div>
+                </div>
+                <button
+                  type="button"
+                  data-travel-tts="${item.id}"
+                  data-testid="travel-tts-${item.id}"
+                  aria-label="Listen to ${item.titleEn} in Arabic"
+                  class="travel-tts-btn min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-extrabold font-malayalam inline-flex items-center gap-1.5 bg-sky-100 hover:bg-sky-200 dark:bg-sky-950/70 dark:hover:bg-sky-900/80 text-sky-900 dark:text-sky-200 border border-sky-300/80 dark:border-sky-800 cursor-pointer active:scale-95 transition-all shrink-0"
+                >
+                  <span>🔊</span><span>കേൾക്കുക</span>
+                </button>
+              </div>
+              <p class="font-arabic text-lg sm:text-xl font-bold leading-loose text-right text-slate-900 dark:text-slate-50" dir="rtl">${item.arabic}</p>
+              <p class="font-malayalam text-xs leading-relaxed font-semibold text-slate-700 dark:text-slate-300">${item.meaningMl}</p>
+            </div>
+          `;
+        }).join('');
+        modeEls.travelList.classList.toggle('hidden', Boolean(state.travelAdhkarCollapsed));
+        if (modeEls.travelCollapseBtn) {
+          modeEls.travelCollapseBtn.textContent = state.travelAdhkarCollapsed ? '▸' : '▾';
+          modeEls.travelCollapseBtn.setAttribute('aria-expanded', String(!state.travelAdhkarCollapsed));
+        }
+        syncTravelAudioButtonsUI();
+      }
+
+      function syncTravelModeVisibility() {
+        const mode = state.travelMode || 'normal';
+        const isMudawama = state.mainView !== 'qada';
+        const showBanner = isMudawama && (mode === 'safar' || mode === 'udhr');
+        const showTravelCard = isMudawama && mode === 'safar' && (!state.isCategoryOpen || state.activeTab === 'tasks');
+
+        if (modeEls.hadithBanner) {
+          modeEls.hadithBanner.classList.toggle('hidden', !showBanner);
+          if (mode === 'safar') {
+            modeEls.hadithBanner.className = (showBanner ? '' : 'hidden ') +
+              'rounded-2xl p-3.5 border transition-colors space-y-2 bg-sky-50/95 dark:bg-sky-950/35 border-sky-200/90 dark:border-sky-800/70 text-sky-950 dark:text-sky-100';
+            if (modeEls.statusMeta) {
+              modeEls.statusMeta.innerHTML = '<span>✈️</span><span>യാത്രാ മോഡ് (Safar) · Streak Protected ❄️</span>';
+            }
+          } else if (mode === 'udhr') {
+            modeEls.hadithBanner.className = (showBanner ? '' : 'hidden ') +
+              'rounded-2xl p-3.5 border transition-colors space-y-2 bg-amber-50/95 dark:bg-amber-950/30 border-amber-200/90 dark:border-amber-800/70 text-amber-950 dark:text-amber-100';
+            if (modeEls.statusMeta) {
+              modeEls.statusMeta.innerHTML = '<span>🌿</span><span>ഉദ്ർ മോഡ് (Udhr) · Streak Protected ❄️</span>';
+            }
+          }
+        }
+
+        if (modeEls.travelCard) {
+          modeEls.travelCard.classList.toggle('hidden', !showTravelCard);
+        }
+      }
+
+      function renderTravelModeUI() {
+        const mode = state.travelMode || 'normal';
+        if (modeEls.toggleBtn && modeEls.toggleIcon && modeEls.toggleLabel) {
+          if (mode === 'safar') {
+            modeEls.toggleIcon.textContent = '✈️';
+            modeEls.toggleLabel.innerHTML = 'യാത്ര <span class="hidden min-[370px]:inline opacity-90 font-sans font-bold">(Safar)</span>';
+            modeEls.toggleBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold font-malayalam whitespace-nowrap transition-all border cursor-pointer active:scale-95 bg-sky-400/25 text-sky-50 border-sky-300/75 shadow-[0_0_12px_rgba(56,189,248,0.45)] hover:bg-sky-400/35 shrink-0';
+          } else if (mode === 'udhr') {
+            modeEls.toggleIcon.textContent = '🌿';
+            modeEls.toggleLabel.innerHTML = 'ഉദ്ർ <span class="hidden min-[370px]:inline opacity-90 font-sans font-bold">(Udhr)</span>';
+            modeEls.toggleBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold font-malayalam whitespace-nowrap transition-all border cursor-pointer active:scale-95 bg-amber-400/25 text-amber-50 border-amber-300/75 shadow-[0_0_12px_rgba(251,191,36,0.45)] hover:bg-amber-400/35 shrink-0';
+          } else {
+            modeEls.toggleIcon.textContent = '🏠';
+            modeEls.toggleLabel.innerHTML = 'നാട്ടിൽ <span class="hidden min-[370px]:inline opacity-85 font-sans font-bold">(Resident)</span>';
+            modeEls.toggleBtn.className = 'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold font-malayalam whitespace-nowrap transition-all border cursor-pointer active:scale-95 bg-white/12 text-white/95 border-white/20 hover:bg-white/22 shrink-0';
+          }
+        }
+
+        document.querySelectorAll('.mode-option-btn').forEach(function(btn) {
+          const opt = btn.getAttribute('data-select-mode');
+          const isSelected = opt === mode;
+          const checkEl = btn.querySelector('.mode-option-check');
+          if (isSelected) {
+            const activeColors = opt === 'safar'
+              ? 'bg-sky-50 dark:bg-sky-950/45 border-sky-500 ring-1 ring-sky-400/40'
+              : opt === 'udhr'
+              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-500 ring-1 ring-amber-400/40'
+              : 'bg-emerald-50 dark:bg-emerald-950/45 border-emerald-600 ring-1 ring-emerald-500/40';
+            btn.className = 'mode-option-btn w-full min-h-[60px] p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99] ' + activeColors;
+            if (checkEl) {
+              checkEl.textContent = '✓';
+              checkEl.className = 'mode-option-check w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 text-white ' +
+                (opt === 'safar' ? 'bg-sky-600' : opt === 'udhr' ? 'bg-amber-600' : 'bg-[#0d5c3a]');
+            }
+          } else {
+            btn.className = 'mode-option-btn w-full min-h-[60px] p-3.5 rounded-2xl border text-left flex items-center justify-between gap-3 transition-all cursor-pointer active:scale-[0.99] bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-emerald-500/60';
+            if (checkEl) {
+              checkEl.textContent = '';
+              checkEl.className = 'mode-option-check w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center text-[11px] font-black shrink-0';
+            }
+          }
+        });
+
+        syncTravelModeVisibility();
+      }
+
+      function openModeSelectorModal() {
+        renderTravelModeUI();
+        if (modeEls.modal) modeEls.modal.classList.remove('hidden');
+      }
+
+      function closeModeSelectorModal() {
+        if (modeEls.modal) modeEls.modal.classList.add('hidden');
+      }
+
+      function setTravelMode(nextMode) {
+        const normalized = (nextMode === 'safar' || nextMode === 'udhr') ? nextMode : 'normal';
+        state.travelMode = normalized;
+        if (normalized === 'safar' || normalized === 'udhr') {
+          if (!state.streak.protectedModeDates || typeof state.streak.protectedModeDates !== 'object') {
+            state.streak.protectedModeDates = {};
+          }
+          state.streak.protectedModeDates[getTodayString()] = normalized;
+        }
+        if (normalized !== 'safar' && state.playingId && state.playingId.indexOf('travel-dhikr-') === 0) {
+          stopAndUnloadCurrentAudio();
+        }
+        saveState();
+        syncTravelModeToFirebase();
+        recalculateDynamicStreak();
+        renderStreakBadge();
+        renderTravelModeUI();
+        renderTasksView();
+        updateTabsUI();
+        renderProgressView();
+        playTapBeep();
+        triggerVibration(25);
+        closeModeSelectorModal();
+      }
+
+      if (modeEls.toggleBtn) {
+        modeEls.toggleBtn.addEventListener('click', openModeSelectorModal);
+      }
+      if (modeEls.bannerChangeBtn) {
+        modeEls.bannerChangeBtn.addEventListener('click', openModeSelectorModal);
+      }
+      if (modeEls.closeBtn) {
+        modeEls.closeBtn.addEventListener('click', closeModeSelectorModal);
+      }
+      if (modeEls.modal) {
+        modeEls.modal.addEventListener('click', function(e) {
+          if (e.target === modeEls.modal) closeModeSelectorModal();
+        });
+      }
+      document.querySelectorAll('.mode-option-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          setTravelMode(btn.getAttribute('data-select-mode'));
+        });
+      });
+      if (modeEls.travelCollapseBtn) {
+        modeEls.travelCollapseBtn.addEventListener('click', function() {
+          state.travelAdhkarCollapsed = !state.travelAdhkarCollapsed;
+          if (modeEls.travelList) {
+            modeEls.travelList.classList.toggle('hidden', state.travelAdhkarCollapsed);
+          }
+          modeEls.travelCollapseBtn.textContent = state.travelAdhkarCollapsed ? '▸' : '▾';
+          modeEls.travelCollapseBtn.setAttribute('aria-expanded', String(!state.travelAdhkarCollapsed));
+        });
+      }
+      if (modeEls.travelList) {
+        modeEls.travelList.addEventListener('click', function(e) {
+          const btn = e.target && e.target.closest ? e.target.closest('[data-travel-tts]') : null;
+          if (!btn) return;
+          playTravelDhikrTts(btn.getAttribute('data-travel-tts'));
+        });
+      }
+
+      renderTravelAdhkarCard();
+      renderTravelModeUI();
 
       updateTheme(state.settings.theme);
       saveTasksState();

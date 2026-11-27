@@ -613,3 +613,47 @@ test('index.html includes minimalist Qada & Mudd Tracker with pill-switcher, cal
   assert.ok(html.includes('mudawama_qada_state'), 'Must persist Qada & Mudd state in localStorage');
   assert.ok(html.includes('triggerQadaCelebration'), 'Must trigger celebration overlay on Qada milestones');
 });
+
+test('index.html includes House in Jannah Rawatib progress indicator and Safar & Udhr Mode with Hadith banner, Travel Adhkar TTS, and streak protection', () => {
+  const html = generateSingleFileHtml();
+
+  // 1. House in Jannah progress indicator on 12 Sunnah Rawatib card
+  assert.ok(html.includes('data-testid="jannah-house-indicator"'), 'Must render House in Jannah SVG indicator');
+  assert.ok(html.includes('jannah-house-glow'), 'Must include golden glow animation for completed House in Jannah');
+  assert.ok(
+    html.includes('بيت في الجنة') && html.includes('സ്വർഗ്ഗത്തിൽ ഒരു ഭവനം പൂർത്തിയായി!'),
+    'Must show Malayalam/Arabic House in Jannah completion badge when all 12 rakahs are done'
+  );
+
+  // 2. Header toggle pill & quick-selector sheet
+  assert.ok(html.includes('id="modeToggleBtn"') && html.includes('നാട്ടിൽ') && html.includes('(Resident)'), 'Must include header Resident/Safar/Udhr pill');
+  assert.ok(html.includes('id="modeSelectorModal"'), 'Must include quick-selector modal sheet');
+  assert.ok(
+    html.includes('data-select-mode="safar"') &&
+      html.includes('data-select-mode="udhr"') &&
+      html.includes('data-select-mode="normal"'),
+    'Must include Safar, Udhr, and Normal mode options'
+  );
+
+  // 3. Hadith Reassurance Banner & Streak Freeze protection
+  assert.ok(html.includes('id="safarUdhrHadithBanner"'), 'Must include Hadith reassurance banner');
+  assert.ok(
+    html.includes('إِذَا مَرِضَ الْعَبْدُ أَوْ سَافَرَ كُتِبَ لَهُ مِثْلُ مَا كَانَ يَعْمَلُ مُقِيمًا صَحِيحًا') &&
+      html.includes('യാത്രയിലോ രോഗാവസ്ഥയിലോ ആയിരിക്കുമ്പോൾ, നാട്ടിൽ ആരോഗ്യത്തോടെ ഇരുന്നപ്പോൾ ചെയ്തിരുന്ന അമലുകളുടെ പൂർണ്ണ പ്രതിഫലം രേഖപ്പെടുത്തപ്പെടും (ബുഖാരി).'),
+    'Must include exact Bukhari Hadith in Arabic and Malayalam'
+  );
+  assert.ok(html.includes('mudawama_travel_mode') && html.includes('protectedModeDates'), 'Must persist travel mode and protected streak dates');
+
+  // 4. Travel Adhkar card with Arabic TTS & contextual task adaptation
+  assert.ok(html.includes('id="travelAdhkarCard"') && html.includes('യാത്രാ ദിക്റുകൾ'), 'Must include Travel Adhkar card');
+  assert.ok(
+    html.includes('വാഹനത്തിൽ കയറുമ്പോഴുള്ള ദിക്ർ') &&
+      html.includes('യാത്രാ പ്രാർത്ഥന') &&
+      html.includes('മടക്കയാത്രാ ദിക്ർ') &&
+      html.includes('playTravelDhikrTts'),
+    'Must include all 3 Travel Adhkar items and Arabic TTS player'
+  );
+  assert.ok(html.includes('യാത്രയിൽ ഒഴിവാക്കപ്പെട്ടത് (Sunnah waived in travel)'), 'Must tag Rawatib card in Safar mode');
+  assert.ok(html.includes('ഉദ്ർ (Exempted)'), 'Must tag prayer cards as exempted in Udhr mode');
+});
+
